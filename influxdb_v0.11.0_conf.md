@@ -1,5 +1,7 @@
 
 
+配置文件取自：[这里](https://raw.githubusercontent.com/influxdb/influxdb/v0.11.0/etc/config.sample.toml)
+
 ```shell
 ### Welcome to the InfluxDB configuration file.
 
@@ -19,8 +21,9 @@ reporting-disabled = false
 ###
 ### [meta]
 ###
-### 针对 Raft consensus group 的参数进行设置；其中保存了和 InfluxDB cluster
-### 相关的 metadata
+### Controls the parameters for the Raft consensus group that stores metadata
+### about the InfluxDB cluster.
+### 针对 Raft consensus group 的参数进行设置；
 ###
 
 [meta]
