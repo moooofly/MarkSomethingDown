@@ -15,27 +15,28 @@ Related entries: function, selector, transformation
 
 # cluster
 
-A collection of servers running InfluxDB nodes. All nodes in a cluster have the same users, databases, retention policies, and continuous queries. See Cluster Setup for how to set up an InfluxDB cluster.
+运行 InfluxDB node 的一组服务器；归属同一 cluster 的所有 node 共享相同的 users, databases, retention policies, 和 continuous queries ； 如何建立一个 InfluxDB cluster 详见 [Cluster Setup]() ；
 
 Related entries: node, server
 
 # consensus node
 
-A node running only the consensus service.
+仅运行 consensus service 的 node 
 
-See Cluster Node Configuration.
+详见 [Cluster Node Configuration]() ；
 
 Related entries: cluster, consensus service, data node, node, hybrid node
 
 # consensus service
 
-The InfluxDB service that participates in the raft consensus group. A cluster must have at least three nodes running the consensus service (consensus or hybrid nodes), but it can have more. There should be an odd number of nodes running the consensus service in a cluster.
+会参与到 raft consensus group 中的 InfluxDB service ；一个 cluster 中必须至少存在 3 个运行 consensus service（基于 consensus 或 hybrid node）的 node ；但允许有更多的 node 运行相应的服务；在一个 cluster 中要求存在奇数运行 consensus service 的 node ；
 
-The number of consensus services that can fail before the cluster is degraded is ⌈n/2 + 1⌉ where nis the number of consensus services in the cluster. Thus, an even number of consensus services offer no additional redundancy or resiliency.
 
-The consensus service ensures consistency across the cluster for node membership, databases, retention policies, users, continuous queries, shard metadata, and subscriptions.
+在 cluster 功能降级（degraded）前允许失效的 consensus services 的数量为 ⌈n/2 + 1⌉ ，其中 n 为 cluster 中 consensus services 的数量；因此，偶数个 consensus services 并不会提供额外的冗余或弹性；
 
-See Cluster Node Configuration.
+consensus service 用于在 cluster 中确保以下内容的一致性：node membership, databases, retention policies, users, continuous queries, shard metadata, 和 subscriptions ；
+
+See [Cluster Node Configuration]() ；
 
 Related entries: cluster, consensus node, data service, node, hybrid node
 
@@ -47,29 +48,29 @@ Related entries: function
 
 # coordinator node
 
-The node that receives write and query requests for the cluster.
+能够为 cluster 分担 write 和 query 请求的 node ；
 
 Related entries: cluster, hinted handoff, node
 
 # data node
 
-A node running only the data service.
+仅运行 data service 的 node ；
 
-See Cluster Node Configuration.
+See [Cluster Node Configuration]() ；
 
 Related entries: cluster, consensus node, data service, node, hybrid node
 
 # data service
 
-The InfluxDB service that persists time-series data to the node. A cluster must have at least one node (data or hybrid nodes) running the data service, but may have any number beyond one.
+用于持久化时间序列数据到 node 上的 InfluxDB service ；一个 cluster 中必须至少存在一个运行 data service 的 node（可以是 data 或 hybrid node），但是允许运行更多数量的 data node ；
 
-See Cluster Node Configuration.
+See [Cluster Node Configuration]() ；
 
 Related entries: cluster, consensus node, consensus service, node, hybrid node
 
 # database
 
-A logical container for users, retention policies, continuous queries, and time series data.
+保存 users, retention policies, continuous queries, 和时间序列数据的逻辑容器；
 
 Related entries: continuous query, retention policy, user
 
@@ -117,15 +118,15 @@ Related entries: aggregation, selector, transformation
 
 # hinted handoff
 
-A durable queue of data destined for a server which was unavailable at the time the data was received. Coordinating nodes temporarily store queued data when a target node for a write is down for a short period of time.
+当数据被接收到时，若目标服务器不可用，则使用一个持久化 queue 进行数据的保存；当 write 操作的目标 node 处于短暂的 down 状态时，Coordinating nodes 将会暂时负责存储这些需要压入 queue 中的数据；
 
 Related entries: cluster, node, server
 
 # hybrid node
 
-A node running both the consensus and data services.
+同时运行 consensus 和 data service 的 node ；
 
-See Cluster Node Configuration.
+See [Cluster Node Configuration]() ；
 
 Related entries: cluster, consensus node, consensus service, node, data node, data service
 
@@ -137,7 +138,7 @@ Related entries: database, field key, measurement, retention policy, tag key, us
 
 # line protocol
 
-The text based format for writing points to InfluxDB. See Line Protocol.
+The text based format for writing points to InfluxDB. See [Line Protocol]().
 
 # measurement
 
@@ -147,13 +148,13 @@ Related entries: field, series
 
 # metastore
 
-Contains internal information about the status of the system. That includes user information, database and shard metadata, and which retention policies are enabled.
+保存系统状态相关的内部信息的地方；包括：user information, database 和 shard metadata, 以及哪些 retention policies 被使能了；
 
 Related entries: database, retention policy, user
 
 # node
 
-An independent influxd process.
+一个独立的 influxd 进程；
 
 Related entries: cluster, server
 
@@ -263,9 +264,10 @@ Related entries: aggregation, function, selector
 
 # user
 
-There are two kinds of users in InfluxDB:
+在 InfluxDB 中存在两种类型的用户：
 
-Admin users have READ and WRITE access to all databases and full access to administrative queries and user management commands.
-Non-admin users have READ, WRITE, or ALL (both READ and WRITE) access per database.
-When authentication is enabled, InfluxDB only executes HTTP requests that are sent with a valid username and password. See Authentication and Authorization.
+Admin user 拥有针对所有数据库的 READ 和 WRITE 权限；拥有 administrative 类型 queries 的全部权限；拥有用户管理命令的权限；
+
+Non-admin user 拥有针对特定数据库的 READ, WRITE, 或 ALL (both READ and WRITE) 权限；
+当使能量 authentication 机制，InfluxDB 只能执行带有合法用户名和密码的 HTTP 请求；See [Authentication and Authorization]() ；
 
