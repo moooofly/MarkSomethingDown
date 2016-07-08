@@ -24,7 +24,8 @@ reporting-disabled = false
 ### Controls the parameters for the Raft consensus group that stores metadata
 ### about the InfluxDB cluster.
 ### 针对 Raft consensus group 的参数进行设置；
-###
+### 而 Raft consensus group 会负责在 cluster 中协调 metadata 的存储；
+### 
 
 [meta]
   # 控制当前 node 是否应该运行 metaservice 并加入到 Raft 组中
