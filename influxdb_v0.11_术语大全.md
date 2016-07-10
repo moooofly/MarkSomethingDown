@@ -82,7 +82,9 @@ Related entries: replication factor, retention policy
 
 # field
 
-The key-value pair in InfluxDB’s data structure that records metadata and the actual data value. Fields are required in InfluxDB’s data structure and they are not indexed - queries on field values scan all points that match the specified time range and, as a result, are not performant relative to tags.
+InfluxDB 数据结构中用于记录 metadata 和实际数据值的 key-value 对；
+field 在 influxDB 数据结构中是必须的，并且不提供索引功能；
+基于 field 的查询会扫描匹配特定时间范围内的所有 point ，因此，在性能上比基于 tag 的查询要差；
 
 Query tip: Compare fields to tags; tags are indexed.
 
@@ -90,7 +92,8 @@ Related entries: field key, field set, field value, tag
 
 # field key
 
-The key part of the key-value pair that makes up a field. Field keys are strings and they store metadata.
+构成 field 的 key-valude 对的 key 部分；
+field 的 key 为 string 类型，用于保存 metadata ；
 
 Related entries: field, field set, field value, tag key
 
@@ -224,13 +227,18 @@ Related entries: cluster, node
 
 # tag
 
-The key-value pair in InfluxDB’s data structure that records metadata. Tags are an optional part of InfluxDB’s data structure but they are useful for storing commonly-queried metadata; tags are indexed so queries on tags are performant. Query tip: Compare tags to fields; fields are not indexed.
+InfluxDB 数据结构中用于记录 metadata 的 key-valude 对；
+tag 属于 InfluxDB 数据结构中的可选部分，但是其对于 commonly-queried metadata 非常有用；
+tag 是带索引的，因此基于 tag 的查询是非常高效的；
+Query tip: Compare tags to fields; fields are not indexed.
 
 Related entries: field, tag key, tag set, tag value
 
 # tag key
 
-The key part of the key-value pair that makes up a tag. Tag keys are strings and they store metadata. Tag keys are indexed so queries on tag keys are performant.
+构成 tag 的 key-value 对中的 key 部分；
+tag key 为 string 值，其中保存了 metadata ；
+tag key 是带索引的，因此基于 tag key 的查询是非常高效的；
 
 Query tip: Compare tag keys to field keys; field keys are not indexed.
 
@@ -244,7 +252,9 @@ Related entries: point, series, tag, tag key, tag value
 
 # tag value
 
-The value part of the key-value pair that makes up a tag. Tag values are strings and they store metadata. Tag values are indexed so queries on tag values are performant.
+构成 tag 的 key-value 对中的 value 部分；
+tag value 为 string 值，其中保存了 metadata ；
+tag value 是带索引的，因此基于 tag value 的查询是非常高效的；
 
 Related entries: tag, tag key, tag set
 
