@@ -42,7 +42,7 @@ Related entries: cluster, consensus node, data service, node, hybrid node
 
 # continuous query (CQ)
 
-An InfluxQL query that runs automatically and periodically within a database. Continuous queries require a function in the SELECT clause and must include a GROUP BY time() clause. See Continuous Queries.
+An InfluxQL query that runs automatically and periodically within a database. Continuous queries require a function in the `SELECT` clause and must include a `GROUP BY time()` clause. See [Continuous Queries]().
 
 Related entries: function
 
@@ -76,7 +76,7 @@ Related entries: continuous query, retention policy, user
 
 # duration
 
-The attribute of the retention policy that determines how long InfluxDB stores data. Data older than the duration are automatically dropped from the database. See Database Management for how to set duration.
+The attribute of the retention policy that determines how long InfluxDB stores data. Data older than the duration are automatically dropped from the database. See [Database Management]() for how to set duration.
 
 Related entries: replication factor, retention policy
 
@@ -115,7 +115,7 @@ Related entries: field, field key, field set, tag value, timestamp
 
 # function
 
-InfluxQL aggregations, selectors, and transformations. See InfluxQL Functions for a complete list of InfluxQL functions.
+InfluxQL aggregations, selectors, and transformations. See [InfluxQL Functions]() for a complete list of InfluxQL functions.
 
 Related entries: aggregation, selector, transformation
 
@@ -290,5 +290,5 @@ Related entries: aggregation, function, selector
 Admin user 拥有针对所有数据库的 `READ` 和 `WRITE` 权限；拥有 administrative 类型 queries 的全部权限；拥有用户管理命令的权限；
 
 Non-admin user 拥有针对特定数据库的 `READ`, `WRITE`, 或 `ALL` (both `READ` and `WRITE`) 权限；
-当使能量 authentication 机制，InfluxDB 只能执行带有合法用户名和密码的 HTTP 请求；See [Authentication and Authorization]() ；
+若使能了 authentication 机制，那么 InfluxDB 只能执行带有合法用户名和密码的 HTTP 请求；See [Authentication and Authorization]() ；
 
