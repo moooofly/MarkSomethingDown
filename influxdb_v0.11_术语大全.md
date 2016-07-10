@@ -136,7 +136,7 @@ Related entries: cluster, consensus node, consensus service, node, data node, da
 # identifier
 
 用于标识 database names, retention policy names, user names, measurement names, tag keys, and field keys 的标识符；
-详见 Query Language Specification.
+详见 [Query Language Specification]() ；
 
 
 Related entries: database, field key, measurement, retention policy, tag key, user
@@ -160,7 +160,7 @@ Related entries: database, retention policy, user
 
 # node
 
-一个独立的 influxd 进程；
+一个独立的 `influxd` 进程；
 
 Related entries: cluster, server
 
@@ -168,23 +168,24 @@ Related entries: cluster, server
 
 The part of InfluxDB’s data structure that consists of a single collection of fields in a series. Each point is uniquely identified by its series and timestamp.
 
-You cannot store more than one point with the same timestamp in the same series. Instead, when you write a new point to the same series with the same timestamp as an existing point in that series, the field set becomes the union of the old field set and the new field set, where any ties go to the new field set. For an example, see Frequently Encountered Issues.
+You cannot store more than one point with the same timestamp in the same series. Instead, when you write a new point to the same series with the same timestamp as an existing point in that series, the field set becomes the union of the old field set and the new field set, where any ties go to the new field set. For an example, see [Frequently Encountered Issues]().
 
 Related entries: field set, series, timestamp
 
 # query
 
-An operation that retrieves data from InfluxDB. See Data Exploration, Schema Exploration, Database Management.
+从 InfluxDB 中获取数据的操作；
+See Data Exploration, Schema Exploration, Database Management.
 
 # replication factor
 
-The attribute of the retention policy that determines how many copies of the data are stored in the cluster. InfluxDB replicates data across N data nodes, where N is the replication factor.
+The attribute of the retention policy that determines how many copies of the data are stored in the cluster. InfluxDB replicates data across `N` data nodes, where `N` is the replication factor.
 
 To maintain data availability for queries, the replication factor should be less than or equal to the number of data nodes in the cluster:
 
 Data are fully available when the replication factor is greater than the number of unavailable data nodes.
 Data may be unavailable when the replication factor is less than the number of unavailable data nodes.
-Note that there are no query performance benefits from replication. Replication is for ensuring data availability when a data node or nodes are unavailable. See Database Management for how to set the replication factor.
+Note that there are no query performance benefits from replication. Replication is for ensuring data availability when a data node or nodes are unavailable. See [Database Management]() for how to set the replication factor.
 
 Related entries: cluster, duration, node, retention policy
 
@@ -193,8 +194,8 @@ Related entries: cluster, duration, node, retention policy
 InfluxDB 数据结构的一部分，用于描述 InfluxDB 保存数据的时间长度（duration），以及在 cluster 中保存数据的副本数目（复制因子）；
 RP 对于每个数据库来说都是独立的，配合 measurement 和 tag 一同定义了序列（series）；
 
-当你创建了一个数据库之后，InfluxDB 会自动创建一个名为 default 的 retention policy ，并初始化 duration 为 infinite ，设置复制因子为 cluster 中的 node 数目；
-详情可以查看 Database Management for retention policy management.
+当你创建了一个数据库之后，InfluxDB 会自动创建一个名为 `default` 的 retention policy ，并初始化 duration 为 infinite ，设置复制因子为 cluster 中的 node 数目；
+详情可以查看 [Database Management]() for retention policy management.
 
 Related entries: duration, measurement, replication factor, series, tag set
 
@@ -202,7 +203,7 @@ Related entries: duration, measurement, replication factor, series, tag set
 
 定义了数据如何在 InfluxDB 中进行组织；
 InfluxDB 的 schema 由以下基础内容构成：databases, retention policies, series, measurements, tag keys, tag values, and field keys. 
-详见 Schema Design for more information.
+详见 [Schema Design]() for more information.
 
 Related entries: database, field key, measurement, retention policy, series, tag key, tag value
 
@@ -224,7 +225,7 @@ Related entries: field set, measurement, retention policy, tag set
 
 定义在一个给定的数据集内，由 measurement 和 tag 构成的所有组合的数量；
 例如，基于 tag 值 `host` and `total_mem` 来计算名为 `mem_available` 的 measurement 值；
-如果存在 35 个不同的 host 值，和 15 个不同的 total_mem 值，那么由此得到的 measurement 值，即 series cardinality ，为 35 * 15 = 525 ；
+如果存在 35 个不同的 `host` 值，和 15 个不同的 `total_mem` 值，那么由此得到的 measurement 值，即 series cardinality ，为 `35 * 15 = 525` ；
 若想计算针对某个数据库的总的 series cardinality 值， 只需将针对不同 measurement 计算的到的值（即单个 series cardinality 值 ）求和即可；
 
 Related entries: tag set, measurement, tag key
@@ -286,8 +287,8 @@ Related entries: aggregation, function, selector
 
 在 InfluxDB 中存在两种类型的用户：
 
-Admin user 拥有针对所有数据库的 READ 和 WRITE 权限；拥有 administrative 类型 queries 的全部权限；拥有用户管理命令的权限；
+Admin user 拥有针对所有数据库的 `READ` 和 `WRITE` 权限；拥有 administrative 类型 queries 的全部权限；拥有用户管理命令的权限；
 
-Non-admin user 拥有针对特定数据库的 READ, WRITE, 或 ALL (both READ and WRITE) 权限；
+Non-admin user 拥有针对特定数据库的 `READ`, `WRITE`, 或 `ALL` (both `READ` and `WRITE`) 权限；
 当使能量 authentication 机制，InfluxDB 只能执行带有合法用户名和密码的 HTTP 请求；See [Authentication and Authorization]() ；
 
