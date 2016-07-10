@@ -135,7 +135,9 @@ Related entries: cluster, consensus node, consensus service, node, data node, da
 
 # identifier
 
-Tokens which refer to database names, retention policy names, user names, measurement names, tag keys, and field keys. See Query Language Specification.
+用于标识 database names, retention policy names, user names, measurement names, tag keys, and field keys 的标识符；
+详见 Query Language Specification.
+
 
 Related entries: database, field key, measurement, retention policy, tag key, user
 
@@ -145,7 +147,8 @@ The text based format for writing points to InfluxDB. See [Line Protocol]().
 
 # measurement
 
-The part of InfluxDB’s structure that describes the data stored in the associated fields. Measurements are strings.
+InfluxDB 结构的一部分，用于描述存储在相关 field 中的数据；
+measurement 的内容为 string 类型；
 
 Related entries: field, series
 
@@ -187,15 +190,19 @@ Related entries: cluster, duration, node, retention policy
 
 # retention policy (RP)
 
-The part of InfluxDB’s data structure that describes for how long InfluxDB keeps data (duration) and how many copies of those data are stored in the cluster (replication factor). RPs are unique per database and along with the measurement and tag set define a series.
+InfluxDB 数据结构的一部分，用于描述 InfluxDB 保存数据的时间长度（duration），以及在 cluster 中保存数据的副本数目（复制因子）；
+RP 对于每个数据库来说都是独立的，配合 measurement 和 tag 一同定义了序列（series）；
 
-When you create a database, InfluxDB automatically creates a retention policy called default with an infinite duration and a replication factor set to the number of nodes in the cluster. See Database Management for retention policy management.
+当你创建了一个数据库之后，InfluxDB 会自动创建一个名为 default 的 retention policy ，并初始化 duration 为 infinite ，设置复制因子为 cluster 中的 node 数目；
+详情可以查看 Database Management for retention policy management.
 
 Related entries: duration, measurement, replication factor, series, tag set
 
 # schema
 
-How the data are organized in InfluxDB. The fundamentals of the InfluxDB schema are databases, retention policies, series, measurements, tag keys, tag values, and field keys. See Schema Design for more information.
+定义了数据如何在 InfluxDB 中进行组织；
+InfluxDB 的 schema 由以下基础内容构成：databases, retention policies, series, measurements, tag keys, tag values, and field keys. 
+详见 Schema Design for more information.
 
 Related entries: database, field key, measurement, retention policy, series, tag key, tag value
 
@@ -207,7 +214,7 @@ Related entries: aggregation, function, transformation
 
 # series
 
-The collection of data in InfluxDB’s data structure that share a measurement, tag set, and retention policy.
+定义了位于 InfluxDB 数据结构中的、共享了 measurement, tag set 和 retention policy 的数据集合；
 
 Note: The field set is not part of the series identification!
 
@@ -215,7 +222,10 @@ Related entries: field set, measurement, retention policy, tag set
 
 # series cardinality
 
-The count of all combinations of measurements and tags within a given data set. For example, take measurement mem_available with tags host and total_mem. If there are 35 different hosts and 15 different total_mem values then series cardinality for that measurement is 35 * 15 = 525. To calculate series cardinality for a database add the series cardinalities for the individual measurements together.
+定义在一个给定的数据集内，由 measurement 和 tag 构成的所有组合的数量；
+例如，基于 tag 值 `host` and `total_mem` 来计算名为 `mem_available` 的 measurement 值；
+如果存在 35 个不同的 host 值，和 15 个不同的 total_mem 值，那么由此得到的 measurement 值，即 series cardinality ，为 35 * 15 = 525 ；
+若想计算针对某个数据库的总的 series cardinality 值， 只需将针对不同 measurement 计算的到的值（即单个 series cardinality 值 ）求和即可；
 
 Related entries: tag set, measurement, tag key
 
