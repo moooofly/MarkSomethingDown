@@ -50,7 +50,18 @@ vim 命令支持命令缩写（同 gdb 模式）；
 垂直分屏 `vim -On file1 file2 file3`
 水平分屏 `vim -on file1 file2 file3`
 其中 n 为分屏数目，不指定 n 则根据文件数目进行分屏；
-注意：直接执行 `vim file1 file2 file3` 则只打开了一个窗口，file1 显示在窗口中，file2 和 file3 存在于 buffer 中；
+注意：
+执行 `vim file1 file2 file3` 时，只打开了一个窗口，file1 显示在窗口中，file2 和 file3 存在于 buffer 中；
+执行 `vim -O file1 file2 file3` 时，会打开 3 个窗口，分别显示 3 个文件，与此同时，3 个文件也存在于 buffer 中；
+
+`Ctrl+W c` 关闭光标所在分屏窗口（注意：窗口中显示的文件仍旧存在于 buffer 中）；
+
+`Ctrl+W s` 上下分割当前打开的文件；
+`Ctrl+W v` 左右分割当前打开的文件；
+`:sp filename` 上下分割，并打开一个新的文件；
+`:vsp filename` 左右分割，并打开一个新的文件；
+
+
 
 ### 基于浏览目录命令分隔窗口
 
