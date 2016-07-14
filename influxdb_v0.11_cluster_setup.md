@@ -7,15 +7,15 @@
 ----------
 
 
-> NOTE: InfluxDB 0.11 is the last open source version that includes clustering. For more information, please see Paul Dix’s blog post on [InfluxDB Clustering, High-Availability, and Monetization](). Please note that the 0.11 version of clustering is still considered experimental, and there are still quite a few rough edges.
+> 注意: InfluxDB 0.11 是包含 cluster 功能的最后一个开源版本（此处的 cluster 是指 raft）；更多关于此问题的信息请阅读 Paul Dix 的博客文章[InfluxDB Clustering, High-Availability, and Monetization](). 请注意，0.11 版本的 cluster 仍被认为是实验性的，仍存在很多犄角旮旯的地方需要处理。
 
-This guide briefly introduces the InfluxDB cluster model and provides step-by-step instructions for setting up a cluster.
+本文简要介绍了 InfluxDB 的 cluster 模型，并提供了逐步建立 cluster 的步骤。
 
 # InfluxDB cluster model
 
-InfluxDB supports arbitrarily sized clusters and any [replication factor]() from 1 to the number of nodes in the cluster.
+InfluxDB 支持创建任意（节点）数量的 cluster ，并且允许 [replication factor]() 的值被设置为 1 至 cluster 中的 node 数目；
 
-There are three types of nodes in an InfluxDB cluster: [consensus nodes](), [data nodes](), and [hybrid nodes](). A cluster must have an odd number of nodes running the [consensus service]() to form a Raft consensus group and remain in a healthy state.
+在 InfluxDB cluster 中存在 3 种类型的 node ：[consensus nodes](), [data nodes]() 和 [hybrid nodes]() 。一个 cluster 中要求必须存在奇数个 node 运行 [consensus service]() 以便构成 Raft consensus group ，且保持在一个健康的状态中。
 
 Hardware requirements vary for the different node types. See Hardware Sizing for cluster [hardware requirements]().
 
