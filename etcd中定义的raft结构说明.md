@@ -697,17 +697,16 @@ type remote struct {
 
 ```golang
 type Peer interface {
-	// send sends the message to the remote peer. The function is non-blocking
-	// and has no promise that the message will be received by the remote.
-	// When it fails to send message out, it will report the status to underlying
-	// raft.
+	// 发送 message 给远端 peer ； 
+	// 该函数是非阻塞的，且不保证 message 一定被远端 peer 收到；
+	// 当发送 message 失败时，将会报告状态信息给底层 raft ；
 	send(m raftpb.Message)
 
-	// sendSnap sends the merged snapshot message to the remote peer. Its behavior
-	// is similar to send.
+	// 发送已归并 snapshot message 到远端 peer ；
+	// 其它行为和 send 函数一样；
 	sendSnap(m snap.Message)
 
-	// update updates the urls of remote peer.
+	// 更新远端 peer 的 URL 信息；
 	update(urls types.URLs)
 
 	// attachOutgoingConn attaches the outgoing connection to the peer for
@@ -715,11 +714,10 @@ type Peer interface {
 	// connection hands over to the peer. The peer will close the connection
 	// when it is no longer used.
 	attachOutgoingConn(conn *outgoingConn)
-	// activeSince returns the time that the connection with the
-	// peer becomes active.
+
+	// 获取对应远端 peer 的 connection 开始活跃的时间；
 	activeSince() time.Time
-	// stop performs any necessary finalization and terminates the peer
-	// elegantly.
+	// 执行任何必要的终止操作，并且优雅的停止 peer ；
 	stop()
 }
 ```
@@ -727,19 +725,19 @@ type Peer interface {
 ## peer 结构体
 
 ```golang
-// peer is the representative of a remote raft node. Local raft node sends
-// messages to the remote through peer.
-// Each peer has two underlying mechanisms to send out a message: stream and
-// pipeline.
-// A stream is a receiver initialized long-polling connection, which
-// is always open to transfer messages. Besides general stream, peer also has
-// a optimized stream for sending msgApp since msgApp accounts for large part
-// of all messages. Only raft leader uses the optimized stream to send msgApp
-// to the remote follower node.
-// A pipeline is a series of http clients that send http requests to the remote.
-// It is only used when the stream has not been established.
+// peer 结构用于表示远端 raft node ；
+// 本地 raft node 发送 messages 给远端 peer 需要通过 peer 的方法实现；
+// 每一个 peer 都具有两种底层机制用于发送 message ：stream 和 pipeline ；
+//
+// stream 是一种实现了 long-polling 连接的接收器；其总是处于发送 message 就绪状态；
+// 除了通用的 stream ，peer 还支持一种优化过的 stream 用于发送 msgApp ；
+// 因为 msgApp 消息占全部消息中的大部分；
+// 只有 raft leader 会使用优化过的 stream 来发送 msgApp 给远端 follower ；
+//
+// pipeline is a series of http clients that send http requests to the remote.
+// 其仅在不使用 stream 的情况下被使用；
 type peer struct {
-	// id of the remote raft peer node
+	// 远端 raft peer node 的 id
 	id types.ID
 	r  Raft
 
@@ -750,7 +748,7 @@ type peer struct {
 	msgAppV2Writer *streamWriter
 	writer         *streamWriter
 	pipeline       *pipeline
-	snapSender     *snapshotSender // snapshot sender to send v3 snapshot messages
+	snapSender     *snapshotSender // send v3 snapshot messages
 	msgAppV2Reader *streamReader
 	msgAppReader   *streamReader
 
