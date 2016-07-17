@@ -55,22 +55,26 @@ vim 命令支持命令缩写（同 gdb 模式）；
 执行 `vim file1 file2 file3` 时，只打开了一个窗口，file1 显示在窗口中，file1, file2 和 file3 均存在于 buffer 中；
 执行 `vim -O file1 file2 file3` 时，会以分屏方式打开 3 个窗口，分别显示 3 个文件，与此同时，3 个文件也存在于 buffer 中；
 
-`ctrl+W C` 关闭光标所在分屏窗口（注意：窗口中显示的文件仍旧存在于 buffer 中）；
 
-### 基于文件进行分屏
+### 基于窗口中的文件进行分屏
 
-`ctrl+W S` 上下分割当前打开的文件；
-`ctrl+W V` 左右分割当前打开的文件；
+`ctrl + W S` 上下分割当前打开的文件；
+`ctrl + W V` 左右分割当前打开的文件；
 `:sp filename` 上下分割，并打开一个新的文件；
 `:vsp filename` 左右分割，并打开一个新的文件；
 
 
-### 基于目录进行分屏
+### 基于当前目录进行分屏
 
 在下边分屏浏览目录 `:Hexplore` 缩写 `:He`
 在上边分屏浏览目录 `:Hexplore!` 缩写 `:He!`
 在左边分屏浏览目录 `:Vexplore` 缩写 :`Ve`
 在右边分屏浏览目录 `:Vexplore!` 缩写 :`Ve!`
+
+
+### 关闭分屏窗口
+
+`ctrl + W C` 关闭光标所在分屏窗口（注意：窗口中显示的文件仍旧存在于 buffer 中）；
 
 ### 在分屏间移动光标
 
@@ -114,20 +118,26 @@ w 向下一个屏移动
 ### 分 Tab 页启动 vim
 
 
+在 Shell 命令行下，可以使用 vim 的 -p 参数以 Tab 页方式打开多个文件：`vim -p file1 file2 ile3`
+
+`:tabe[dit] file1` 在 vim 中基于 Tab 页打开文件；
+`:bufdo tab split` 将 buffer 中的文件全部转成 Tab 页文件；
 
 
-若不喜欢上面的分屏方式，还可以采取分页方式：
+### 基于当前目录进行 Tab 分页
+
 `:Texplorer` 缩写 `:Te` ；
 
+###  分页切换
+
 若想在多个 Tab 页中切换，只需在 normal 模式下执行如下命令（注意，下述命令不需要加冒号）：
-切换到下一个 Tab 页 `gt` ；
-切换到前一个 Tab 页 `gT` ；
-切换到指定 Tab 页 `{i} gt` ，其中 i 是指定页对应的数字，从 1 开始计数；例如 5 gt 就是到第 5 页；
-移动 Tab 页到目标位置 `:tabmove {i}` ，其中 i 是指 Tab 页目标位置，位置从 0 开始计数；
-查看已打开 Tab 页情况 `:tabs`
-关闭指定 Tab 页 `:tabclose {i}` ，若未指定 i 则关闭当前页；
-在 Shell 命令行下，可以使用 vim 的 -p 参数以 Tab 页方式打开多个文件：`vim -p a.c b.c c.c`
-将 buffer 中的文件全部转成 Tab 页中的文件执行 `:bufdo tab split`
+`gt` 切换到下一个 Tab 页；
+`gT` 切换到前一个 Tab 页；
+`{i} gt` 切换到指定 Tab 页，其中 i 是指定页对应的数字，从 1 开始计数；例如 5 gt 就是到第 5 页；
+`:tabmove {i}` 移动 Tab 页到目标位置，其中 i 是指 Tab 页目标位置，位置从 0 开始计数；
+`:tabs` 查看已打开 Tab 页情况；
+`:tabclose {i}` 关闭指定 Tab 页，若未指定 i 则关闭当前页；
+
 
 
 ----------
