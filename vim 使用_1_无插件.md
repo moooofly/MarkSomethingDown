@@ -45,16 +45,19 @@ vim 命令支持命令缩写（同 gdb 模式）；
 
 # 窗口分割（分屏）
 
-### 分屏启动 vim
+### 命令行分屏启动 vim
 
 垂直分屏 `vim -On file1 file2 file3`
 水平分屏 `vim -on file1 file2 file3`
 其中 n 为分屏数目，不指定 n 则根据文件数目进行分屏；
-注意：
-执行 `vim file1 file2 file3` 时，只打开了一个窗口，file1 显示在窗口中，file2 和 file3 存在于 buffer 中；
-执行 `vim -O file1 file2 file3` 时，会打开 3 个窗口，分别显示 3 个文件，与此同时，3 个文件也存在于 buffer 中；
+
+> 注意：
+执行 `vim file1 file2 file3` 时，只打开了一个窗口，file1 显示在窗口中，file1, file2 和 file3 均存在于 buffer 中；
+执行 `vim -O file1 file2 file3` 时，会以分屏方式打开 3 个窗口，分别显示 3 个文件，与此同时，3 个文件也存在于 buffer 中；
 
 `ctrl+W C` 关闭光标所在分屏窗口（注意：窗口中显示的文件仍旧存在于 buffer 中）；
+
+### 基于文件进行分屏
 
 `ctrl+W S` 上下分割当前打开的文件；
 `ctrl+W V` 左右分割当前打开的文件；
@@ -62,8 +65,7 @@ vim 命令支持命令缩写（同 gdb 模式）；
 `:vsp filename` 左右分割，并打开一个新的文件；
 
 
-
-### 基于浏览目录命令分隔窗口
+### 基于目录进行分屏
 
 在下边分屏浏览目录 `:Hexplore` 缩写 `:He`
 在上边分屏浏览目录 `:Hexplore!` 缩写 `:He!`
@@ -71,6 +73,7 @@ vim 命令支持命令缩写（同 gdb 模式）；
 在右边分屏浏览目录 `:Vexplore!` 缩写 :`Ve!`
 
 ### 在分屏间移动光标
+
 若想在分屏间移动光标，先按 `ctrl + W` ，再按方向键：
 h 向左侧屏移动
 j 向下侧屏移动
@@ -79,25 +82,27 @@ l 向右侧屏移动
 w 向下一个屏移动
 
 ### 分屏同步移动
+
 要让两个分屏中的文件同步移动，需要到待同步移动的两个屏中都输入 `:set scb` 命令，解开同步移动输入 `:set scb!` 命令；
 注：`:set scb` 是 `:set scrollbind` 的缩写；
 
 
 ### 分屏尺寸调整
 
-ctrl + W < 调整宽度（需要较新版本支持）
-ctrl + W > 调整宽度（需要较新版本支持）
-ctrl + W = 让所有屏一样高度
-ctrl + W + 增加光标所在屏高度
-ctrl + W - 减少光标所在屏高度
+`ctrl + W <` 调整宽度（需要较新版本支持）
+`ctrl + W >` 调整宽度（需要较新版本支持）
+`ctrl + W =` 让所有屏一样高度
+`ctrl + W +` 增加光标所在屏高度
+`ctrl + W -` 减少光标所在屏高度
 
 ### 分屏转 Tab 页
 
-ctrl + W T
-注意：
-上面为大写字母 T ；
-上面的命令，只能将光标所在分屏转成 Tab 页，若存在多个分屏，则需要执行多次上述命令；
-标签转换为分屏[据说](http://stackoverflow.com/questions/14688536/move-adjacent-tab-to-split)没有内置的解法；
+`ctrl + W T` 将当前分屏窗口转成 Tab 页；
+
+> 注意：
+>> - 上面的 T 为大写字母；
+>> - 上面的命令，只能将光标所在分屏窗口转成 Tab 页，若存在多个分屏窗口，则需要执行多次上述命令；
+>> - 标签转换为分屏[据说](http://stackoverflow.com/questions/14688536/move-adjacent-tab-to-split)没有内置的解法；
 
 
 ----------
