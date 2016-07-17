@@ -54,10 +54,10 @@ vim 命令支持命令缩写（同 gdb 模式）；
 执行 `vim file1 file2 file3` 时，只打开了一个窗口，file1 显示在窗口中，file2 和 file3 存在于 buffer 中；
 执行 `vim -O file1 file2 file3` 时，会打开 3 个窗口，分别显示 3 个文件，与此同时，3 个文件也存在于 buffer 中；
 
-`Ctrl+W c` 关闭光标所在分屏窗口（注意：窗口中显示的文件仍旧存在于 buffer 中）；
+`ctrl+W C` 关闭光标所在分屏窗口（注意：窗口中显示的文件仍旧存在于 buffer 中）；
 
-`Ctrl+W s` 上下分割当前打开的文件；
-`Ctrl+W v` 左右分割当前打开的文件；
+`ctrl+W S` 上下分割当前打开的文件；
+`ctrl+W V` 左右分割当前打开的文件；
 `:sp filename` 上下分割，并打开一个新的文件；
 `:vsp filename` 左右分割，并打开一个新的文件；
 
@@ -70,17 +70,46 @@ vim 命令支持命令缩写（同 gdb 模式）；
 在左边分屏浏览目录 `:Vexplore` 缩写 :`Ve`
 在右边分屏浏览目录 `:Vexplore!` 缩写 :`Ve!`
 
-在分屏间的跳转和切换，先按 `Ctrl + W` ，然后按方向键：h j k l  ；
+### 在分屏间移动光标
+若想在分屏间移动光标，先按 `ctrl + W` ，再按方向键：
+h 向左侧屏移动
+j 向下侧屏移动
+k 向上侧屏移动
+l 向右侧屏移动
+w 向下一个屏移动
 
 ### 分屏同步移动
 要让两个分屏中的文件同步移动，需要到待同步移动的两个屏中都输入 `:set scb` 命令，解开同步移动输入 `:set scb!` 命令；
 注：`:set scb` 是 `:set scrollbind` 的缩写；
 
 
+### 分屏尺寸调整
+
+ctrl + W < 调整宽度（需要较新版本支持）
+ctrl + W > 调整宽度（需要较新版本支持）
+ctrl + W = 让所有屏一样高度
+ctrl + W + 增加光标所在屏高度
+ctrl + W - 减少光标所在屏高度
+
+### 分屏转 Tab 页
+
+ctrl + W T
+注意：
+上面为大写字母 T ；
+上面的命令，只能将光标所在分屏转成 Tab 页，若存在多个分屏，则需要执行多次上述命令；
+标签转换为分屏[据说](http://stackoverflow.com/questions/14688536/move-adjacent-tab-to-split)没有内置的解法；
+
+
 ----------
 
 
 # Tab 页浏览目录
+
+
+### 分 Tab 页启动 vim
+
+
+
 
 若不喜欢上面的分屏方式，还可以采取分页方式：
 `:Texplorer` 缩写 `:Te` ；
@@ -151,6 +180,6 @@ Ctrl + X 和 Ctrl +L 这可以对整个行补齐
 
 
 [无插件Vim编程技巧](http://coolshell.cn/articles/11312.html)
-[]()
+[Vim的分屏功能](http://coolshell.cn/articles/1679.html)
 []()
 []()
