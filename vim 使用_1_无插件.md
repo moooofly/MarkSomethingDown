@@ -58,6 +58,8 @@ vim 命令支持命令缩写（同 gdb 模式）；
 
 ### 基于窗口中的文件进行分屏
 
+`ctrl + W N` 以新的空 vim 文件进行分屏；
+
 `ctrl + W S` 上下分割当前打开的文件；
 `ctrl + W V` 左右分割当前打开的文件；
 `:sp filename` 上下分割，并打开一个新的文件；
@@ -194,7 +196,7 @@ Ctrl + X 和 Ctrl +L 这可以对整个行补齐
 # 参考
 
 
-[无插件Vim编程技巧](http://coolshell.cn/articles/11312.html)
-[Vim的分屏功能](http://coolshell.cn/articles/1679.html)
-[]()
-[]()
+- [无插件Vim编程技巧](http://coolshell.cn/articles/11312.html)
+- [Vim的分屏功能](http://coolshell.cn/articles/1679.html)
+- []()
+- []()
