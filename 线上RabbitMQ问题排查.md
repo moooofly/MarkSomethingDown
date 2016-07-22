@@ -87,21 +87,31 @@ n sec ～ n min
 
 ## RabbitMQ 自身 heartbeat 保活方式
 
-业务以 2.5s 时间间隔发送 heartbeat 给 RMQ
-RMQ 以 5s 时间间隔发送 heartbeat 给业务
+- 业务以 2.5s 时间间隔发送 heartbeat 给 RMQ
+- RMQ 以 5s 时间间隔发送 heartbeat 给业务
 似乎均为请求，没有应答
 
 ## haproxy 健康检查方式
+
+```sequence
+HAProxy->RabbitMQ: SYN
+RabbitMQ->HAProxy: SYN,ACK
+HAProxy->RabbitMQ: RST,ACK
+```
+
 
 ## goproxy agent 健康检查方式
 
 （据说此方式为老版本的实现，新版本已经和 haproxy 实现方式一致）
 
-client             RMQ
-SYN  ———> 
-        <———   SYN,ACK
- ACK ———>
- RST ———>
+```sequence
+goproxy agent->RabbitMQ: SYN
+RabbitMQ->goproxy agent: SYN,ACK
+goproxy agent->RabbitMQ: ACK
+goproxy agent->RabbitMQ: RST,ACK
+```
+
+
 
 ## 源码分析
 
