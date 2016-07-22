@@ -20,7 +20,7 @@ n sec ～ n min
 
 ## 源码分析
 
-在 rabbit_reader.erl 中
+在 `rabbit_reader.erl` 中
 ```erlang
 ...
 init(Parent, HelperSup, Ref, Sock) ->
@@ -39,24 +39,30 @@ start_connection(Parent, HelperSup, Deb, Sock) ->
     erlang:send_after(HandshakeTimeout, self(), handshake_timeout),
     ...
     try
+	    %% 进入数据接收＋处理循环
         run({?MODULE, recvloop,
              [Deb, [], 0, switch_callback(rabbit_event:init_stats_timer(
                                             State, #v1.stats_timer),
                                           handshake, 8)]}),
+        %% 循环正常退出时，即 TCP 连接正常关闭情况下，会输出如下日志
         log(info, "closing AMQP connection ~p (~s)~n", [self(), Name])
     catch
+		%% 针对异常情况的处理
         Ex ->
           log_connection_exception(Name, Ex)
     after
+	    %% 无论正常关闭，或者异常关闭 TCP 连接，均采用如下方式进行处理
         rabbit_net:fast_close(Sock),
 		...
     end,
     done.
 ...
 log_connection_exception(Name, Ex) ->
+	%% 根据捕获到的异常信息类型，确定异常级别
     Severity = case Ex of
                    connection_closed_with_no_data_received -> debug;
                    connection_closed_abruptly              -> warning;
+                   %% handshake_timeout 异常输出如下级别
                    _                                       -> error
                end,
     log_connection_exception(Severity, Name, Ex).
@@ -77,43 +83,16 @@ mainloop(Deb, Buf, BufLen, State = #v1{sock = Sock,
                                        connection_state = CS,
                                        connection = #connection{
                                          name = ConnName}}) ->
+    %% 从进程邮箱中获取数据，其中包括如下内容
+    %% 1. 从 TCP 连接上获取到的数据报文；
+    %% 2. 从 TCP 连接上获取到的 FIN 报文；
+    %% 3. 当前 TCP 连接异常通知消息；
+    %% 4. 由超时定时器发送的 handshake_timeout 消息；
     Recv = rabbit_net:recv(Sock),
-    case CS of
-        pre_init when Buf =:= [] ->
-            %% We only log incoming connections when either the
-            %% first byte was received or there was an error (eg. a
-            %% timeout).
-            %%
-            %% The goal is to not log TCP healthchecks (a connection
-            %% with no data received) unless specified otherwise.
-            log(case Recv of
-                  closed -> debug;
-                  _      -> info
-                end, "accepting AMQP connection ~p (~s)~n",
-                [self(), ConnName]);
-        _ ->
-            ok
-    end,
+    ...
     case Recv of
-        {data, Data} ->
-            recvloop(Deb, [Data | Buf], BufLen + size(Data),
-                     State#v1{pending_recv = false});
-        closed when State#v1.connection_state =:= closed ->
-            ok;
-        closed when CS =:= pre_init andalso Buf =:= [] ->
-            stop(tcp_healthcheck, State);
-        closed ->
-            stop(closed, State);
-        {other, {heartbeat_send_error, Reason}} ->
-            %% The only portable way to detect disconnect on blocked
-            %% connection is to wait for heartbeat send failure.
-            stop(Reason, State);
-        {error, Reason} ->
-            stop(Reason, State);
-        {other, {system, From, Request}} ->
-            sys:handle_system_msg(Request, From, State#v1.parent,
-                                  ?MODULE, Deb, {Buf, BufLen, State});
-        {other, Other}  ->
+		...
+        {other, Other}  ->  %% 其它错误处理
             case handle_other(Other, State) of
                 stop     -> ok;
                 NewState -> recvloop(Deb, Buf, BufLen, NewState)
@@ -125,9 +104,24 @@ handle_other(handshake_timeout, State)
     State;
 handle_other(handshake_timeout, State) ->
     maybe_emit_stats(State),
+    %% 这里抛出 handshake_timeout 异常
     throw({handshake_timeout, State#v1.callback});
 ...
 
+```
+
+在 `rabbit_net.erl` 中
+```erlang
+recv(Sock) when is_port(Sock) ->
+    recv(Sock, {tcp, tcp_closed, tcp_error}).
+
+recv(S, {DataTag, ClosedTag, ErrorTag}) ->
+    receive
+        {DataTag, S, Data}    -> {data, Data};  %% 接收到 TCP 数据包
+        {ClosedTag, S}        -> closed;        %% TCP 连接正常关闭
+        {ErrorTag, S, Reason} -> {error, Reason}; %% TCP 连接相关错误
+        Other                 -> {other, Other}  %% 其它错误处理（如 handshake_timeout）
+    end.
 ```
 
 
