@@ -19,12 +19,12 @@ n sec ～ n min
 多数为 10+ minute 级别，偶尔会 1 minute 中多次；     
 
 
+## 原因总结
+业务 client 与 RabbitMQ 成功建立 TCP 连接后，在 10s 内（默认值）未发送 AMQP handshake 协议包（即 Protocol-Header 0-9-1 包）；此问题属于业务 client 侧 bug ；
+
 ## 影响范围
 
-
-## 原因总结
-
-
+由于 RabbitMQ 允许的并发连接数目存在上限，而上述问题理论上会导致相应的连接被长时间占用，因此，应该会导致特定时间内，可建立连接数目下降；
 
 ## 源码分析
 
