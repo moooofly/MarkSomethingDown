@@ -79,3 +79,42 @@ n sec ～ n min
 
 
 ## 影响范围
+
+
+----------
+
+# goproxy agent 探测 RabbitMQ 活性问题
+
+## RabbitMQ 自身 heartbeat 保活方式
+
+业务以 2.5s 时间间隔发送 heartbeat 给 RMQ
+RMQ 以 5s 时间间隔发送 heartbeat 给业务
+似乎均为请求，没有应答
+
+## haproxy 健康检查方式
+
+## goproxy agent 健康检查方式
+
+（据说此方式为老版本的实现，新版本已经和 haproxy 实现方式一致）
+
+client             RMQ
+SYN  ———> 
+        <———   SYN,ACK
+ ACK ———>
+ RST ———>
+
+## 源码分析
+
+
+
+## 影响范围
+
+
+
+
+
+
+
+
+
+
