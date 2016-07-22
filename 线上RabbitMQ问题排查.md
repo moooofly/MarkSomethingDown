@@ -18,6 +18,14 @@ closing AMQP connection <0.11270.4127> (10.0.133.159:38511 -> 10.0.21.154:5672):
 n sec ～ n min    
 多数为 10+ minute 级别，偶尔会 1 minute 中多次；     
 
+
+## 影响范围
+
+
+## 原因总结
+
+
+
 ## 源码分析
 
 在 `rabbit_reader.erl` 中
@@ -33,6 +41,8 @@ init(Parent, HelperSup, Ref, Sock) ->
 %% 正式开始 TCP + AMQP 协议处理
 start_connection(Parent, HelperSup, Deb, Sock) ->
 	...
+    %% 允许的最长 AMQP 0-9-1 handshake 时间，即在成功建立 socket 连接后最长等待时间
+    %% 以毫秒为单位，默认为 10000ms ，即 10s
     {ok, HandshakeTimeout} = application:get_env(rabbit, handshake_timeout),
 	...
     %% 启动超时定时器，针对 handshake 状态机下未收到任何协议包的情况
@@ -86,7 +96,7 @@ mainloop(Deb, Buf, BufLen, State = #v1{sock = Sock,
                                          name = ConnName}}) ->
     %% 从进程邮箱中获取数据，其中包括如下内容
     %% 1. 从 TCP 连接上获取到的数据报文；
-    %% 2. 从 TCP 连接上获取到的 FIN 报文；
+    %% 2. 从 TCP 连接上获取到的 FIN or RST 报文；
     %% 3. 当前 TCP 连接异常通知消息；
     %% 4. 由超时定时器发送的 handshake_timeout 消息；
     Recv = rabbit_net:recv(Sock),
@@ -118,15 +128,15 @@ recv(Sock) when is_port(Sock) ->
 
 recv(S, {DataTag, ClosedTag, ErrorTag}) ->
     receive
-        {DataTag, S, Data}    -> {data, Data};  %% 接收到 TCP 数据包
-        {ClosedTag, S}        -> closed;        %% TCP 连接关闭（FIN or RST）
+        {DataTag, S, Data}    -> {data, Data};    %% 接收到 TCP 数据包
+        {ClosedTag, S}        -> closed;          %% TCP 连接关闭（FIN or RST）
         {ErrorTag, S, Reason} -> {error, Reason}; %% TCP 连接相关错误
-        Other                 -> {other, Other}  %% 其它错误处理（如 handshake_timeout）
+        Other                 -> {other, Other}   %% 其它错误处理（如 handshake_timeout）
     end.
 ```
 
 
-## 影响范围
+
 
 ----------
 
