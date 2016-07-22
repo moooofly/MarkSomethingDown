@@ -15,8 +15,8 @@ closing AMQP connection <0.11270.4127> (10.0.133.159:38511 -> 10.0.21.154:5672):
 
 ## 出错频率
 
-n sec ～ n min
-多数为 10+ minute 级别，偶尔会 1 minute 中多次； 
+n sec ～ n min    
+多数为 10+ minute 级别，偶尔会 1 minute 中多次；     
 
 ## 源码分析
 
@@ -48,10 +48,11 @@ start_connection(Parent, HelperSup, Deb, Sock) ->
         log(info, "closing AMQP connection ~p (~s)~n", [self(), Name])
     catch
 		%% 针对异常情况的处理
+		%% handshake_timeout 异常会在这里被捕获
         Ex ->
           log_connection_exception(Name, Ex)
     after
-	    %% 无论正常关闭，或者异常关闭 TCP 连接，均采用如下方式进行处理
+	    %% 无论正常关闭，或者异常关闭 TCP 连接，服务器侧均采用如下方式进行 socket 关闭处理
         rabbit_net:fast_close(Sock),
 		...
     end,
@@ -118,7 +119,7 @@ recv(Sock) when is_port(Sock) ->
 recv(S, {DataTag, ClosedTag, ErrorTag}) ->
     receive
         {DataTag, S, Data}    -> {data, Data};  %% 接收到 TCP 数据包
-        {ClosedTag, S}        -> closed;        %% TCP 连接正常关闭
+        {ClosedTag, S}        -> closed;        %% TCP 连接关闭（FIN or RST）
         {ErrorTag, S, Reason} -> {error, Reason}; %% TCP 连接相关错误
         Other                 -> {other, Other}  %% 其它错误处理（如 handshake_timeout）
     end.
