@@ -20,6 +20,116 @@ n sec ～ n min
 
 ## 源码分析
 
+在 rabbit_reader.erl 中
+```erlang
+...
+init(Parent, HelperSup, Ref, Sock) ->
+    %% 成功获取到 client socket 所有权
+    rabbit_net:accept_ack(Ref, Sock),
+    Deb = sys:debug_options([]),
+    %% 开始 TCP 连接处理
+    start_connection(Parent, HelperSup, Deb, Sock).
+...
+%% 正式开始 TCP + AMQP 协议处理
+start_connection(Parent, HelperSup, Deb, Sock) ->
+	...
+    {ok, HandshakeTimeout} = application:get_env(rabbit, handshake_timeout),
+	...
+    %% 启动超时定时器，针对 handshake 状态机下未收到任何协议包的情况
+    erlang:send_after(HandshakeTimeout, self(), handshake_timeout),
+    ...
+    try
+        run({?MODULE, recvloop,
+             [Deb, [], 0, switch_callback(rabbit_event:init_stats_timer(
+                                            State, #v1.stats_timer),
+                                          handshake, 8)]}),
+        log(info, "closing AMQP connection ~p (~s)~n", [self(), Name])
+    catch
+        Ex ->
+          log_connection_exception(Name, Ex)
+    after
+        rabbit_net:fast_close(Sock),
+		...
+    end,
+    done.
+...
+log_connection_exception(Name, Ex) ->
+    Severity = case Ex of
+                   connection_closed_with_no_data_received -> debug;
+                   connection_closed_abruptly              -> warning;
+                   _                                       -> error
+               end,
+    log_connection_exception(Severity, Name, Ex).
+...
+log_connection_exception(Severity, Name, Ex) ->
+    log(Severity, "closing AMQP connection ~p (~s):~n~p~n",
+        [self(), Name, Ex]).
+...
+recvloop(Deb, Buf, BufLen, State = #v1{sock = Sock, recv_len = RecvLen})
+  when BufLen < RecvLen ->
+    case rabbit_net:setopts(Sock, [{active, once}]) of
+        ok              -> mainloop(Deb, Buf, BufLen,
+                                    State#v1{pending_recv = true});
+        {error, Reason} -> stop(Reason, State)
+    end;
+...
+mainloop(Deb, Buf, BufLen, State = #v1{sock = Sock,
+                                       connection_state = CS,
+                                       connection = #connection{
+                                         name = ConnName}}) ->
+    Recv = rabbit_net:recv(Sock),
+    case CS of
+        pre_init when Buf =:= [] ->
+            %% We only log incoming connections when either the
+            %% first byte was received or there was an error (eg. a
+            %% timeout).
+            %%
+            %% The goal is to not log TCP healthchecks (a connection
+            %% with no data received) unless specified otherwise.
+            log(case Recv of
+                  closed -> debug;
+                  _      -> info
+                end, "accepting AMQP connection ~p (~s)~n",
+                [self(), ConnName]);
+        _ ->
+            ok
+    end,
+    case Recv of
+        {data, Data} ->
+            recvloop(Deb, [Data | Buf], BufLen + size(Data),
+                     State#v1{pending_recv = false});
+        closed when State#v1.connection_state =:= closed ->
+            ok;
+        closed when CS =:= pre_init andalso Buf =:= [] ->
+            stop(tcp_healthcheck, State);
+        closed ->
+            stop(closed, State);
+        {other, {heartbeat_send_error, Reason}} ->
+            %% The only portable way to detect disconnect on blocked
+            %% connection is to wait for heartbeat send failure.
+            stop(Reason, State);
+        {error, Reason} ->
+            stop(Reason, State);
+        {other, {system, From, Request}} ->
+            sys:handle_system_msg(Request, From, State#v1.parent,
+                                  ?MODULE, Deb, {Buf, BufLen, State});
+        {other, Other}  ->
+            case handle_other(Other, State) of
+                stop     -> ok;
+                NewState -> recvloop(Deb, Buf, BufLen, NewState)
+            end
+    end.
+...
+handle_other(handshake_timeout, State)
+  when ?IS_RUNNING(State) orelse ?IS_STOPPING(State) ->
+    State;
+handle_other(handshake_timeout, State) ->
+    maybe_emit_stats(State),
+    throw({handshake_timeout, State#v1.callback});
+...
+
+```
+
 
 ## 影响范围
 
