@@ -20,6 +20,7 @@ n sec ～ n min
 
 
 ## 原因总结
+
 业务 client 与 RabbitMQ 成功建立 TCP 连接后，在 10s 内（默认值）未发送 AMQP handshake 协议包（即 Protocol-Header 0-9-1 包）；此问题属于业务 client 侧 bug ；
 
 ## 影响范围
@@ -136,8 +137,6 @@ recv(S, {DataTag, ClosedTag, ErrorTag}) ->
 ```
 
 
-
-
 ----------
 
 # enotconn (socket is not connected) 错误
@@ -151,12 +150,83 @@ Error on AMQP connection <0.21024.4027>: enotconn (socket is not connected)
 
 ## 出错频率
 
-
-n sec ～ n min
-多数为 1~2 minute 级别，偶尔会 1 minute 中多次； 
+n sec ～ n min ；   
+多数为 1~2 minute 级别，偶尔会 1 minute 中多次；     
 
 ## 源码分析
 
+
+在 `rabbit_reader.erl` 中
+
+```erlang
+...
+%% 正式开始 TCP + AMQP 协议处理
+start_connection(Parent, HelperSup, Deb, Sock) ->
+	...
+	%% 获取当前 TCP 连接两端的 ip 和 port 信息，拼接成连接信息字符串
+    Name = case rabbit_net:connection_string(Sock, inbound) of
+               {ok, Str}         -> Str;
+               %% 在获取时，触发 socket 错误，认为当前连接已不存在
+               %% 注意：这里没有输出异常日志
+               {error, enotconn} -> rabbit_net:fast_close(Sock),
+                                    exit(normal);
+               {error, Reason}   -> socket_error(Reason),
+                                    rabbit_net:fast_close(Sock),
+                                    exit(normal)
+           end,
+	...
+    %% 输出异常日志的地方
+    %% 关键：上面 rabbit_net:connection_string 中调用的就是 rabbit_net:socket_ends
+    %% 同样的代码上面没有输出错误，而此处会输出错误，说明在这段代码间 TCP 连接发生了断开！
+    {PeerHost, PeerPort, Host, Port} =
+        socket_op(Sock, fun (S) -> rabbit_net:socket_ends(S, inbound) end),
+    ...
+    done.
+...
+socket_op(Sock, Fun) ->
+    case Fun(Sock) of
+        {ok, Res}       -> Res;
+        {error, Reason} -> socket_error(Reason),
+                           rabbit_net:fast_close(Sock),
+                           %% 正常退出 rabbit_reader 进程
+                           exit(normal)
+    end.
+...
+socket_error(Reason) when is_atom(Reason) ->
+    log(error, "Error on AMQP connection ~p: ~s~n",
+        [self(), rabbit_misc:format_inet_error(Reason)]);
+...
+```
+
+在 `rabbit_net.erl` 中
+
+```erlang
+...
+connection_string(Sock, Direction) ->
+    case socket_ends(Sock, Direction) of
+        {ok, {FromAddress, FromPort, ToAddress, ToPort}} ->
+            {ok, rabbit_misc:format(
+                   "~s:~p -> ~s:~p",
+                   [maybe_ntoab(FromAddress), FromPort,
+                    maybe_ntoab(ToAddress),   ToPort])};
+        Error ->
+            Error
+    end.
+
+socket_ends(Sock, Direction) ->
+    {From, To} = sock_funs(Direction),
+    %% 获取 tcp 通信两端的 ip 和 port
+    case {From(Sock), To(Sock)} of
+        {{ok, {FromAddress, FromPort}}, {ok, {ToAddress, ToPort}}} ->
+            {ok, {rdns(FromAddress), FromPort,
+                  rdns(ToAddress),   ToPort}};
+        {{error, _Reason} = Error, _} ->
+            Error;
+        {_, {error, _Reason} = Error} ->
+            Error
+    end.
+...
+```
 
 
 ## 影响范围
