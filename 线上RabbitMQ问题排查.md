@@ -172,15 +172,13 @@ RabbitMQ->HAProxy: SYN,ACK
 HAProxy->RabbitMQ: RST,ACK
 ```
 
-两者其实存在本质上的区别：对 RabbitMQ 而言，HAProxy 的方式没有完成 TCP 三次握手，sdfsfsf
-sfsfsfsdfsf
+两者其实存在一定区别：差异分析还需要查阅一些资料，后续补上；
 
-
-（据说此方式为老版本的实现，新版本已经和 haproxy 实现方式一致）
 
 ## 影响范围
 
-目前看来只是造成了日志中出现大量相关错误信息，浪费了部分可用连接数量；
+目前看来只是造成了日志中出现大量相关错误信息，浪费了部分可用连接数量；    
+据说上述行为逻辑属于老版本的实现，新版本已经和 haproxy 实现方式一致；建议升级 goproxy 和 goproxy agent 为最新版本；
 
 ## 源码分析
 
@@ -287,7 +285,6 @@ n sec ～ n min
 业务高峰时段 1 second  中多次，平时 minute 级别
 
 
-
 ## RabbitMQ 监督树结构
 
 若想理解上述错误报告的含义，首先需要正确理解 RabbitMQ 内部进程的组织形式；
@@ -379,7 +376,7 @@ n sec ～ n min
 terminate(_Reason, State) ->
     terminate_children(State#state.children, State#state.name).
 ...
-%% 终止所有子进程
+%% 终止当前监督者进程下的所有子进程
 terminate_children(Children, SupName) ->
     terminate_children(Children, SupName, []).
 ...
@@ -422,8 +419,13 @@ extract_child(Child) when is_list(Child#child.pid) ->
 
 ## 原因总结
 
+通过源码可知，rabbit_channel_sup_sup 进程的创建对应了 rabbit_reader 进程收到来自 client 的 AMQP connection.open 信令；而 rabbit_channel_sup 和其下子进程的创建对应了 rabbit_reader 进程收到来自 client 的 AMQP channel.open 信令；    
+从 SASL 日志中看到：Supervisor: {<0.25278.357>, rabbit_channel_sup_sup} 中的 <0.25278.357> 即 rabbit_channel_sup_sup 进程 pid 不断变化，没有重复（可以通过过滤进行确认），说明以 rabbit_channel_sup_sup 为根的进程树在不断的销毁和创建；    
+在正常的连接关闭序列下，应该不会报上述错误日志（后续进行试验验证），因此，该问题应该和业务的连接关闭处理逻辑有关；
+
 ## 影响范围
 
+目前看来，该问题除了会导致 RabbitMQ 进程的不断创建和销毁外（增加了一定开销），未造成其它直接影响；
 
 ----------
 
