@@ -153,8 +153,32 @@ Error on AMQP connection <0.21024.4027>: enotconn (socket is not connected)
 n sec ～ n min ；   
 多数为 1~2 minute 级别，偶尔会 1 minute 中多次；     
 
-## 源码分析
+## 原因总结
 
+应该是由于业务 client 或 goproxy agent 发起的保活探测 TCP 序列导致的，通过抓包能够看到如下 TCP 序列每隔 2s 重复一次；
+
+```sequence
+goproxy agent->RabbitMQ: SYN
+RabbitMQ->goproxy agent: SYN,ACK
+goproxy agent->RabbitMQ: ACK
+goproxy agent->RabbitMQ: RST,ACK
+```
+
+而 HAProxy 的健康监测 TCP 序列如下
+
+```sequence
+HAProxy->RabbitMQ: SYN
+RabbitMQ->HAProxy: SYN,ACK
+HAProxy->RabbitMQ: RST,ACK
+```
+
+两者其实存在本质上的区别：对 RabbitMQ 而言，HAProxy 的方式没有完成 TCP 三次握手，
+
+（据说此方式为老版本的实现，新版本已经和 haproxy 实现方式一致）
+
+## 影响范围
+
+## 源码分析
 
 在 `rabbit_reader.erl` 中
 
@@ -177,7 +201,7 @@ start_connection(Parent, HelperSup, Deb, Sock) ->
 	...
     %% 输出异常日志的地方
     %% 关键：上面 rabbit_net:connection_string 中调用的就是 rabbit_net:socket_ends
-    %% 同样的代码上面没有输出错误，而此处会输出错误，说明在这段代码间 TCP 连接发生了断开！
+    %% 同样的代码上面没有报错，而此处会报错，说明在两段临近代码的执行间发生了 TCP 连接断开！
     {PeerHost, PeerPort, Host, Port} =
         socket_op(Sock, fun (S) -> rabbit_net:socket_ends(S, inbound) end),
     ...
@@ -186,7 +210,9 @@ start_connection(Parent, HelperSup, Deb, Sock) ->
 socket_op(Sock, Fun) ->
     case Fun(Sock) of
         {ok, Res}       -> Res;
-        {error, Reason} -> socket_error(Reason),
+        {error, Reason} -> %% 输出错误日志
+					       socket_error(Reason),
+					       %% 关闭 TCP 连接
                            rabbit_net:fast_close(Sock),
                            %% 正常退出 rabbit_reader 进程
                            exit(normal)
@@ -203,6 +229,7 @@ socket_error(Reason) when is_atom(Reason) ->
 ```erlang
 ...
 connection_string(Sock, Direction) ->
+	%% 获取 socket 连接两端 ip 和 port 信息
     case socket_ends(Sock, Direction) of
         {ok, {FromAddress, FromPort, ToAddress, ToPort}} ->
             {ok, rabbit_misc:format(
@@ -229,7 +256,7 @@ socket_ends(Sock, Direction) ->
 ```
 
 
-## 影响范围
+
 
 
 ----------
