@@ -283,7 +283,6 @@ socket_ends(Sock, Direction) ->
 
 ## 出错频率
 
-
 n sec ～ n min
 业务高峰时段 1 second  中多次，平时 minute 级别
 
@@ -339,11 +338,12 @@ n sec ～ n min
                                    rabbit_connection_helper_sup
                                                 |
                                                 | (one_for_one)
-                               +----------------++----------------+
-                               |                ||                |
-                               |                ||                |
-                rabbit_channel_sup_sup  heartbeat_sender  rabbit_queue_collector
-                               |        heartbeat_receiver
+                               +-----------+----+-----+--------------+
+                               |           |          |              |
+                               |           |          |              |
+                               |     heartbeat_sender |              |
+                               |                heartbeat_receiver   |
+                     rabbit_channel_sup_sup             rabbit_queue_collector
                                |
                                | (simple_one_for_one)
                    +-----------+--------------+
@@ -371,10 +371,56 @@ n sec ～ n min
 
 
 
- 
-
-
 ## 源码分析
+
+```erlang
+...
+%% 终止当前监督者进程
+terminate(_Reason, State) ->
+    terminate_children(State#state.children, State#state.name).
+...
+%% 终止所有子进程
+terminate_children(Children, SupName) ->
+    terminate_children(Children, SupName, []).
+...
+terminate_children([Child | Children], SupName, Res) ->
+    NChild = do_terminate(Child, SupName),
+    terminate_children(Children, SupName, [NChild | Res]);
+...
+%% 终止特定子进程
+do_terminate(Child, SupName) when is_pid(Child#child.pid) ->
+	%% 按照子进程规范 shutdown 子进程
+    case shutdown(Child#child.pid, Child#child.shutdown) of
+        ok ->
+            ok;
+        {error, normal} when not ?is_permanent(Child#child.restart_type) ->
+            ok;
+        {error, OtherReason} ->
+	        %% 在关闭时发生错误
+            report_error(shutdown_error, OtherReason, Child, SupName)
+    end,
+    Child#child{pid = undefined};
+...
+report_error(Error, Reason, Child, SupName) ->
+    ErrorMsg = [{supervisor, SupName},      %% 所属监督者
+		{errorContext, Error},              %% 发生错误时的上下文
+		{reason, Reason},                   %% 发生错误的原因
+		{offender, extract_child(Child)}],  %% 发生问题的进程
+	%% 输出错误信息到 SASL 日志中
+    error_logger:error_report(supervisor_report, ErrorMsg).
+
+extract_child(Child) when is_list(Child#child.pid) ->
+    [{nb_children, length(Child#child.pid)},
+     {name, Child#child.name},
+     {mfargs, Child#child.mfargs},
+     {restart_type, Child#child.restart_type},
+     {shutdown, Child#child.shutdown},
+     {child_type, Child#child.child_type}];
+...
+
+```
+
+## 原因总结
 
 ## 影响范围
 
