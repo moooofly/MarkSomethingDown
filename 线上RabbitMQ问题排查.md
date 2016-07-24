@@ -281,8 +281,8 @@ socket_ends(Sock, Direction) ->
 
 ## 出错频率
 
-n sec ～ n min
-业务高峰时段 1 second  中多次，平时 minute 级别
+n sec ～ n min    
+业务高峰时段 1 second  中多次，平时 minute 级别    
 
 
 ## RabbitMQ 监督树结构
