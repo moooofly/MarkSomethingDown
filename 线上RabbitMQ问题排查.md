@@ -294,7 +294,7 @@ n sec ～ n min
 
 ```
                                                       |
-                                                   rabbit_sup
+                                                  rabbit_sup
                                                       |
                                                       | (one_for_all)
                                                tcp_listener_sup
@@ -307,7 +307,7 @@ n sec ～ n min
                                    |
                                    | (rest_for_one)
                           +--------+--------------------+
-                          |                             |
+                          |(1)                          |(2)
                           |                             |
                    ranch_conns_sup             ranch_acceptors_sup
                           |                             |
@@ -318,15 +318,17 @@ n sec ～ n min
                 rabbit_connection_sup             ranch_acceptor
                           |
                           | (one_for_all)
-                   +------+---------+
-                   |                |
-               help_sup        rabbit_reader
+              +-----------+-----------+
+              |                       |
+  rabbit_connection_helper_sup    rabbit_reader
+              |
 ```
 
 其中 
 
-- **topman** - 维护 pubsub 进程和 Topic 的映射关系； 
-- **pubsub** - 关联特定  Topic 的进程 ；维护所有订阅到该 Topic 的进程信息； 
+- **ranch_acceptors_sup** - 创建监听 socket ；默认监听所有 interface 上的 `5672` 端口；
+- **ranch_acceptor** - N 个 ranch_acceptor 进程共享同一个监听 socket ，并获取来自 client 的 TCP 连接；ranch_acceptor 进程数目可通过配置项 num_tcp_acceptors 进行配置，默认为 10 ；
+- **ranch_conns_sup** - 负责创建以 rabbit_connection_sup 为根的 AMQP connection 相关进程树，以同步的方式从 ranch_acceptor 获取 client socket 控制权，并进行； 
 - **janus_acceptor** - 处理来自网络的 TCP 连接；动态创建 transport 和 client_proxy 进程，以处理后续协议交互； 
 - **transport** - 针对某个 TCP 连接上的数据处理； 
 - **client_proxy** - 实际处理订阅，取消订阅，以及消息推送的模块； 
