@@ -435,7 +435,6 @@ extract_child(Child) when is_list(Child#child.pid) ->
 
 - 业务以 2.5s 时间间隔发送 heartbeat 给 RMQ
 - RMQ 以 5s 时间间隔发送 heartbeat 给业务
-似乎均为请求，没有应答
 
 ## haproxy 健康检查方式
 
@@ -444,7 +443,6 @@ HAProxy->RabbitMQ: SYN
 RabbitMQ->HAProxy: SYN,ACK
 HAProxy->RabbitMQ: RST,ACK
 ```
-
 
 ## goproxy agent 健康检查方式
 
@@ -458,15 +456,15 @@ goproxy agent->RabbitMQ: RST,ACK
 ```
 
 
-
 ## 源码分析
 
-
+略
 
 ## 影响范围
 
-
-
+- goproxy 中实现的健康检查方式建议和 HAProxy 一致；
+- 理论上讲，业务通过 AMQP 协议中的 heartbeat 功能就能够实现可靠监测；个人认为使用这种方式更合理；
+- 若想要同时使用 goproxy 和 heartbeat 两种方式进行监测，则建议：根据实际情况，调整 heartbeat 监测超时时间；目前抓包显示，业务使用了 2.5s 的时间间隔，会导致 RabbitMQ 处理大量心跳消息，理论上讲，会导致常规业务消息的处理被拖慢；
 
 
 
