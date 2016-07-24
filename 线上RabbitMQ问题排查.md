@@ -360,6 +360,9 @@ n sec ～ n min
 
 其中 
 
+
+- **heartbeat_sender** - 负责 heartbeat 发送处理；
+- **heartbeat_receiver** - 负责 heartbeat 接收处理；
 - **rabbit_queue_collector** - 负责处理具有 exclusive 属性的 queue ；
 - **rabbit_channel_sup** - 收到来自 client 的 channel.open 信令时，会在 rabbit_channel_sup_sup 下创建以 rabbit_channel_sup 为根的进程树，对应一个 channel 的处理；
 - **rabbit_channel** - 对应 AMQP 0-9-1 中的 channel 实现；
