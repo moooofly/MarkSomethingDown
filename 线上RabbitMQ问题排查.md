@@ -172,11 +172,15 @@ RabbitMQ->HAProxy: SYN,ACK
 HAProxy->RabbitMQ: RST,ACK
 ```
 
-两者其实存在本质上的区别：对 RabbitMQ 而言，HAProxy 的方式没有完成 TCP 三次握手，
+两者其实存在本质上的区别：对 RabbitMQ 而言，HAProxy 的方式没有完成 TCP 三次握手，sdfsfsf
+sfsfsfsdfsf
+
 
 （据说此方式为老版本的实现，新版本已经和 haproxy 实现方式一致）
 
 ## 影响范围
+
+目前看来只是造成了日志中出现大量相关错误信息，浪费了部分可用连接数量；
 
 ## 源码分析
 
@@ -257,8 +261,6 @@ socket_ends(Sock, Direction) ->
 
 
 
-
-
 ----------
 
 
@@ -286,9 +288,52 @@ n sec ～ n min
 业务高峰时段 1 second  中多次，平时 minute 级别
 
 
+
+## 监督树总体结构
+
+
+```
+                                                      |
+                                                   rabbit_sup
+                                                      |
+                                                      | (one_for_all)
+                                               tcp_listener_sup
+                                                      |
+                                                      | (one_for_all)
+                                   +------------------+--------------------+
+                                   |                                       |
+                                   |                                       |
+                          ranch_listener_sup                        tcp_listener
+                                   |
+                                   | (rest_for_one)
+                          +--------+--------------------+
+                          |                             |
+                          |                             |
+                   ranch_conns_sup             ranch_acceptors_sup
+                          |                             |
+                          |                             | (one_for_one)
+              +-----------+-----------+        +--------+--------+
+              |           |           |        |        |        |
+             ...          |          ...      ...       |       ...
+                rabbit_connection_sup             ranch_acceptor
+                          |
+                          | (one_for_all)
+                   +------+---------+
+                   |                |
+               help_sup        rabbit_reader
+```
+
+其中 
+
+- **topman** - 维护 pubsub 进程和 Topic 的映射关系； 
+- **pubsub** - 关联特定  Topic 的进程 ；维护所有订阅到该 Topic 的进程信息； 
+- **janus_acceptor** - 处理来自网络的 TCP 连接；动态创建 transport 和 client_proxy 进程，以处理后续协议交互； 
+- **transport** - 针对某个 TCP 连接上的数据处理； 
+- **client_proxy** - 实际处理订阅，取消订阅，以及消息推送的模块； 
+- **mapper** -  提供轻量级进程注册管理功能； 
+
+
 ## 源码分析
-
-
 
 ## 影响范围
 
