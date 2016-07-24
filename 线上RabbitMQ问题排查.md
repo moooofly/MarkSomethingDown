@@ -289,8 +289,9 @@ n sec ～ n min
 
 
 
-## 监督树总体结构
+## RabbitMQ 监督树结构
 
+若想理解上述错误报告的含义，首先需要正确理解 RabbitMQ 内部进程的组织形式；
 
 ```
                                                       |
@@ -328,11 +329,46 @@ n sec ～ n min
 
 - **ranch_acceptors_sup** - 创建监听 socket ；默认监听所有 interface 上的 `5672` 端口；
 - **ranch_acceptor** - N 个 ranch_acceptor 进程共享同一个监听 socket ，并获取来自 client 的 TCP 连接；ranch_acceptor 进程数目可通过配置项 num_tcp_acceptors 进行配置，默认为 10 ；
-- **ranch_conns_sup** - 负责创建以 rabbit_connection_sup 为根的 AMQP connection 相关进程树，以同步的方式从 ranch_acceptor 获取 client socket 控制权，并进行； 
-- **janus_acceptor** - 处理来自网络的 TCP 连接；动态创建 transport 和 client_proxy 进程，以处理后续协议交互； 
-- **transport** - 针对某个 TCP 连接上的数据处理； 
-- **client_proxy** - 实际处理订阅，取消订阅，以及消息推送的模块； 
-- **mapper** -  提供轻量级进程注册管理功能； 
+- **ranch_conns_sup** - 负责创建以 rabbit_connection_sup 为根的 AMQP connection 相关进程树；采取同步的方式从 ranch_acceptor 获取 client socket 控制权，并最终转移给 rabbit_reader 进程；负责控制最大并发连接；
+- **rabbit_connection_sup** - 与每一条 TCP 连接对应的进程树结构的根； 
+- **rabbit_reader** - 负责 TCP 协议和 AMQP 协议的相关处理； 
+
+
+```
+                                                |
+                                   rabbit_connection_helper_sup
+                                                |
+                                                | (one_for_one)
+                               +----------------++----------------+
+                               |                ||                |
+                               |                ||                |
+                rabbit_channel_sup_sup  heartbeat_sender  rabbit_queue_collector
+                               |        heartbeat_receiver
+                               |
+                               | (simple_one_for_one)
+                   +-----------+--------------+
+                   |           |              |
+                  ...          |             ...
+                        rabbit_channel_sup
+                               |
+                               | (one_for_all)
+               +---------------+---------------+
+               |               |               |
+               |               |               |
+         rabbit_channel   rabbit_writer   rabbit_limiter
+```
+
+其中 
+
+- **rabbit_queue_collector** - 负责处理具有 exclusive 属性的 queue ；
+- **rabbit_channel_sup** - 收到来自 client 的 channel.open 信令时，会在 rabbit_channel_sup_sup 下创建以 rabbit_channel_sup 为根的进程树，对应一个 channel 的处理；
+- **rabbit_channel** - 对应 AMQP 0-9-1 中的 channel 实现；
+- **rabbit_writer** - 负责发送 frame 给 client ；
+- **rabbit_limiter** - 负责与 QoS 和流控相关的 channel 处理；
+
+
+
+ 
 
 
 ## 源码分析
