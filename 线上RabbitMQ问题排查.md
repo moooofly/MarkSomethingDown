@@ -434,11 +434,12 @@ extract_child(Child) when is_list(Child#child.pid) ->
 ## RabbitMQ 自身 heartbeat 保活方式
 
 - 业务以 2.5s 时间间隔发送 heartbeat 给 RMQ
-抓包信息如下：
+
 ![业务每 2.5 秒发送一次 heartbeat 包](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E4%B8%9A%E5%8A%A1%E6%AF%8F2.5%E7%A7%92%E5%8F%91%E9%80%81%E4%B8%80%E6%AC%A1heartbeat%E5%8C%85.png "业务发送 heartbeat 包情况")
 
-
 - RMQ 以 5s 时间间隔发送 heartbeat 给业务
+![RabbitMQ 每 5 秒发送一次 heartbeat 包](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/RabbitMQ%E6%AF%8F5%E7%A7%92%E5%8F%91%E9%80%81%E4%B8%80%E6%AC%A1heartbeat%E5%8C%85.png "RabbitMQ 发送 heartbeat 包情况")
+
 
 ## haproxy 健康检查方式
 
@@ -458,6 +459,12 @@ RabbitMQ->goproxy agent: SYN,ACK
 goproxy agent->RabbitMQ: ACK
 goproxy agent->RabbitMQ: RST,ACK
 ```
+
+![goproxy agent 每次保活探测的执行序列](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%20agent%E4%B8%80%E6%AC%A1%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B%E7%9A%84%E6%89%A7%E8%A1%8C%E5%BA%8F%E5%88%97.png "goproxy agent 每次保活探测的执行序列")
+
+![goproxy agent 每 2s 进行一次保活探测－1](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%20agent%E6%AF%8F%E9%9A%942%E7%A7%92%E5%BF%85%E5%AE%9A%E8%BF%9B%E8%A1%8C%E4%B8%80%E6%AC%A1%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B_1%EF%BC%88%E4%B8%8D%E5%90%88%E7%90%86%EF%BC%89.png "goproxy agent 每 2s 进行一次保活探测－1")
+
+![goproxy agent 每 2s 进行一次保活探测－2](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%20agent%E6%AF%8F%E9%9A%942%E7%A7%92%E5%BF%85%E5%AE%9A%E8%BF%9B%E8%A1%8C%E4%B8%80%E6%AC%A1%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B_2%EF%BC%88%E4%B8%8D%E5%90%88%E7%90%86%EF%BC%89.png "goproxy agent 每 2s 进行一次保活探测－2")
 
 
 ## 源码分析
