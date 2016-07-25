@@ -480,7 +480,7 @@ goproxy agent->RabbitMQ: RST,ACK
 
 - goproxy 中实现的健康检查方式建议和 HAProxy 一致；
 - 理论上讲，业务通过 AMQP 协议中的 heartbeat 功能就能够实现可靠监测；个人认为使用这种方式更合理；
-- 若想要同时使用 goproxy 和 heartbeat 两种方式进行监测，则建议：根据实际情况，调整 heartbeat 监测超时时间；目前抓包显示，业务使用了 2.5s 的时间间隔，会导致 RabbitMQ 处理大量心跳消息，理论上讲，会导致常规业务消息的处理被拖慢；
+- 若想要同时使用 goproxy 和 heartbeat 两种方式进行监测，则建议：根据实际情况，调整 heartbeat 超时时间，默认配置为 600s ，建议调整为 30s 或 60s ；目前抓包显示，业务使用了 2.5s 的时间间隔，会导致 RabbitMQ 处理大量心跳消息，理论上讲，会导致常规业务消息的处理被拖慢；
 
 
 
@@ -493,9 +493,20 @@ goproxy agent->RabbitMQ: RST,ACK
 - 在一条 connection 上针对每条消息都新建 channel
 ![在一条 connection 上针对每条消息都新建 channel](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/producer%E5%9C%A8%E4%B8%80%E4%B8%AAconnection%E4%B8%8A%E5%8F%8D%E5%A4%8D%E5%88%9B%E5%BB%BA%E5%92%8C%E9%94%80%E6%AF%81channel%E4%BB%A5%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF%EF%BC%88%E4%B8%8D%E5%90%88%E7%90%86%EF%BC%89.png "在一条 connection 上针对每条消息都新建 channel")
 
+## 结论
+
+从抓包中可以看到，每次发送一条消息的时候都会重新执行 channel.open 打开新的 channel ，发送完毕之后在调用 channel.close 进行关闭；并且可以看到，每次创建后得到的 channel 号都是相同的；而根据 AMQP 协议，这种使用方式并不能获得额外的好处，反正会增加系统负担；     
+（上述结论，如果有异议，欢迎找我讨论）
+
+
 
 ## producer 为每条消息都会创建和销毁 connection 和 channel
 
 
 - producer 为每条消息都会创建和销毁 connection 和 channel
 ![producer 为每条消息都会创建和销毁 connection 和 channel](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/producer%E6%AF%8F%E5%8F%91%E4%B8%80%E6%9D%A1%E6%B6%88%E6%81%AF%E5%88%9B%E5%BB%BA%E4%B8%80%E6%9D%A1connection%2Bchannel%E5%86%8D%E9%94%80%E6%AF%81.png "producer 为每条消息都会创建和销毁 connection 和 channel")
+
+## 结论
+
+从抓包中可以看到，每次发送一条消息的时候都会重新执行 connection 和 channel 的创建和销毁，据说是为了解决负载均衡问题；这么设计确实能够做到每次发送消息都会进行负载均衡，但我个人认为这种方式并非最佳实践，AMQP 协议本身是按照长连接设计的，这么使用显然与 AMQP 协议设计不符；
+（上述结论，如果有异议，欢迎找我讨论）
