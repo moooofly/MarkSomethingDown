@@ -469,7 +469,7 @@ goproxy agent->RabbitMQ: RST,ACK
 ![goproxy agent 每 2s 进行一次保活探测－2](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%20agent%E6%AF%8F%E9%9A%942%E7%A7%92%E5%BF%85%E5%AE%9A%E8%BF%9B%E8%A1%8C%E4%B8%80%E6%AC%A1%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B_2%EF%BC%88%E4%B8%8D%E5%90%88%E7%90%86%EF%BC%89.png "goproxy agent 每 2s 进行一次保活探测－2")
 
 - RabbitMQ 每秒会收到来自 goproxy agent 保活探测的数目（大概值）
-![RabbitMQ 每秒会收到来自 goproxy agent 保活探测](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/https://github.com/moooofly/ImageCache/blob/master/Pictures/RabbitMQ%E5%9C%A81%E7%A7%92%E5%86%85%E6%94%B6%E5%88%B0%E7%9A%84goproxy%20agent%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B%E8%BF%9E%E6%8E%A5%E5%A4%84%E7%90%86.png "RabbitMQ 每秒会收到来自 goproxy agent 保活探测")
+![RabbitMQ 每秒会收到来自 goproxy agent 保活探测](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/RabbitMQ%E5%9C%A81%E7%A7%92%E5%86%85%E6%94%B6%E5%88%B0%E7%9A%84goproxy%20agent%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B%E8%BF%9E%E6%8E%A5%E5%A4%84%E7%90%86.png "RabbitMQ 每秒会收到来自 goproxy agent 保活探测")
 
 
 ## 源码分析
