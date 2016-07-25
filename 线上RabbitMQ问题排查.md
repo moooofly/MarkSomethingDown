@@ -459,12 +459,17 @@ RabbitMQ->goproxy agent: SYN,ACK
 goproxy agent->RabbitMQ: ACK
 goproxy agent->RabbitMQ: RST,ACK
 ```
-
+- goproxy agent 每次保活探测的执行序列
 ![goproxy agent 每次保活探测的执行序列](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%20agent%E4%B8%80%E6%AC%A1%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B%E7%9A%84%E6%89%A7%E8%A1%8C%E5%BA%8F%E5%88%97.png "goproxy agent 每次保活探测的执行序列")
 
+- goproxy agent 在两次保活探测之间仅处理 heartbeat 包的情况
 ![goproxy agent 每 2s 进行一次保活探测－1](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%20agent%E6%AF%8F%E9%9A%942%E7%A7%92%E5%BF%85%E5%AE%9A%E8%BF%9B%E8%A1%8C%E4%B8%80%E6%AC%A1%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B_1%EF%BC%88%E4%B8%8D%E5%90%88%E7%90%86%EF%BC%89.png "goproxy agent 每 2s 进行一次保活探测－1")
 
+- goproxy agent 在两次保活探测之间会进行消息消费处理的情况
 ![goproxy agent 每 2s 进行一次保活探测－2](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%20agent%E6%AF%8F%E9%9A%942%E7%A7%92%E5%BF%85%E5%AE%9A%E8%BF%9B%E8%A1%8C%E4%B8%80%E6%AC%A1%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B_2%EF%BC%88%E4%B8%8D%E5%90%88%E7%90%86%EF%BC%89.png "goproxy agent 每 2s 进行一次保活探测－2")
+
+- RabbitMQ 每秒会收到来自 goproxy agent 保活探测的数目（大概值）
+![RabbitMQ 每秒会收到来自 goproxy agent 保活探测](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/https://github.com/moooofly/ImageCache/blob/master/Pictures/RabbitMQ%E5%9C%A81%E7%A7%92%E5%86%85%E6%94%B6%E5%88%B0%E7%9A%84goproxy%20agent%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B%E8%BF%9E%E6%8E%A5%E5%A4%84%E7%90%86.png "RabbitMQ 每秒会收到来自 goproxy agent 保活探测")
 
 
 ## 源码分析
@@ -479,7 +484,18 @@ goproxy agent->RabbitMQ: RST,ACK
 
 
 
+----------
+
+# 业务中的 Producer 行为分析
+
+## producer 在一个 connection 上为每条消息都创建和销毁 channel
+
+- 在一条 connection 上针对每条消息都新建 channel
+![在一条 connection 上针对每条消息都新建 channel](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/producer%E5%9C%A8%E4%B8%80%E4%B8%AAconnection%E4%B8%8A%E5%8F%8D%E5%A4%8D%E5%88%9B%E5%BB%BA%E5%92%8C%E9%94%80%E6%AF%81channel%E4%BB%A5%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF%EF%BC%88%E4%B8%8D%E5%90%88%E7%90%86%EF%BC%89.png "在一条 connection 上针对每条消息都新建 channel")
 
 
+## producer 为每条消息都会创建和销毁 connection 和 channel
 
 
+- producer 为每条消息都会创建和销毁 connection 和 channel
+![producer 为每条消息都会创建和销毁 connection 和 channel](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/producer%E6%AF%8F%E5%8F%91%E4%B8%80%E6%9D%A1%E6%B6%88%E6%81%AF%E5%88%9B%E5%BB%BA%E4%B8%80%E6%9D%A1connection%2Bchannel%E5%86%8D%E9%94%80%E6%AF%81.png "producer 为每条消息都会创建和销毁 connection 和 channel")
