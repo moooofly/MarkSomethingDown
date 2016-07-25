@@ -3,6 +3,16 @@
 
 ----------
 
+本文针对如下线上问题进行说明：
+
+- handshake_timeout 错误
+- enotconn (socket is not connected) 错误
+- rabbit_channel_sup_sup 的 shutdown 错误
+- goproxy agent 探测 RabbitMQ 活性问题
+- 业务中的 Producer 行为分析
+
+----------
+
 # handshake_timeout 错误
 
 ## 错误日志
@@ -420,7 +430,7 @@ extract_child(Child) when is_list(Child#child.pid) ->
 ## 原因总结
 
 通过源码可知，rabbit_channel_sup_sup 进程的创建对应了 rabbit_reader 进程收到来自 client 的 AMQP connection.open 信令；而 rabbit_channel_sup 和其下子进程的创建对应了 rabbit_reader 进程收到来自 client 的 AMQP channel.open 信令；    
-从 SASL 日志中看到：Supervisor: {<0.25278.357>, rabbit_channel_sup_sup} 中的 <0.25278.357> 即 rabbit_channel_sup_sup 进程 pid 不断变化，没有重复（可以通过过滤进行确认），说明以 rabbit_channel_sup_sup 为根的进程树在不断的销毁和创建；    
+从 SASL 日志中看到：`Supervisor: {<0.25278.357>, rabbit_channel_sup_sup}` 中的 `<0.25278.357>` 即 rabbit_channel_sup_sup 进程 pid 不断变化，没有重复（可以通过过滤进行确认），说明以 rabbit_channel_sup_sup 为根的进程树在不断的销毁和创建；    
 在正常的连接关闭序列下，应该不会报上述错误日志（后续进行试验验证），因此，该问题应该和业务的连接关闭处理逻辑有关；
 
 ## 影响范围
