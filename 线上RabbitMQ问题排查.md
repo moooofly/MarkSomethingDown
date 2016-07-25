@@ -434,6 +434,10 @@ extract_child(Child) when is_list(Child#child.pid) ->
 ## RabbitMQ 自身 heartbeat 保活方式
 
 - 业务以 2.5s 时间间隔发送 heartbeat 给 RMQ
+抓包信息如下：
+![业务每 2.5 秒发送一次 heartbeat 包](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E4%B8%9A%E5%8A%A1%E6%AF%8F2.5%E7%A7%92%E5%8F%91%E9%80%81%E4%B8%80%E6%AC%A1heartbeat%E5%8C%85.png "业务发送 heartbeat 包情况")
+
+
 - RMQ 以 5s 时间间隔发送 heartbeat 给业务
 
 ## haproxy 健康检查方式
