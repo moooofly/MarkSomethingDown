@@ -121,6 +121,26 @@ client unexpectedly closed TCP connection
 ```
 
 
+TCP 序列如下
+
+```sequence
+client->RabbitMQ: SYN
+RabbitMQ->client: SYN,ACK
+client->RabbitMQ: ACK
+
+client->RabbitMQ: PUSH
+RabbitMQ->client: ACK
+client->RabbitMQ: PUSH
+RabbitMQ->client: ACK
+client->RabbitMQ: PUSH
+RabbitMQ->client: ACK
+client->RabbitMQ: PUSH
+RabbitMQ->client: ACK
+
+client->RabbitMQ: FIN
+RabbitMQ->client: RST
+```
+
 
 ----------
 
