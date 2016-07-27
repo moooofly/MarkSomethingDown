@@ -87,8 +87,58 @@ Available polling systems :
      select : pref=150,  test result OK
 Total: 3 (3 usable), will use epoll.
 
-root@vagrant-ubuntu-trusty:~/workspace/WGET/haproxy-1.6.7#
 ```
 
+
+基于本地 RabbitMQ 节点构建集群的配置文件
+
+```shell
+# HAProxy Config for Local RabbitMQ Cluster
+
+global
+        log 127.0.0.1   local0 info
+        maxconn 4096
+        stats socket /tmp/haproxy.socket uid haproxy mode 770 level admin
+        daemon
+
+defaults
+        log     global
+        mode    tcp
+        option  tcplog
+        option  dontlognull
+        retries 3
+        option redispatch
+        maxconn 2000
+        timeout connect 5s
+        timeout client 120s
+        timeout server 120s
+
+listen rabbitmq_local_cluster
+    bind :5670
+    mode tcp
+    balance roundrobin
+    server rabbit 127.0.0.1:5672 check inter 5000 rise 2 fall 3
+    server rabbit_1 127.0.0.1:5673 check inter 5000 rise 2 fall 3
+    server rabbit_2 127.0.0.1:5674 check inter 5000 rise 2 fall 3
+
+listen private_monitoring
+    bind :8100
+    mode http
+    option httplog
+    stats enable
+    stats uri   /stats
+    stats refresh 5s
+
+```
+
+# 启动
+```shell
+haproxy -f /etc/haproxy/haproxy_rmq_cluster.cfg
+```
+
+# 重新加载
+```shell
+haproxy -f /etc/haproxy/haproxy_rmq_cluster.cfg -p $(pidof haproxy) -sf $(pidof haproxy)
+```
 
 
