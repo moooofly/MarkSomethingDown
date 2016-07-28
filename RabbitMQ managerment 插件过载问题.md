@@ -17,6 +17,7 @@
 
 ----------
 
+# managerment 插件相关代码研究
 
 在 `overview.ejs` 中，可以看到输出上述告警信息的代码
 
@@ -70,9 +71,31 @@ prioritise_call(_Msg, _From, Len, _State) ->
     5.
 ```
 
-## RabbitMQ Management Plugin 配置项说明
+# managerment 插件配置项
 
-```shell
+## rabbitmq_management.app.src 中的配置项
+
+此处为 managerment 插件默认启动参数设置；
+
+```erlang
+  {env, [{listener,          [{port, 15672}]},
+         {http_log_dir,      none},
+         {load_definitions,  none},
+         {rates_mode,        basic},
+         {sample_retention_policies,
+          %% List of {MaxAgeInSeconds, SampleEveryNSeconds}
+          [{global,   [{605, 5}, {3660, 60}, {29400, 600}, {86400, 1800}]},
+           {basic,    [{605, 5}, {3600, 60}]},
+           {detailed, [{10, 5}]}]}
+        ]},
+```
+
+
+## rabbitmq.config 中的中的配置项
+
+此为常规配置文件内容（覆盖 .app.src 文件中的配置内容）
+
+```erlang
  %% ----------------------------------------------------------------------------
  %% RabbitMQ Management Plugin
  %%
@@ -80,14 +103,14 @@ prioritise_call(_Msg, _From, Len, _State) ->
  %% ----------------------------------------------------------------------------
 
  {rabbitmq_management,
-  [%% Pre-Load schema definitions from the following JSON file
+  [%% 可基于 JSON 文件启动时预先加载的 schema 定义信息
    %% {load_definitions, "/path/to/schema.json"},
 
    %% 将所有访问 management HTTP API 的请求记录到文件中
    %% {http_log_dir, "/path/to/access.log"},
 
    %% 配置 rabbitmq_management 插件的 HTTP 监听 IP 和 port
-   %% Also set the listener to use SSL and provide SSL options.
+   %% 可以配置基于 SSL 的连接
    %%
    %% {listener, [{port,     12345},
    %%             {ip,       "127.0.0.1"},
@@ -99,8 +122,7 @@ prioritise_call(_Msg, _From, Len, _State) ->
    %% 可以设置为 'basic' 或 'detailed' 或 'none'
    %% {rates_mode, basic},
 
-   %% 配置聚合数据被保留的时间长度；例如针对 message rates 和 queue 长度的聚合数据
-   %%
+   %% 配置聚合数据被保留的时间长度；例如针对消息速率和 queue 长度的聚合数据
    %% {sample_retention_policies,
    %%  [{global,   [{60, 5}, {3600, 60}, {86400, 1200}]},
    %%   {basic,    [{60, 5}, {3600, 60}]},
@@ -108,23 +130,43 @@ prioritise_call(_Msg, _From, Len, _State) ->
   ]},
 ```
 
-### 启动时加载预定义信息
+
+## 和统计信息有关的其它配置项
+
+```erlang
+   %%
+   %% Misc/Advanced Options
+   %% =====================
+   ...
+   %% 设置（内部）统计信息采集粒度
+   %%
+   %% {collect_statistics, none},
+
+   %% 统计信息采集时间间隔，以毫秒为单位
+   %%
+   %% {collect_statistics_interval, 5000},
+   ...
+```
+
+## 参数解析
+
+### load_definitions - 启动时加载预定义信息
 management 插件允许你导出一个包含 broker 全部对象定义的 JSON 文件（对象包括：queues, exchanges, bindings, users, virtual hosts, permissions 和 parameters）；在一些场景中，每次启动时确保这些对象的存在是非常有必要的；
 
 可以通过设置 `load_definitions` 变量的值为事先导出的 JSON 文件路径，来实现启动时加载；
 
 需要注意的是，文件中定义的对象会覆盖 broker 中存在的相应对象；使用该选项不会删除已存在的其它对象；如果你启动的是一个完全重置过的 broker ，使用该选项将会阻止常规的 default user / virtual host / permissions 的创建；
 
-### 消息速率
-management 插件默认会展示全局消息速率 ，全局消息速率针对的是每个 queue, channel, exchange 和 vhost ；这种方式称作 `basic` 消息速率 ；
+### rates_mode - 消息速率的模式
+management 插件默认会展示全局消息速率 ，全局消息速率针对的是所有 queue, channel, exchange 和 vhost ；这种方式称作 `basic` 消息速率模式 ；
 
-还可以针对所有组合，例如  channel to exchange, exchange to queue 以及 queue to channel ，进行消息速率展示；这种方式称作 `detailed` 消息速率 ；这种方式默认是关闭的，因为当系统中存在大量这种组合时，会导致大量的 memory footprint 出现；
+还可以针对所有组合，例如  channel to exchange, exchange to queue 以及 queue to channel ，进行消息速率展示；这种方式称作 `detailed` 消息速率模式 ；这种方式默认是关闭的，因为当系统中存在大量这种组合时，会导致大量的 memory footprint 出现；
 
 最后一种选择是直接关闭消息速率显示；这样就可以在 CPU-bound 的服务器上获取最佳性能；
 
-消息速率的模式是通过 rabbitmq_management 配置段中的 rates_mode 配置变量进行控制的；可以设置为 basic (默认值), detailed 或 none ；
+消息速率的模式是通过 rabbitmq_management 配置段中的 `rates_mode` 配置变量进行控制的；可以设置为 `basic` (默认值), `detailed` 或 `none` ；
 
-### Statistics interval
+### collect_statistics_interval - 统计信息采集时间间隔
 默认情况下，服务器会每隔 5000ms 发送一次统计事件（包含各类统计数据）；而 management 插件所显示的消息速率值就是基于这个时间间隔计算得到的；
 
 你可能在两种情况下会希望增加该时间间隔：
