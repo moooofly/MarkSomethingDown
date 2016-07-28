@@ -134,6 +134,8 @@ prioritise_call(_Msg, _From, Len, _State) ->
 ## 和统计信息有关的其它配置项
 
 ```erlang
+  {rabbit,
+   ...
    %%
    %% Misc/Advanced Options
    %% =====================
@@ -169,6 +171,8 @@ management 插件默认会展示全局消息速率 ，全局消息速率针对�
 ### collect_statistics_interval - 统计信息采集时间间隔
 默认情况下，服务器会每隔 5000ms 发送一次统计事件（包含各类统计数据）；而 management 插件所显示的消息速率值就是基于这个时间间隔计算得到的；
 
+> 注意：此处的统计信息采集时间间隔与 web 页面上刷新页面时间间隔（默认 5s）是两回事；
+
 你可能在两种情况下会希望增加该时间间隔：
 - 为了在一段更长的时间段内进行数据采样；
 - 为了降低拥有大量 queue 或 channel 的服务器的统计负载；
@@ -176,24 +180,56 @@ management 插件默认会展示全局消息速率 ，全局消息速率针对�
 可以通过 collect_statistics_interval 变量进行设置，单位为毫秒；设置后需要重启 RabbitMQ ；
 
 ### http_log_dir - HTTP 请求日记记录
-创建记录请求 HTTP API 时的简单访问日志；设置 http_log_dir 变量为保存该日志的目录名，之后需要重启 RabbitMQ ；需要注意的是，只有针对 /api 的请求会被记录；
+创建记录请求 HTTP API 时的简单访问日志；设置 http_log_dir 变量为保存相应日志的目录名，之后需要重启 RabbitMQ ；需要注意的是，只有针对 /api 的请求会被记录；默认关闭；
 
-### stats_event_max_backlog - Events backlog
+> 结论：个人感觉这个日志的最大用途是用来确认 web 上每个 tab 也都使用哪些 HTTP API 来获取展示数据的；
+
+### stats_event_max_backlog - 允许事件 backlog 数目
 在高负载压力下，统计事件的处理会导致内存消耗量的增加；为了缓解这种情况，可以调整 channel 和 queue 统计信息采集器的最大 backlog 消息数量；在 rabbitmq_management 配置段中的 stats_event_max_backlog 变量值对应的就是 channel 和 queue 的最大 backlog 消息数量；默认为 250 ；
 > 注意：该配置参数在代码和 rabbitmq.config 文件中均未找到；
 
 
+### sample_retention_policies - 采样＋保留策略
+management 插件会保留一些数据采样值，例如针对消息速率和 queue 长度信息；可以通过如下配置项定制具体策略；
+
+```erlang
+[
+  ...
+  {rabbitmq_management,
+    %% List of {MaxAgeInSeconds, SampleEveryNSeconds}
+    [{global,   [{605, 5}, {3660, 60}, {29400, 600}, {86400, 1800}]},
+     {basic,    [{605, 5}, {3600, 60}]},
+     {detailed, [{10, 5}]}],
+  ...
+].
+```
+
+存在 3 种策略类型：
+- global - 针对 overview 和 virtual host 页面定制策略；
+- basic - 针对单独的 connections, channels, exchanges 和 queues 定制策略；
+- detailed - 针对消息速率为不同的 connections, channels, exchanges 和 queues 组合定制策略；
+
+参数 `{MaxAgeInSeconds, SampleEveryNSeconds}` 中，SampleEveryNSeconds 表示每 N 秒采样一次；MaxAgeInSeconds 表示采样数据的最长保留时间；
 
 
+----------
+
+# 补充
+
+## aggregate data
 
 > In statistics, `aggregate data` are data combined from several measurements.
 > 
 > `Aggregate data` refers to numerical or non-numerical information that is (1) collected from multiple sources and/or on multiple measures, variables, or individuals and (2) compiled into data summaries or summary reports, typically for the purposes of public reporting or statistical analysis
 > 
 
+## Memory footprint
 
 > Memory footprint refers to the amount of main memory that a program uses or references while running.
 > In computing, the memory footprint of an executable program indicates its runtime memory requirements, while the program executes. 
+
+
+----------
 
 
 刚才反馈的 publish 等曲线掉底的问题，经过 @张斌 确认，结论如下：
@@ -211,5 +247,5 @@ management 插件默认会展示全局消息速率 ，全局消息速率针对�
 $sudo rabbitmqctl eval 'application:stop(rabbitmq_management), application:start(rabbitmq_management).'
 or
 $sudo rabbitmqctl eval 'exit(erlang:whereis(rabbit_mgmt_db), please_terminate).'
-1 Comment
+
 帮忙看下这两条命令的区别在哪
