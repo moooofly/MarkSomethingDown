@@ -109,21 +109,20 @@ prioritise_call(_Msg, _From, Len, _State) ->
 ### 启动时加载预定义信息
 management 插件允许你导出一个包含 broker 全部对象定义的 JSON 文件（对象包括：queues, exchanges, bindings, users, virtual hosts, permissions 和 parameters）；在一些场景中，每次启动时确保这些对象的存在是非常有必要的；
 
-可以通过设置 load_definitions 变量的值为事先导出的 JSON 文件路径，来实现启动时加载；
+可以通过设置 `load_definitions` 变量的值为事先导出的 JSON 文件路径，来实现启动时加载；
 
-Note that the definitions in the file will overwrite anything already in the broker; using this option will not delete anything that is already there. However, if you start from a completely reset broker, use of this option will prevent the usual default user / virtual host / permissions from being created.
-需要注意的是，
+需要注意的是，文件中定义的对象会覆盖 broker 中存在的相应对象；使用该选项不会删除已存在的其它对象；如果你启动的是一个完全重置过的 broker ，使用该选项将会阻止常规的 default user / virtual host / permissions 的创建；
 
-Message rates
-The management plugin by default shows message rates globally, and for each queue, channel, exchange, and vhost. These are known as the basic message rates.
+### 消息速率
+management 插件默认会展示全局消息速率 ，全局消息速率针对的是每个 queue, channel, exchange 和 vhost ；这种方式称作 `basic` 消息速率 ；
 
-It can also show message rates for all the combinations of channel to exchange, exchange to queue, and queue to channel. These are known as detailed message rates. Detailed message rates are disabled by default as they can have a large memory footprint when there are a large number of combinations of channels, queues and exchanges.
+还可以针对所有组合，例如  channel to exchange, exchange to queue 以及 queue to channel ，进行消息速率展示；这种方式称作 `detailed` 消息速率 ；这种方式默认是关闭的，因为当系统中存在大量这种组合时，会导致大量的 memory footprint 出现；
 
-Alternatively, the message rates can be disabled altogether. This can help get the best possible performance out of a CPU-bound server.
+最后一种选择是直接关闭消息速率显示；这样就可以在 CPU-bound 的服务器上获取最佳性能；
 
-The message rate mode is controlled by the rates_mode configuration variable in rabbitmq_management. This can be one of basic (the default), detailed or none.
+消息速率的模式是通过 rabbitmq_management 配置段中的 rates_mode 配置变量进行控制的；可以设置为 basic (默认值), detailed 或 none ；
 
-Statistics interval
+### Statistics interval
 By default the server will emit statistics events every 5000ms. The message rate values shown in the management plugin are calculated over this period. You may therefore want to increase this value in order to sample rates over a longer period, or to reduce the statistics load on a server with a very large number of queues or channels.
 
 In order to do so, set the value of the collect_statistics_interval variable for the rabbit application to the desired interval in milliseconds and restart RabbitMQ.
@@ -141,6 +140,9 @@ Under heavy load, the processing of statistics events can increase the memory co
 > `Aggregate data` refers to numerical or non-numerical information that is (1) collected from multiple sources and/or on multiple measures, variables, or individuals and (2) compiled into data summaries or summary reports, typically for the purposes of public reporting or statistical analysis
 > 
 
+
+> Memory footprint refers to the amount of main memory that a program uses or references while running.
+> In computing, the memory footprint of an executable program indicates its runtime memory requirements, while the program executes. 
 
 
 刚才反馈的 publish 等曲线掉底的问题，经过 @张斌 确认，结论如下：
