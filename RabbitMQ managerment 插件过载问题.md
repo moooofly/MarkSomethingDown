@@ -1,8 +1,15 @@
 
 
-当业务消息量大到一定程度时，RabbitMQ 的 Web 管理页面中 Overview 标签中会出现如下告警信息：
+当业务和 RabbitMQ 的消息交互量大到一定程度时，RabbitMQ 的 Web 管理页面 Overview 标签中会出现如下告警信息：
 
 ![RabbitMQ managerment 插件告警](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/managerment%20statistics%20database%20%E8%BF%87%E8%BD%BD%E9%97%AE%E9%A2%98.png "RabbitMQ managerment 插件告警")
+
+（据说最严重的情况下，积压了几十万条消息）
+
+上述内容提供了以下几点信息：
+- managerment 插件通过一个名为 statistics 的数据库维护用于 web 页面展示的相关统计数据；
+- managerment 插件使用了内部 queue 有序处理消息，随着 queue 中消息的增多，势必造成内存消耗的增加，统计信息的即时性变差，甚至可能对磁盘 I/O 造成影响（待确认）；
+- 设置 rates_mode 选项参数的值为 node 可能有所改善；
 
 
 
