@@ -192,18 +192,6 @@ management 插件默认会展示全局消息速率 ，全局消息速率针对�
 ### sample_retention_policies - 采样＋保留策略
 management 插件会保留一些数据采样值，例如针对消息速率和 queue 长度信息；可以通过如下配置项定制具体策略；
 
-```erlang
-[
-  ...
-  {rabbitmq_management,
-    %% List of {MaxAgeInSeconds, SampleEveryNSeconds}
-    [{global,   [{605, 5}, {3660, 60}, {29400, 600}, {86400, 1800}]},
-     {basic,    [{605, 5}, {3600, 60}]},
-     {detailed, [{10, 5}]}],
-  ...
-].
-```
-
 存在 3 种策略类型：
 - global - 针对 overview 和 virtual host 页面定制策略；
 - basic - 针对单独的 connections, channels, exchanges 和 queues 定制策略；
