@@ -9,10 +9,10 @@
 上述内容提供了以下几点信息：
 - managerment 插件通过一个名为 statistics 的数据库维护用于 web 页面展示的相关统计数据；
 - managerment 插件使用了内部 queue 有序处理消息，随着 queue 中消息的增多，势必造成内存消耗的增加，统计信息的即时性变差，甚至可能对磁盘 I/O 造成影响（待确认）；
-- 设置 rates_mode 选项参数的值为 node 可能有所改善；
+- 设置 `rates_mode` 选项参数的值为 node 可能有所改善；
 
 
-本文就针对 managerment 管理插件的原理，以及在消息量大到一定程度时的行为进行展开；
+本文针对 managerment 管理插件的原理，以及在消息量大到一定程度时的行为进行展开；
 
 
 ----------
@@ -38,10 +38,10 @@
 </div>
 ```
 两个重要的 if 判定：
-- 如果 overview.statistics_db_event_queue 中的消息量超过 1000 条，就会在 Web 页面上输出之前的告警信息；
-- 如果 overview.rates_mode 的值不是 none ，则建议改为 none ；
+- 如果 `overview.statistics_db_event_queue` 中的消息量超过 `1000` 条，就会在 Web 页面上输出之前的告警信息；
+- 如果 `overview.rates_mode` 的值不是 `none` ，则建议改为 `none` ；
 
-```shell
+```erlang
 %% 获取 Overview 页面所需信息       
 handle_call({get_overview, User, Ranges}, _From,
             State = #state{tables = Tables}) ->
@@ -57,7 +57,7 @@ reply(Reply, NewState) -> {reply, Reply, NewState, hibernate}.
 ...
 ```
 
-```shell
+```erlang
 %% 通过该回调函数保存待处理消息数目，能够保证即使当前处于消息过载状态，
 %% 也能即时获取到数值；
 %% Len 的值为当前待处理消息数量
