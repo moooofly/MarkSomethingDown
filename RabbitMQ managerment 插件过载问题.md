@@ -2,22 +2,22 @@
 
 当业务和 RabbitMQ 的消息交互量大到一定程度时，RabbitMQ 的 Web 管理页面 Overview 标签中会出现如下告警信息：
 
-![RabbitMQ managerment 插件告警](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/managerment%20statistics%20database%20%E8%BF%87%E8%BD%BD%E9%97%AE%E9%A2%98.png "RabbitMQ managerment 插件告警")
+![RabbitMQ management 插件告警](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/managerment%20statistics%20database%20%E8%BF%87%E8%BD%BD%E9%97%AE%E9%A2%98.png "RabbitMQ management 插件告警")
 
 （据说最严重的情况下，积压了几十万条消息）
 
 上述内容提供了以下几点信息：
-- managerment 插件通过一个名为 statistics 的数据库维护用于 web 页面展示的相关统计数据；
-- managerment 插件使用了内部 queue 有序处理消息，随着 queue 中消息的增多，势必造成内存消耗的增加，统计信息的即时性变差，甚至可能对磁盘 I/O 造成影响（待确认）；
+- management 插件通过一个名为 statistics 的数据库维护用于 web 页面展示的相关统计数据；
+- management 插件使用了内部 queue 有序处理消息，随着 queue 中消息的增多，势必造成内存消耗的增加，统计信息的即时性变差，甚至可能对磁盘 I/O 造成影响（待确认）；
 - 设置 `rates_mode` 选项参数的值为 node 可能有所改善；
 
 
-本文针对 managerment 管理插件的原理，以及在消息量大到一定程度时的行为进行展开；
+本文针对 management 管理插件的原理，以及在消息量大到一定程度时的行为进行展开；
 
 
 ----------
 
-# managerment 插件相关代码研究
+# management 插件相关代码研究
 
 在 `overview.ejs` 中，可以看到输出上述告警信息的代码
 
@@ -43,7 +43,7 @@
 - 如果 `overview.rates_mode` 的值不是 `none` ，则建议改为 `none` ；
 
 
-在 `rabbit_mgmt_db.erl` 中，能够看到 managerment 插件获取积压消息的代码
+在 `rabbit_mgmt_db.erl` 中，能够看到 management 插件获取积压消息的代码
 
 ```erlang
 %% 获取 Overview 页面所需信息       
@@ -71,11 +71,11 @@ prioritise_call(_Msg, _From, Len, _State) ->
     5.
 ```
 
-# managerment 插件配置项
+# management 插件配置项
 
 ## rabbitmq_management.app.src 中的配置项
 
-此处为 managerment 插件默认启动参数设置；
+此处为 management 插件默认启动参数设置；
 
 ```erlang
   {env, [{listener,          [{port, 15672}]},
@@ -175,11 +175,12 @@ management 插件默认会展示全局消息速率 ，全局消息速率针对�
 
 可以通过 collect_statistics_interval 变量进行设置，单位为毫秒；设置后需要重启 RabbitMQ ；
 
-### HTTP request logging
-To create simple access logs of requests to the HTTP API, set the value of the http_log_dir variable in the rabbitmq_management application to the name of a directory in which logs can be created and restart RabbitMQ. Note that only requests to the API at /api are logged, not requests to the static files which make up the browser-based GUI.
+### http_log_dir - HTTP 请求日记记录
+创建记录请求 HTTP API 时的简单访问日志；设置 http_log_dir 变量为保存该日志的目录名，之后需要重启 RabbitMQ ；需要注意的是，只有针对 /api 的请求会被记录；
 
-### Events backlog
+### stats_event_max_backlog - Events backlog
 在高负载压力下，统计事件的处理会导致内存消耗量的增加；为了缓解这种情况，可以调整 channel 和 queue 统计信息采集器的最大 backlog 消息数量；在 rabbitmq_management 配置段中的 stats_event_max_backlog 变量值对应的就是 channel 和 queue 的最大 backlog 消息数量；默认为 250 ；
+> 注意：该配置参数在代码和 rabbitmq.config 文件中均未找到；
 
 
 
@@ -198,13 +199,13 @@ To create simple access logs of requests to the HTTP API, set the value of the h
 刚才反馈的 publish 等曲线掉底的问题，经过 @张斌 确认，结论如下：
 1.在掉底曲线的时间段内，rabbitmq 的统计信息数据库（或队列）积压了几十万条统计信息；
 2.同一时间段内，业务获取 channel 超时飙高；
-3.张斌重启 rabbitmq 的 managerment 管理插件后（等于清空积压的统计信息），统计数据库从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
+3.张斌重启 rabbitmq 的 management 管理插件后（等于清空积压的统计信息），统计数据库从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
 
 
-所以，建议将 rabbitmq managerment 插件所使用的统计数据库部署到单独一个节点上，避免对业务造成影响；应该可以立刻取的改善；
+所以，建议将 rabbitmq management 插件所使用的统计数据库部署到单独一个节点上，避免对业务造成影响；应该可以立刻取的改善；
 
 
-之后我会深入研究下 rabbitmq managerment 插件的使用和调优姿势，看看内否进一步改进
+之后我会深入研究下 rabbitmq management 插件的使用和调优姿势，看看内否进一步改进
 
 
 $sudo rabbitmqctl eval 'application:stop(rabbitmq_management), application:start(rabbitmq_management).'
