@@ -18,7 +18,7 @@
 ----------
 
 
-在 overview.ejs 中，可以看到
+在 `overview.ejs` 中，可以看到输出上述告警信息的代码
 
 ```ejs
 <div class="updatable">
@@ -37,9 +37,12 @@
 <% } %>
 </div>
 ```
-两个重要的 if 判定：
+其中，有两个重要的 if 判定：
 - 如果 `overview.statistics_db_event_queue` 中的消息量超过 `1000` 条，就会在 Web 页面上输出之前的告警信息；
 - 如果 `overview.rates_mode` 的值不是 `none` ，则建议改为 `none` ；
+
+
+在 `rabbit_mgmt_db.erl` 中，能够看到 managerment 插件获取积压消息的代码
 
 ```erlang
 %% 获取 Overview 页面所需信息       
@@ -58,8 +61,7 @@ reply(Reply, NewState) -> {reply, Reply, NewState, hibernate}.
 ```
 
 ```erlang
-%% 通过该回调函数保存待处理消息数目，能够保证即使当前处于消息过载状态，
-%% 也能即时获取到数值；
+%% 通过该回调函数保存待处理消息数目，能够保证即使当前处于消息过载状态，也能即时获取到数值；
 %% Len 的值为当前待处理消息数量
 prioritise_call(_Msg, _From, Len, _State) ->
     %% 将当前 rabbit_mgmt_db 进程邮箱中消息积压的待处理消息数量保存起来
