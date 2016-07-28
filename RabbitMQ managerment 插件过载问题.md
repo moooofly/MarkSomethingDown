@@ -123,15 +123,21 @@ management 插件默认会展示全局消息速率 ，全局消息速率针对�
 消息速率的模式是通过 rabbitmq_management 配置段中的 rates_mode 配置变量进行控制的；可以设置为 basic (默认值), detailed 或 none ；
 
 ### Statistics interval
-By default the server will emit statistics events every 5000ms. The message rate values shown in the management plugin are calculated over this period. You may therefore want to increase this value in order to sample rates over a longer period, or to reduce the statistics load on a server with a very large number of queues or channels.
+默认情况下，服务器会每隔 5000ms 发送一次统计事件（包含各类统计数据）；而 management 插件所显示的消息速率值就是基于这个时间间隔计算得到的；
 
-In order to do so, set the value of the collect_statistics_interval variable for the rabbit application to the desired interval in milliseconds and restart RabbitMQ.
+你可能在两种情况下会希望增加该时间间隔：
+- 为了在一段更长的时间段内进行数据采样；
+- 为了降低拥有大量 queue 或 channel 的服务器的统计负载；
 
-HTTP request logging
+可以通过 collect_statistics_interval 变量进行设置，单位为毫秒；设置后需要重启 RabbitMQ ；
+
+### HTTP request logging
 To create simple access logs of requests to the HTTP API, set the value of the http_log_dir variable in the rabbitmq_management application to the name of a directory in which logs can be created and restart RabbitMQ. Note that only requests to the API at /api are logged, not requests to the static files which make up the browser-based GUI.
 
-Events backlog
-Under heavy load, the processing of statistics events can increase the memory consumption. To reduce this, the maximum backlog size of the channel and queue statistics collectors can be regulated. The value of the stats_event_max_backlog variable in the rabbitmq_management application sets the maximum size of both backlogs. Defaults to 250.
+### Events backlog
+在高负载压力下，统计事件的处理会导致内存消耗量的增加；为了缓解这种情况，可以调整 channel 和 queue 统计信息采集器的最大 backlog 消息数量；在 rabbitmq_management 配置段中的 stats_event_max_backlog 变量值对应的就是 channel 和 queue 的最大 backlog 消息数量；默认为 250 ；
+
+
 
 
 
