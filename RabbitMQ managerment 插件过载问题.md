@@ -12,8 +12,13 @@
 - 设置 rates_mode 选项参数的值为 node 可能有所改善；
 
 
+本文就针对 managerment 管理插件的原理，以及在消息量大到一定程度时的行为进行展开；
 
-在 overview.ejs 中
+
+----------
+
+
+在 overview.ejs 中，可以看到
 
 ```ejs
 <div class="updatable">
@@ -32,9 +37,109 @@
 <% } %>
 </div>
 ```
+两个重要的 if 判定：
+- 如果 overview.statistics_db_event_queue 中的消息量超过 1000 条，就会在 Web 页面上输出之前的告警信息；
+- 如果 overview.rates_mode 的值不是 none ，则建议改为 none ；
+
+```shell
+%% 获取 Overview 页面所需信息       
+handle_call({get_overview, User, Ranges}, _From,
+            State = #state{tables = Tables}) ->
+    ...
+    %% 将统计信息返回给前端页面
+    reply([{message_stats, format_samples(Ranges, MessageStats, State)},
+           {queue_totals,  format_samples(Ranges, QueueStats, State)},
+           {object_totals, ObjectTotals},
+           %% 获取当前 rabbit_mgmt_db 进程中积压消息数量
+           {statistics_db_event_queue, get(last_queue_length)}], State);
+...
+reply(Reply, NewState) -> {reply, Reply, NewState, hibernate}.
+...
+```
+
+```shell
+%% 通过该回调函数保存待处理消息数目，能够保证即使当前处于消息过载状态，
+%% 也能即时获取到数值；
+%% Len 的值为当前待处理消息数量
+prioritise_call(_Msg, _From, Len, _State) ->
+    %% 将当前 rabbit_mgmt_db 进程邮箱中消息积压的待处理消息数量保存起来
+    put(last_queue_length, Len),
+    %% 通过数字设定当前消息优先级，优先级越高越先得到处理，默认优先级为 0
+    5.
+```
+
+## RabbitMQ Management Plugin 配置项说明
+
+```shell
+ %% ----------------------------------------------------------------------------
+ %% RabbitMQ Management Plugin
+ %%
+ %% See http://www.rabbitmq.com/management.html for details
+ %% ----------------------------------------------------------------------------
+
+ {rabbitmq_management,
+  [%% Pre-Load schema definitions from the following JSON file
+   %% {load_definitions, "/path/to/schema.json"},
+
+   %% 将所有访问 management HTTP API 的请求记录到文件中
+   %% {http_log_dir, "/path/to/access.log"},
+
+   %% 配置 rabbitmq_management 插件的 HTTP 监听 IP 和 port
+   %% Also set the listener to use SSL and provide SSL options.
+   %%
+   %% {listener, [{port,     12345},
+   %%             {ip,       "127.0.0.1"},
+   %%             {ssl,      true},
+   %%             {ssl_opts, [{cacertfile, "/path/to/cacert.pem"},
+   %%                         {certfile,   "/path/to/cert.pem"},
+   %%                         {keyfile,    "/path/to/key.pem"}]}]},
+
+   %% 可以设置为 'basic' 或 'detailed' 或 'none'
+   %% {rates_mode, basic},
+
+   %% 配置聚合数据被保留的时间长度；例如针对 message rates 和 queue 长度的聚合数据
+   %%
+   %% {sample_retention_policies,
+   %%  [{global,   [{60, 5}, {3600, 60}, {86400, 1200}]},
+   %%   {basic,    [{60, 5}, {3600, 60}]},
+   %%   {detailed, [{10, 5}]}]}
+  ]},
+```
+
+### 启动时加载预定义信息
+management 插件允许你导出一个包含 broker 全部对象定义的 JSON 文件（对象包括：queues, exchanges, bindings, users, virtual hosts, permissions 和 parameters）；在一些场景中，每次启动时确保这些对象的存在是非常有必要的；
+
+可以通过设置 load_definitions 变量的值为事先导出的 JSON 文件路径，来实现启动时加载；
+
+Note that the definitions in the file will overwrite anything already in the broker; using this option will not delete anything that is already there. However, if you start from a completely reset broker, use of this option will prevent the usual default user / virtual host / permissions from being created.
+需要注意的是，
+
+Message rates
+The management plugin by default shows message rates globally, and for each queue, channel, exchange, and vhost. These are known as the basic message rates.
+
+It can also show message rates for all the combinations of channel to exchange, exchange to queue, and queue to channel. These are known as detailed message rates. Detailed message rates are disabled by default as they can have a large memory footprint when there are a large number of combinations of channels, queues and exchanges.
+
+Alternatively, the message rates can be disabled altogether. This can help get the best possible performance out of a CPU-bound server.
+
+The message rate mode is controlled by the rates_mode configuration variable in rabbitmq_management. This can be one of basic (the default), detailed or none.
+
+Statistics interval
+By default the server will emit statistics events every 5000ms. The message rate values shown in the management plugin are calculated over this period. You may therefore want to increase this value in order to sample rates over a longer period, or to reduce the statistics load on a server with a very large number of queues or channels.
+
+In order to do so, set the value of the collect_statistics_interval variable for the rabbit application to the desired interval in milliseconds and restart RabbitMQ.
+
+HTTP request logging
+To create simple access logs of requests to the HTTP API, set the value of the http_log_dir variable in the rabbitmq_management application to the name of a directory in which logs can be created and restart RabbitMQ. Note that only requests to the API at /api are logged, not requests to the static files which make up the browser-based GUI.
+
+Events backlog
+Under heavy load, the processing of statistics events can increase the memory consumption. To reduce this, the maximum backlog size of the channel and queue statistics collectors can be regulated. The value of the stats_event_max_backlog variable in the rabbitmq_management application sets the maximum size of both backlogs. Defaults to 250.
 
 
 
+> In statistics, `aggregate data` are data combined from several measurements.
+> 
+> `Aggregate data` refers to numerical or non-numerical information that is (1) collected from multiple sources and/or on multiple measures, variables, or individuals and (2) compiled into data summaries or summary reports, typically for the purposes of public reporting or statistical analysis
+> 
 
 
 
