@@ -252,10 +252,18 @@ rabbitmqctl eval 'supervisor2:terminate_child(rabbit_mgmt_sup_sup, rabbit_mgmt_s
 
 ## 内存管理问题
 
-management 插件使用的统计数据库的内存占用情况可以通过如下 rabbitmqctl 命令获取到：
+management 插件中统计数据库占用的内存情况可以通过如下命令获取：
 
 ```shell
-rabbitmqctl status
+# rabbitmqctl status
+...
+ {memory,
+     [{total,54004424},
+      ...
+      {mgmt_db,381184},
+      ...
+      {other_system,4365602}]},
+...
 ```
 
 或者通过 HTTP API 发送 GET 请求到 `/api/nodes/<node_name>` 进行获取；
@@ -272,9 +280,9 @@ rabbitmqctl status
 - 将 `rabbit.collect_statistics_interval` 的值调整到 30-60s ，将会显著减少维护大量 queues/channels/connections 的系统的内存消耗；
 - 调整 retention 策略以减少留存的数据量也非常有效；
 
-channel 以及统计信息收集进程的内存使用可以通过 stats_event_max_backlog 参数设置最大 backlog queue 大小进行限制；如果 backlog queue 已满，则新建 channel 信息和 queue 统计信息都会被丢弃，直到 backlog queue 上尚未处理的消息被处理；
+channel 以及统计信息收集进程的内存使用可以通过 `stats_event_max_backlog` 参数设置最大 backlog queue 大小进行限制；如果 backlog queue 已满，则新建 channel 信息和 queue 统计信息都会被丢弃，直到 backlog queue 上尚未处理的消息被处理；
 
-统计信息发送间隔支持运行时动态调整；进行调整不会对已存在的 connections, channels 或 queues 造成影响；仅对新加入的被统计实体产生影响；
+统计信息发送间隔支持运行时动态调整；进行调整不会对已存在的 connections, channels 或 queues 造成影响；仅对新加入的统计实体产生影响；
 
 运行时调整命令如下
 ```shell
