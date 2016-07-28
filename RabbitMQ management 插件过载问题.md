@@ -177,9 +177,9 @@ management 插件默认会展示全局消息速率 ，全局消息速率针对�
 
 统计信息收集模式；主要和 management 插件有关；
 可配置选项包括：
-- none - 不发送 statistics 事件
-- coarse - 发送针对 per-queue / per-channel / per-connection 的统计信息；
-- fine - 发送针对 per-queue / per-channel / per-connection / per-message 的统计信息；
+- `none` - 不发送 statistics 事件；
+- `coarse` - 发送针对 per-queue / per-channel / per-connection 的统计信息；
+- `fine` - 发送针对 per-queue / per-channel / per-connection / per-message 的统计信息；
 
 该选项默认值为 none ；在不理解该参数含义的情况下，不建议修改；
 
@@ -260,24 +260,28 @@ rabbitmqctl status
 
 或者通过 HTTP API 发送 GET 请求到 `/api/nodes/<node_name>` 进行获取；
 
-统计信息会按照 collect_statistics_interval 指定的时间间隔周期性发送；也可能在某些组件被创建/声明，或者关闭/销毁时发送（例如打开新 connection 或 channel，或者进行 queue 声明）；
+统计信息会按照 `collect_statistics_interval` 指定的时间间隔周期性发送；也可能在某些组件被创建/声明，或者关闭/销毁时发送（例如打开新 connection 或 channel，或者进行 queue 声明）；
 消息速率的设置不会直接对 management 插件统计数据库内存占用产生影响；
 
 统计数据库占用内存的总量取决于：
-- 事件发送的事件间隔；
+- 统计信息的发送时间间隔；
 - effective rates ；
 - retention 策略；
 
 行之有效的调整方案：
-- 将 rabbit.collect_statistics_interval 的值调整到 30-60s ，将会显著减少维护大量 queues/channels/connections 的系统的内存消耗；
+- 将 `rabbit.collect_statistics_interval` 的值调整到 30-60s ，将会显著减少维护大量 queues/channels/connections 的系统的内存消耗；
 - 调整 retention 策略以减少留存的数据量也非常有效；
 
-The memory usage of the channel and stats collector processes can be limited by setting the the maximum backlog queue size using the parameter stats_event_max_backlog. If the backlog queue is full, new channel and queue stats will be dropped until the previous ones have been processed.
+channel 以及统计信息收集进程的内存使用可以通过 stats_event_max_backlog 参数设置最大 backlog queue 大小进行限制；如果 backlog queue 已满，则新建 channel 信息和 queue 统计信息都会被丢弃，直到 backlog queue 上尚未处理的消息被处理；
 
-The statistics interval can also be changed at runtime. Doing so will have no effect on existing connections, channels or queues. Only new stats emitting entities are affected.
+统计信息发送间隔支持运行时动态调整；进行调整不会对已存在的 connections, channels 或 queues 造成影响；仅对新加入的被统计实体产生影响；
 
+运行时调整命令如下
+```shell
 rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000).'
-The statistics database can be restarted (see above) and thus forced to release all memory.
+```
+
+可以通过重启统计数据库达成强行释放所占用内存的目的（当然会丢失一部分统计数据）；
 
 
 ----------
