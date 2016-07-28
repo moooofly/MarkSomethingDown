@@ -2,12 +2,13 @@
 
 当业务消息量大到一定程度时，RabbitMQ 的 Web 管理页面中 Overview 标签中会出现如下告警信息：
 
-![管理数据库爆掉问题](https://files.slack.com/files-pri/T028826NZ-F1V2P3MDK/pasted_image_at_2016_07_26_10_46_am.png "管理数据库爆掉问题]")
+![RabbitMQ managerment 插件告警](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/managerment%20statistics%20database%20%E8%BF%87%E8%BD%BD%E9%97%AE%E9%A2%98.png "RabbitMQ managerment 插件告警")
 
 
 
-overview.ejs
+在 overview.ejs 中
 
+```ejs
 <div class="updatable">
 <% if (overview.statistics_db_event_queue > 1000) { %>
 <p class="warning">
@@ -23,6 +24,7 @@ overview.ejs
 </p>
 <% } %>
 </div>
+```
 
 
 
