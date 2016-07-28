@@ -260,12 +260,17 @@ rabbitmqctl status
 
 或者通过 HTTP API 发送 GET 请求到 `/api/nodes/<node_name>` 进行获取；
 
-Stats are emitted periodically, regulated by the statistics interval described above, or when certain components are created/declared (e.g. a new connection or channel is opened, or a queue declared) or closed/deleted. Message rates do not directly affect management database memory usage.
+统计信息会按照 collect_statistics_interval 指定的时间间隔周期性发送；也可能在某些组件被创建/声明，或者关闭/销毁时发送（例如打开新 connection 或 channel，或者进行 queue 声明）；
+消息速率的设置不会直接对 management 插件统计数据库内存占用产生影响；
 
+统计数据库占用内存的总量取决于：
+- 事件发送的事件间隔；
+- effective rates ；
+- retention 策略；
 
-total amount of memory consumed by the stats database depends on the event emission interval, effective rates mode and retention policies.
-
-Increasing the rabbit.collect_statistics_interval value to 30-60s (note: the value should be set in milliseconds, e.g. 30000) will reduce memory comsuption for systems with large amounts of queues/channels/connections. Adjusting retention policies to retain less data will also help.
+行之有效的调整方案：
+- 将 rabbit.collect_statistics_interval 的值调整到 30-60s ，将会显著减少维护大量 queues/channels/connections 的系统的内存消耗；
+- 调整 retention 策略以减少留存的数据量也非常有效；
 
 The memory usage of the channel and stats collector processes can be limited by setting the the maximum backlog queue size using the parameter stats_event_max_backlog. If the backlog queue is full, new channel and queue stats will be dropped until the previous ones have been processed.
 
