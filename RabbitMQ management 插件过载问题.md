@@ -71,7 +71,11 @@ prioritise_call(_Msg, _From, Len, _State) ->
     5.
 ```
 
-# management 插件配置项
+
+----------
+
+
+# management 插件相关配置项
 
 ## rabbitmq_management.app.src 中的配置项
 
@@ -168,6 +172,18 @@ management 插件默认会展示全局消息速率 ，全局消息速率针对�
 
 消息速率的模式是通过 rabbitmq_management 配置段中的 `rates_mode` 配置变量进行控制的；可以设置为 `basic` (默认值), `detailed` 或 `none` ；
 
+
+### collect_statistics
+
+统计信息收集模式；主要和 management 插件有关；
+可配置选项包括：
+- none - 不发送 statistics 事件
+- coarse - 发送针对 per-queue / per-channel / per-connection 的统计信息；
+- fine - 发送针对 per-queue / per-channel / per-connection / per-message 的统计信息；
+
+该选项默认值为 none ；在不理解该参数含义的情况下，不建议修改；
+
+
 ### collect_statistics_interval - 统计信息采集时间间隔
 默认情况下，服务器会每隔 5000ms 发送一次统计事件（包含各类统计数据）；而 management 插件所显示的消息速率值就是基于这个时间间隔计算得到的；
 
@@ -201,8 +217,9 @@ management 插件会保留一些数据采样值，例如针对消息速率和 qu
 
 
 
-
 ----------
+
+# management 插件使用中需要关注的点
 
 
 ## Note on clustering
@@ -210,6 +227,55 @@ management 插件会保留一些数据采样值，例如针对消息速率和 qu
 The management plugin is aware of clusters. You can enable it on one or more nodes in a cluster, and see information pertaining to the entire cluster no matter which node you connect to.
 
 If you want to deploy cluster nodes which do not have the full management plugin enabled, you will still need to enable the rabbitmq-management-agent plugin on each node.
+
+
+## 统计数据库重启问题
+
+统计数据库是被整体保存在内存中的；因此其内容全部都是临时性的，外部访问者也需要这么理解；通过重启统计数据库相关 erlang 进程，可以实现集群节点上迁移统计数据库的行为；
+
+在 RabbitMQ 3.6.2 版本之前，统计数据库被直接保存在统计进程的内存中；
+从 RabbitMQ 3.6.2 版本开始，统计数据库被保存在 ETS 表中；
+
+在 RabbitMQ 3.6.2 版本之前，重启该数据库需要执行
+
+```erlang
+rabbitmqctl eval 'exit(erlang:whereis(rabbit_mgmt_db), please_terminate).'
+```
+
+从 RabbitMQ 3.6.2 版本开始，重启该数据库需要执行
+```erlang
+rabbitmqctl eval 'supervisor2:terminate_child(rabbit_mgmt_sup_sup, rabbit_mgmt_sup), rabbit_mgmt_sup_sup:start_child().'
+```
+
+无论如何，上述命令必须在统计数据库所在节点上执行才能生效；
+
+
+## 内存管理问题
+
+management 插件使用的统计数据库的内存占用情况可以通过如下 rabbitmqctl 命令获取到：
+
+```shell
+rabbitmqctl status
+```
+
+或者通过 HTTP API 发送 GET 请求到 `/api/nodes/<node_name>` 进行获取；
+
+Stats are emitted periodically, regulated by the statistics interval described above, or when certain components are created/declared (e.g. a new connection or channel is opened, or a queue declared) or closed/deleted. Message rates do not directly affect management database memory usage.
+
+
+total amount of memory consumed by the stats database depends on the event emission interval, effective rates mode and retention policies.
+
+Increasing the rabbit.collect_statistics_interval value to 30-60s (note: the value should be set in milliseconds, e.g. 30000) will reduce memory comsuption for systems with large amounts of queues/channels/connections. Adjusting retention policies to retain less data will also help.
+
+The memory usage of the channel and stats collector processes can be limited by setting the the maximum backlog queue size using the parameter stats_event_max_backlog. If the backlog queue is full, new channel and queue stats will be dropped until the previous ones have been processed.
+
+The statistics interval can also be changed at runtime. Doing so will have no effect on existing connections, channels or queues. Only new stats emitting entities are affected.
+
+rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000).'
+The statistics database can be restarted (see above) and thus forced to release all memory.
+
+
+----------
 
 
 # 补充
