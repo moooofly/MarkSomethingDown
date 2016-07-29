@@ -89,5 +89,7 @@ https://discuss.circleci.com/t/brew-update-command-fails/5211/2
 
 网上查到的解答为：
 > This is a confirmed issue with Homebrew, per them it should be fixed, but if not the following will correct.
+> 
 > `cd "$(brew --repository)" && git fetch && git reset --hard origin/master`
+> 
 > ref: https://github.com/Homebrew/brew/issues/55799
