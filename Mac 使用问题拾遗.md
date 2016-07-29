@@ -26,14 +26,14 @@ Spotlight 是 Mac OS X 中非常实用的搜索功能，可以通过 `control+�
 
 # Mac 上的“邮件”不断提示输入密码
 
-解决：最终在 Mac 上通过 web 登录邮箱后，会弹出提示“是否允许其他应用使用该账户“，允许后就没有问题了；
+最终在 Mac 上通过 web 登录邮箱后，会弹出提示“是否允许其他应用使用该账户“，允许后就没有问题了；    
 Mac 官方解答：[这里](https://support.apple.com/zh-cn/HT204187)
 
 # Mac 上的剪切复制粘贴
 
-Command + 拖拽 = 剪切
-Option + 拖拽 = 复制
-Command + Option + 拖拽 = 创建快捷方式
+- Command + 拖拽 = 剪切
+- Option + 拖拽 = 复制
+- Command + Option + 拖拽 = 创建快捷方式
 
 在高版本 Mac OS X 中，复制还是 `Command + C` ，粘贴时用 `Command + Option + V` 可以产生剪切＋粘贴效果，也就是复制成功以后删掉原文件。
 
