@@ -29,16 +29,19 @@ Spotlight 是 Mac OS X 中非常实用的搜索功能，可以通过 `control+�
 解决：最终在 Mac 上通过 web 登录邮箱后，会弹出提示“是否允许其他应用使用该账户“，允许后就没有问题了；
 Mac 官方解答：[这里](https://support.apple.com/zh-cn/HT204187)
 
-《Mac OS X的剪切操作》
-http://www.baifeng.me/apple/macosx/2010/04/1295/
+# Mac 上的剪切复制粘贴
 
-Command+拖拽=剪切
-Option+拖拽=复制
-Command+Option+拖拽=快捷方式
+Command + 拖拽 = 剪切
+Option + 拖拽 = 复制
+Command + Option + 拖拽 = 创建快捷方式
 
-Mac OS X 10.7 Lion中，复制还是Cmd+C，粘贴时用Cmd+Option+V可以执行剪切操作，也就是复制成功以后删掉原文件。
+在高版本 Mac OS X 中，复制还是 `Command + C` ，粘贴时用 `Command + Option + V` 可以产生剪切＋粘贴效果，也就是复制成功以后删掉原文件。
 
-mac 下更新 locate 命令使用的数据库（对应其它系统中的 updatedb 命令）
+参考：[这里](http://www.baifeng.me/apple/macosx/2010/04/1295/)
+
+
+# mac 下如何更新 locate 命令依赖的数据库
+
 sudo /usr/libexec/locate.updatedb
 
 如果执行上述命令出现权限问题，则切到根目录 / 下执行；
