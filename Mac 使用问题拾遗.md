@@ -55,8 +55,6 @@ locate 命令依赖的数据库位于 `/var/db/locate.database` ；
 
 # .DS_Store 文件是干什么的？如何禁止？
 
-http://www.zhihu.com/question/20345704
-
 .DS_Store 文件是 Mac OS 中保存文件夹自定义属性的隐藏文件，如文件的图标位置或背景色，相当于 Windows 中的 desktop.ini 。
 
 若想要禁止 .DS_store 文件生成，可以打开“终端”，复制黏贴下面的命令，回车执行，重启 Mac 即可生效。
@@ -77,6 +75,8 @@ defaults delete com.apple.desktopservices DSDontWriteNetworkStores
 ```shell
 sudo find / -name ".DS_Store" -depth -exec rm {} \;
 ```
+
+参考：[这里](http://www.zhihu.com/question/20345704)；
 
 
 # 执行 brew update 时报错如何解决
