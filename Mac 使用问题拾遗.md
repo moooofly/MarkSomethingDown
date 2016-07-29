@@ -42,37 +42,42 @@ Command + Option + 拖拽 = 创建快捷方式
 
 # mac 下如何更新 locate 命令依赖的数据库
 
+在 CentOS 系统上，更新 `locate` 命令依赖的数据库，只需要执行 `updatedb` 命令；
+
+在 Mac OS X 系统中，则需要执行如下命令
+```shell
 sudo /usr/libexec/locate.updatedb
+```
+> 注意：如果在执行上述命令时出现权限问题，则可以尝试切到根目录 / 下执行该命令；
 
-如果执行上述命令出现权限问题，则切到根目录 / 下执行；
+locate 命令依赖的数据库位于 `/var/db/locate.database`
 
-locate 使用的数据库在 /var/db/locate.database
 
-.DS_Store 文件是什么？如何禁止
+# .DS_Store 文件是干什么的？如何禁止？
+
 http://www.zhihu.com/question/20345704
 
-.DS_Store是Mac OS保存文件夹的自定义属性的隐藏文件，如文件的图标位置或背景色，相当于Windows的desktop.ini。
+.DS_Store 文件是 Mac OS 中保存文件夹自定义属性的隐藏文件，如文件的图标位置或背景色，相当于 Windows 中的 desktop.ini 。
 
-1，禁止.DS_store生成：
-打开 “终端” ，复制黏贴下面的命令，回车执行，重启Mac即可生效。
-
+若想要禁止 .DS_store 文件生成，可以打开“终端”，复制黏贴下面的命令，回车执行，重启 Mac 即可生效。
+```shell
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool TRUE
+```
 
-2，恢复.DS_store生成：
-
+若想恢复 .DS_store 文件的生成，则需执行
+```shell
 defaults delete com.apple.desktopservices DSDontWriteNetworkStores
+```
 
-作者：Marsokit
-链接：http://www.zhihu.com/question/20345704/answer/19471793
-来源：知乎
-著作权归作者所有，转载请联系作者获得授权。
+# 执行 brew update 时报错如何解决
 
 https://discuss.circleci.com/t/brew-update-command-fails/5211/2
-
+当执行 brew update 时可能会出现如下错误信息
+```shell
 /usr/local/Library/brew.sh: line 32: /usr/local/Library/ENV/scm/git: No such file or directory
+```
 
-This is a confirmed issue with Homebrew, per them it should be fixed, but if not the following will correct.
-
-cd "$(brew --repository)" && git fetch && git reset --hard origin/master
-
-ref: https://github.com/Homebrew/brew/issues/55799
+网上查到的解答为：
+> This is a confirmed issue with Homebrew, per them it should be fixed, but if not the following will correct.
+> `cd "$(brew --repository)" && git fetch && git reset --hard origin/master`
+> ref: https://github.com/Homebrew/brew/issues/55799
