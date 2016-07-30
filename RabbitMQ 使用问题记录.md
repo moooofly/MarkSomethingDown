@@ -138,9 +138,29 @@ Log files (may contain more information):
   neighbours:
 ```
 
+确认主机名配置信息
+```shell
+➜  ~ cat /etc/hosts
+##
+# Host Database
+#
+# localhost is used to configure the loopback interface
+# when the system is booting.  Do not change this entry.
+##
+127.0.0.1	localhost
+255.255.255.255	broadcasthost
+::1             localhost
+➜  ~
+➜  ~ hostname
+sunfeideMacBook-Pro.local
+➜  ~
+```
+
 ### 解决办法
 
 参考：[这里](http://stackoverflow.com/questions/24797947/os-x-and-rabbitmq-error-epmd-error-for-host-xxx-address-cannot-connect-to-ho)；
+
+> try adding your hostname to your /etc/hosts. **Sometimes Erlang distribution will get confused when your network changes**. Otherwise try restarting epmd using `epmd -kill` or similar commands.
 
 
 
