@@ -81,13 +81,14 @@ sudo find / -name ".DS_Store" -depth -exec rm {} \;
 
 # 执行 brew update 时报错如何解决
 
-https://discuss.circleci.com/t/brew-update-command-fails/5211/2
 当执行 brew update 时可能会出现如下错误信息
 ```shell
 /usr/local/Library/brew.sh: line 32: /usr/local/Library/ENV/scm/git: No such file or directory
 ```
 
-网上查到的解答为：
+网上查到的[解答](https://discuss.circleci.com/t/brew-update-command-fails/5211/2)为：
 > This is a confirmed issue with Homebrew, per them it should be fixed, but if not the following will correct.    
 > `cd "$(brew --repository)" && git fetch && git reset --hard origin/master`    
 > ref: https://github.com/Homebrew/brew/issues/55799    
+
+另外，在有些时候，如果第一次 `brew update` 失败了，再执行一次可能就会成功（原因未知）；
