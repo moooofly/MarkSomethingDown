@@ -81,6 +81,50 @@ Asia/Shanghai
 #
 ```
 
+
+### 基于图形界面进行时区调整
+
+只需要在界面上进行简单选择即可；
+
+```shell
+# dpkg-reconfigure tzdata
+
+Current default time zone: 'Asia/Shanghai'
+Local time is now:      Wed Jul 27 17:04:51 CST 2016.
+Universal Time is now:  Wed Jul 27 09:04:51 UTC 2016.
+
+#
+```
+
+### 基于 timedatectl 进行时区调整
+
+如果你使用的 Linux 系统支持 `Systemd`，则可以使用 `timedatectl` 命令进行系统范围时区设置。
+
+在 Systemd 下有一个名为 `systemd-timedated` 的系统服务负责调整系统时钟和时区，可以使用 timedatectl 命令对此系统服务进行配置。
+
+设置时区
+```shell
+timedatectl set-timezone 'Asia/Shanghai'
+```
+
+查看当前时间设定
+```shell
+# timedatectl
+Warning: Ignoring the TZ variable. Reading the system's time zone setting only.
+
+      Local time: Wed 2016-07-27 17:45:54 CST
+  Universal time: Wed 2016-07-27 09:45:54 UTC
+        RTC time: Wed 2016-07-27 09:45:54
+       Time zone: Asia/Shanghai (CST, +0800)
+     NTP enabled: yes
+NTP synchronized: yes
+ RTC in local TZ: no
+      DST active: n/a
+#
+```
+
+## 防止系统重启后时区改变
+
 ### 用户级别设置时区
 
 在 `.profile` 文件中添加
@@ -103,79 +147,22 @@ ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 > 注意：`Asia/Shanghai` 是根据上面 `tzselect` 确定的；
 
 
-## 基于图形界面进行时区调整
+## 通过公网 NTP 服务器进行时间校准
 
-只需要在界面上进行简单选择即可；
-
-```shell
-# dpkg-reconfigure tzdata
-
-Current default time zone: 'Asia/Shanghai'
-Local time is now:      Wed Jul 27 17:04:51 CST 2016.
-Universal Time is now:  Wed Jul 27 09:04:51 UTC 2016.
-
-#
-```
-
-## 基于 timedatectl 进行时区调整
-
-如果你使用的 Linux 系统支持 `Systemd`，则可以使用 `timedatectl` 命令进行系统范围时区设置。
-
-在 Systemd 下有一个名为 systemd-timedated 的系统服务负责调整系统时钟和时区，可以使用 timedatectl 命令对此系统服务进行配置。
-
-设置
-```shell
-timedatectl set-timezone 'Asia/Shanghai'
-```
-
-查看
-```shell
-# timedatectl
-Warning: Ignoring the TZ variable. Reading the system's time zone setting only.
-
-      Local time: Wed 2016-07-27 17:45:54 CST
-  Universal time: Wed 2016-07-27 09:45:54 UTC
-        RTC time: Wed 2016-07-27 09:45:54
-       Time zone: Asia/Shanghai (CST, +0800)
-     NTP enabled: yes
-NTP synchronized: yes
- RTC in local TZ: no
-      DST active: n/a
-#
-```
-
-## 防止系统重启后时区改变
-```shell
-# ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-```
-
-## 通过公网 NTP 服务器校准时间
 ```shell
 # ntpdate pool.ntp.org
 27 Jul 15:56:36 ntpdate[8265]: adjust time server 115.28.122.198 offset 0.010742 sec
 ```
 
-## 查看当前时间（变更后）
+## 查看当前时间显示（变更后）
+
 ```shell
 # date
 Wed Jul 27 15:58:03 CST 2016
 ```
 
 ## 设置硬件时间和系统时间一致
+
 ```shell
 # /sbin/hwclock --systohc
 ```
-
-> 按照上面的方式调整后，抓包发现时间戳存在错乱情况；出错的原因应该是因为没有没有设置（调整）时区设置；
-
-
-按照下面的方法重新调整
-
-
-
-
-
-
-参考：
-
-https://www.sysgeek.cn/change-timezone-linux/
