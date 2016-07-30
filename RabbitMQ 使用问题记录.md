@@ -160,9 +160,9 @@ sunfeideMacBook-Pro.local
 
 参考：[这里](http://stackoverflow.com/questions/24797947/os-x-and-rabbitmq-error-epmd-error-for-host-xxx-address-cannot-connect-to-ho)；
 
-> try adding your hostname to your `/etc/hosts`. 
-> **Sometimes Erlang distribution will get confused when your network changes**. 
-> Otherwise try restarting epmd using `epmd -kill` or similar commands.
+> try adding your hostname to your `/etc/hosts`.     
+> **Sometimes Erlang distribution will get confused when your network changes**.     
+> Otherwise try restarting epmd using `epmd -kill` or similar commands.    
 
 
 
