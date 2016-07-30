@@ -9,7 +9,7 @@ apt-get -y install zlib1g-dev
 
 > 注意：若想在 haproxy-1.6.7 中使能 lua 功能，则必须安装 lua5.3 版本，否则编译不通过；
 
- 在 Ubuntu 15.04 中默认只能如下 lua 版本，不符合要求；
+ 在 Ubuntu 15.04 中默认只提供 lua5.2 版本，不符合要求；
 ```shell
 apt-get -y install lua5.2 liblua5.2-dev
 ```
