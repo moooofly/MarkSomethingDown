@@ -15,18 +15,8 @@ Wed Jul 27 07:52:32 GMT 2016
 
 例如将时区设置成 `Asia/Shanghai` ；
 
-### 图形界面方式
-```shell
-# dpkg-reconfigure tzdata
-
-Current default time zone: 'Asia/Shanghai'
-Local time is now:      Wed Jul 27 17:04:51 CST 2016.
-Universal Time is now:  Wed Jul 27 09:04:51 UTC 2016.
-
-#
-```
-
 ### 确定目标时区
+
 ```shell
 # tzselect
 Please identify a location so that time zone rules can be set correctly.
@@ -97,7 +87,7 @@ Asia/Shanghai
 ```shell
 TZ='Asia/Shanghai'; export TZ
 ```
-之后执行 `source .profile` 令设置生效；
+之后执行 `source .profile` 令设置生效；也可以重新进行 shell 登录；
 
 
 ### 系统级别设置时区
@@ -113,9 +103,23 @@ ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 > 注意：`Asia/Shanghai` 是根据上面 `tzselect` 确定的；
 
 
-## 基于 timedatectl 更改系统范围时区
+## 基于图形界面进行时区调整
 
-如果你使用的 Linux 系统支持 Systemd，则可以使用 timedatectl 命令更改系统范围的时区设置。
+只需要在界面上进行简单选择即可；
+
+```shell
+# dpkg-reconfigure tzdata
+
+Current default time zone: 'Asia/Shanghai'
+Local time is now:      Wed Jul 27 17:04:51 CST 2016.
+Universal Time is now:  Wed Jul 27 09:04:51 UTC 2016.
+
+#
+```
+
+## 基于 timedatectl 进行时区调整
+
+如果你使用的 Linux 系统支持 `Systemd`，则可以使用 `timedatectl` 命令进行系统范围时区设置。
 
 在 Systemd 下有一个名为 systemd-timedated 的系统服务负责调整系统时钟和时区，可以使用 timedatectl 命令对此系统服务进行配置。
 
