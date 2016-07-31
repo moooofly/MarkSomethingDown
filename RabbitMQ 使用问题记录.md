@@ -11,7 +11,7 @@
 ```shell
 ➜  ~ rabbitmq-server -detached
 Warning: PID file not written; -detached was passed.
-（卡住一段时间）
+（卡住一段时间，大约 30s）
 ```
 
  输出如下错误信息
@@ -155,6 +155,35 @@ Log files (may contain more information):
 sunfeideMacBook-Pro.local
 ➜  ~
 ```
+
+### 源码分析
+
+在 `rabbit.erl` 中可以看到，在 boot 序列中会启动 rabbit_epmd_monitor 进程；
+```erlang
+-rabbit_boot_step({rabbit_epmd_monitor,
+                   [{description, "epmd monitor"},
+                    {mfa,         {rabbit_sup, start_restartable_child,
+                                   [rabbit_epmd_monitor]}},
+                    {requires,    kernel_ready},
+                    {enables,     core_initialized}]}).
+```
+
+在 rabbit_epmd_monitor.erl 中，
+```erlang
+init([]) ->
+    %% 解析 Node@Host 信息
+    {Me, Host} = rabbit_nodes:parts(node()),
+    %% 获取与 epmd 通信的模块名，默认 erl_epmd ，除非命令行上通过 -epmd_module 进行指定
+    Mod = net_kernel:epmd_module(),
+    %% 基于 Host 获取 IP 和 Port 
+    %% 崩溃位置：下面函数返回 noport 导致进程崩溃，故 RabbitMQ 无法正常启动
+    {port, Port, _Version} = Mod:port_please(Me, Host),
+    {ok, ensure_timer(#state{mod  = Mod,
+                             me   = Me,
+                             host = Host,
+                             port = Port})}.
+```
+
 
 ### 解决办法
 
