@@ -158,7 +158,7 @@ sunfeideMacBook-Pro.local
 
 ### 源码分析
 
-在 `rabbit.erl` 中可以看到，在 boot 序列中会启动 rabbit_epmd_monitor 进程；
+在 `rabbit.erl` 中可以看到，在 boot 序列中会启动 rabbit_epmd_monitor 进程；而 epmd 进程是 RabbitMQ  cluster 通信和 rabbitmqctl 命令行工具所依赖的进程；因此 RabbitMQ 通过启动rabbit_epmd_monitor 进程，建立与 epmd 的 TCP 连接，进而确保其正常运行；
 ```erlang
 -rabbit_boot_step({rabbit_epmd_monitor,
                    [{description, "epmd monitor"},
@@ -168,14 +168,14 @@ sunfeideMacBook-Pro.local
                     {enables,     core_initialized}]}).
 ```
 
-在 rabbit_epmd_monitor.erl 中，可以看到崩溃发生的位置：即与 epmd 进程建立 TCP 连接的时候；
+在 `rabbit_epmd_monitor.erl` 中，可以看到崩溃发生的位置：即与 epmd 进程建立 TCP 连接的时候；
 ```erlang
 init([]) ->
     %% 解析 Node@Host 信息
     {Me, Host} = rabbit_nodes:parts(node()),
     %% 获取与 epmd 通信的模块名，默认 erl_epmd ，除非命令行上通过 -epmd_module 进行指定
     Mod = net_kernel:epmd_module(),
-    %% 基于 Host 获取 IP 和 Port 
+    %% 基于 Host 信息与 epmd 建立 TCP 连接，并返回 Port 号 
     %% 崩溃位置：下面函数返回 noport 导致进程崩溃，故 RabbitMQ 无法正常启动
     {port, Port, _Version} = Mod:port_please(Me, Host),
     {ok, ensure_timer(#state{mod  = Mod,
@@ -184,7 +184,7 @@ init([]) ->
                              port = Port})}.
 ```
 
-在 erl_epmd.erl 中可以分析出崩溃的真正原因；
+在 `erl_epmd.erl` 中可以分析出崩溃的真正原因；
 ```erlang
 %% Lookup a node "Name" at Host
 %% return {port, P, Version} | noport
@@ -206,7 +206,7 @@ port_please1(Node,HostName, Timeout) ->
   %% 返回值 EpmdAddr 为类似 {a,b,c,d} 类型的地址值
   case inet:gethostbyname(HostName, inet, Timeout) of
     {ok,{hostent, _Name, _ , _Af, _Size, [EpmdAddr | _]}} ->
-      %% 解析成功
+      %% 解析成功：
       %% 但是即使解析成功，也可能得到错误的地址值，例如在 Mac 上调用
       %% inet:gethostbyname("sunfeideMacBook-Pro",inet,infinity).
       %% 会返回
@@ -214,10 +214,43 @@ port_please1(Node,HostName, Timeout) ->
       %%              [{180,168,41,175}]}}
       %% 但这个地址是错误的（why this address?）
       get_port(Node, EpmdAddr, Timeout);
-    Else -> %% 解析失败，可能为 {error,nxdomain}
+    Else -> %% 解析失败，例如 HostName 为错误值时会得到 {error,nxdomain}
       Else
   end.
+...
+%% 当 EpmdAddress 为一个错误的地址时，如 {180,168,41,175}，该函数会返回 noport
+get_port(Node, EpmdAddress, Timeout) ->
+	%% 建立到 epmd 进程的 TCP 连接
+    case open(EpmdAddress, Timeout) of
+	{ok, Socket} ->
+		...
+	_Error -> %% 此处可能会得到 {error,etimedout}
+	    ?port_please_failure2(_Error),
+	    noport
+    end.
 ```
+
+与  epmd 建立 TCP 连接
+```erlang
+%%
+%% Epmd socket
+%%
+open() -> open({127,0,0,1}).  % The localhost IP address.
+
+open({A,B,C,D}=EpmdAddr) when ?ip(A,B,C,D) ->
+    gen_tcp:connect(EpmdAddr, get_epmd_port(), [inet]);
+...
+%% 注意：即使 Timeout 为 infinity 也不会无限等待，会在底层
+%% connect 系统调用超时后返回（70+秒）
+open({A,B,C,D}=EpmdAddr, Timeout) when ?ip(A,B,C,D) ->
+    gen_tcp:connect(EpmdAddr, get_epmd_port(), [inet], Timeout);
+...
+```
+
+### 问题原因
+
+经过上面的源码分析，确认问题为：
+
 
 
 ### 解决办法
