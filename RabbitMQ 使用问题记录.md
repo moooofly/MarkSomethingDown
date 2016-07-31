@@ -250,7 +250,10 @@ open({A,B,C,D}=EpmdAddr, Timeout) when ?ip(A,B,C,D) ->
 ### 问题原因
 
 经过上面的源码分析，确认问题为：
-
+- 在 Mac 上启动 RabbitMQ 时 sname 为 rabbit@sunfeideMacBook-Pro ；    
+- 而 sunfeideMacBook-Pro 经 inet:gethostbyname/3 解析后会得到 180.168.41.175 这个地址；    
+- 基于上述地址与 epmd 进程建立 TCP 连接必然触发 connect 超时；    
+- 最终导致 rabbit_epmd_monitor 进程崩溃，RabbitMQ 无法启动；    
 
 
 ### 解决办法
