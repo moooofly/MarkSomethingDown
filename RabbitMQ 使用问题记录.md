@@ -168,7 +168,7 @@ sunfeideMacBook-Pro.local
                     {enables,     core_initialized}]}).
 ```
 
-在 rabbit_epmd_monitor.erl 中，
+在 rabbit_epmd_monitor.erl 中，可以看到崩溃发生的位置：即与 epmd 进程建立 TCP 连接的时候；
 ```erlang
 init([]) ->
     %% 解析 Node@Host 信息
@@ -182,6 +182,41 @@ init([]) ->
                              me   = Me,
                              host = Host,
                              port = Port})}.
+```
+
+在 erl_epmd.erl 中可以分析出崩溃的真正原因；
+```erlang
+%% Lookup a node "Name" at Host
+%% return {port, P, Version} | noport
+%%
+
+port_please(Node, Host) ->
+  port_please(Node, Host, infinity).
+
+port_please(Node,HostName, Timeout) when is_atom(HostName) ->
+  port_please1(Node,atom_to_list(HostName), Timeout);
+port_please(Node,HostName, Timeout) when is_list(HostName) ->
+  port_please1(Node,HostName, Timeout);
+port_please(Node, EpmdAddr, Timeout) ->
+  get_port(Node, EpmdAddr, Timeout).
+
+port_please1(Node,HostName, Timeout) ->
+  %% 返回与 HostName 对应的 hostent 结构体信息
+  %% 参数 inet 表明获取的是 IPv4 地址
+  %% 返回值 EpmdAddr 为类似 {a,b,c,d} 类型的地址值
+  case inet:gethostbyname(HostName, inet, Timeout) of
+    {ok,{hostent, _Name, _ , _Af, _Size, [EpmdAddr | _]}} ->
+      %% 解析成功
+      %% 但是即使解析成功，也可能得到错误的地址值，例如在 Mac 上调用
+      %% inet:gethostbyname("sunfeideMacBook-Pro",inet,infinity).
+      %% 会返回
+      %% {ok,{hostent,"sunfeidemacbook-pro",[],inet,4,
+      %%              [{180,168,41,175}]}}
+      %% 但这个地址是错误的（why this address?）
+      get_port(Node, EpmdAddr, Timeout);
+    Else -> %% 解析失败，可能为 {error,nxdomain}
+      Else
+  end.
 ```
 
 
