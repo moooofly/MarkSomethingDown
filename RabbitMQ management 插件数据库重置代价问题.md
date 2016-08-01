@@ -66,6 +66,8 @@ action(eval, Node, [Expr], _Opts, _Inform) ->
     end;
 ```
 
+可见，eval 的执行最终是在目标 Node 上进行了 RPC 调用；
+
 # 第一种方式
 
 通过 `exit(erlang:whereis(rabbit_mgmt_db), please_terminate).` 重置数据库，其实就是向 `rabbit_mgmt_db` 进程发送了一个原因为 `please_terminate` 的退出信号；
