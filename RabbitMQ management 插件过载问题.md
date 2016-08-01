@@ -75,11 +75,10 @@ prioritise_call(_Msg, _From, Len, _State) ->
 # management 插件使用中需要关注的点
 
 
-## Note on clustering
+## 插件的集群感知行为
+management 插件对 cluster 是感知的；你可以在 cluster 中的某个或多个节点上启动该插件，之后通过 management 插件获取的信息将是与整个 cluster 相关的，无论你连接到 cluster 中的哪个节点；
 
-The management plugin is aware of clusters. You can enable it on one or more nodes in a cluster, and see information pertaining to the entire cluster no matter which node you connect to.
-
-If you want to deploy cluster nodes which do not have the full management plugin enabled, you will still need to enable the rabbitmq-management-agent plugin on each node.
+如果你想要部署某个 cluster 节点，但不启动 management 插件的全部功能，仍然需要在每一个节点上启用 rabbitmq-management-agent 插件（这样才能通过特定节点获取到整个 cluster 的统计信息）；
 
 
 ## 统计数据库重启问题
@@ -103,6 +102,8 @@ rabbitmqctl eval 'supervisor2:terminate_child(rabbit_mgmt_sup_sup, rabbit_mgmt_s
 
 无论如何，上述命令必须在统计数据库所在节点上执行才能生效；
 
+针对该问题，可以移步我梳理的另外一篇总结：《[RabbitMQ management 插件数据库重置代价问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ%20management%20%E6%8F%92%E4%BB%B6%E6%95%B0%E6%8D%AE%E5%BA%93%E9%87%8D%E7%BD%AE%E4%BB%A3%E4%BB%B7%E9%97%AE%E9%A2%98.md)》
+
 
 ## 内存管理问题
 
@@ -123,20 +124,21 @@ management 插件中统计数据库占用的内存情况可以通过如下命令
 或者通过 HTTP API 发送 GET 请求到 `/api/nodes/<node_name>` 进行获取；
 
 统计信息会按照 `collect_statistics_interval` 设置的时间间隔周期性采集；也可能在某些组件被创建/声明，或者关闭/销毁时进行采集（例如打开新 connection 或 channel，或者进行 queue 声明）；
+
 消息速率的设置不会直接对 management 插件统计数据库内存占用产生影响；
 
-统计数据库占用内存的总量取决于：
-- 统计信息的发送时间间隔；
+**统计数据库占用内存的总量**取决于：
+- 统计信息的采集时间间隔；
 - effective rates ；
 - retention 策略；
 
 行之有效的调整方案：
-- 将 `rabbit.collect_statistics_interval` 的值调整到 30-60s ，将会显著减少维护大量 queues/channels/connections 的系统的内存消耗；
+- 将 `collect_statistics_interval` 的值调整到 30-60s ，将会显著减少维护大量 queues/channels/connections 的系统的内存消耗；
 - 调整 retention 策略以减少留存的数据量也非常有效；
 
 channel 以及统计信息收集进程的内存使用可以通过 `stats_event_max_backlog` 参数设置最大 backlog queue 大小进行限制；如果 backlog queue 已满，则新建 channel 信息和 queue 统计信息都会被丢弃，直到 backlog queue 上尚未处理的消息被处理；
 
-统计信息发送间隔支持运行时动态调整；进行调整不会对已存在的 connections, channels 或 queues 造成影响；仅对新加入的统计实体产生影响；
+统计信息采集时间间隔支持运行时动态调整；进行调整不会对已存在的 connections, channels 或 queues 造成影响；仅对新加入的统计实体产生影响；
 
 运行时调整命令如下
 ```shell
@@ -144,6 +146,7 @@ rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000
 ```
 
 可以通过重启统计数据库达成强行释放所占用内存的目的（当然会丢失一部分统计数据）；
+
 
 
 ----------
@@ -173,7 +176,4 @@ rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000
 3.张斌重启 rabbitmq 的 management 管理插件后（等于清空积压的统计信息），统计数据库从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
 
 
-所以，建议将 rabbitmq management 插件所使用的统计数据库部署到单独一个节点上，避免对业务造成影响；应该可以立刻取的改善；
-
-
-之后我会深入研究下 rabbitmq management 插件的使用和调优姿势，看看内否进一步改进
+所以，建议将 rabbitmq management 插件所使用的统计数据库部署到单独一个节点上，避免对业务造成影响；应该可以立刻取得改善；之后我会深入研究下 rabbitmq management 插件的使用和调优姿势，看看内否进一步改进
