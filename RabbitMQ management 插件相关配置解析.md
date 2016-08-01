@@ -23,7 +23,7 @@
 
 ## rabbitmq.config 中的中的配置项
 
-此为常规配置文件内容（覆盖 .app.src 文件中的配置内容）
+此为常规配置文件内容（覆盖 `.app.src` 文件中的配置内容）
 
 ```erlang
  %% ----------------------------------------------------------------------------
@@ -82,35 +82,36 @@
 
 ## 参数解析
 
-### load_definitions - 启动时加载预定义信息
+### `load_definitions` - 启动时加载预定义信息
 management 插件允许你导出一个包含 broker 全部对象定义的 JSON 文件（对象包括：queues, exchanges, bindings, users, virtual hosts, permissions 和 parameters）；在一些场景中，每次启动时确保这些对象的存在是非常有必要的；
 
-可以通过设置 `load_definitions` 变量的值为事先导出的 JSON 文件路径，来实现启动时加载；
+可以将 `load_definitions` 变量的值设置为事先导出的 JSON 文件路径，来实现启动时加载；
 
 需要注意的是，文件中定义的对象会覆盖 broker 中存在的相应对象；使用该选项不会删除已存在的其它对象；如果你启动的是一个完全重置过的 broker ，使用该选项将会阻止常规的 default user / virtual host / permissions 的创建；
 
-### rates_mode - 消息速率的模式
-management 插件默认会展示全局消息速率 ，全局消息速率针对的是所有 queue, channel, exchange 和 vhost ；这种方式称作 `basic` 消息速率模式 ；
+### `rates_mode` - 速率的模式
+management 插件默认会展示全局消息速率 ，全局消息速率针对的是所有 queue, channel, exchange 和 vhost ；这种方式称作 `basic` 速率模式 ；
 
-还可以针对所有组合，例如  channel to exchange, exchange to queue 以及 queue to channel ，进行消息速率展示；这种方式称作 `detailed` 消息速率模式 ；这种方式默认是关闭的，因为当系统中存在大量这种组合时，会导致大量的 memory footprint 出现；
+还可以针对各种组合情况，例如  channel to exchange, exchange to queue 以及 queue to channel ，进行速率展示；这种方式称作 `detailed` 速率模式 ；这种方式默认是关闭的，因为当系统中存在大量这种组合时，会导致大量的 memory footprint 出现；
 
-最后一种选择是直接关闭消息速率显示；这样就可以在 CPU-bound 的服务器上获取最佳性能；
+最后一种可选方案是直接关闭速率显示；这样就可以在 CPU-bound 的服务器上获取最佳性能；
 
 消息速率的模式是通过 rabbitmq_management 配置段中的 `rates_mode` 配置变量进行控制的；可以设置为 `basic` (默认值), `detailed` 或 `none` ；
 
 
-### collect_statistics
+### collect_statistics - 统计信息收集粒度
 
-统计信息收集模式；主要和 management 插件有关；
+负责控制统计信息得收集粒度，主要和 management 插件有关；
 可配置选项包括：
 - `none` - 不发送 statistics 事件；
 - `coarse` - 发送针对 per-queue / per-channel / per-connection 的统计信息；
 - `fine` - 发送针对 per-queue / per-channel / per-connection / per-message 的统计信息；
 
-该选项默认值为 none ；在不理解该参数含义的情况下，不建议修改；
+该选项默认值为 `none` ；在不理解该参数所产生影响的情况下，不建议修改；
 
 
 ### collect_statistics_interval - 统计信息采集时间间隔
+
 默认情况下，服务器会每隔 5000ms 发送一次统计事件（包含各类统计数据）；而 management 插件所显示的消息速率值就是基于这个时间间隔计算得到的；
 
 > 注意：此处的统计信息采集时间间隔与 web 页面上刷新页面时间间隔（默认 5s）是两回事；
