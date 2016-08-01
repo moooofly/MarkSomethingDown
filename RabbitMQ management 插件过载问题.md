@@ -7,8 +7,8 @@
 （据说最严重的情况下，积压了几十万条消息）
 
 上述内容提供了以下几点信息：
-- management 插件通过一个名为 statistics 的数据库维护用于 web 页面展示的相关统计数据；
-- management 插件使用了内部 queue 有序处理消息，随着 queue 中消息的增多，势必造成内存消耗的增加，统计信息的即时性变差，甚至可能对磁盘 I/O 造成影响（待确认）；
+- management 插件通过一个专门的统计数据库维护 web 页面展示所需的相关数据；
+- management 插件使用了内部 queue 有序处理消息，随着 queue 中消息的增多，势必造成内存消耗的增加，统计信息的即时性变差；
 - 设置 `rates_mode` 选项参数的值为 node 可能有所改善；
 
 
@@ -325,8 +325,104 @@ rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000
 之后我会深入研究下 rabbitmq management 插件的使用和调优姿势，看看内否进一步改进
 
 
-$sudo rabbitmqctl eval 'application:stop(rabbitmq_management), application:start(rabbitmq_management).'
-or
-$sudo rabbitmqctl eval 'exit(erlang:whereis(rabbit_mgmt_db), please_terminate).'
+----------
 
-帮忙看下这两条命令的区别在哪
+有同事问：通过如下两种方式重启 management 插件有何区别？
+
+方式一：
+```shell
+$ rabbitmqctl eval 'application:stop(rabbitmq_management), application:start(rabbitmq_management).'
+```
+方式二：
+```shell
+$ rabbitmqctl eval 'exit(erlang:whereis(rabbit_mgmt_db), please_terminate).'
+```
+
+两种方式都是通过 rabbitmqctl 的 eval 子命令调用 erlang 模块导出函数实现的**某种**程度的重置功能；
+
+官方对 eval 子命令的解释为：针对任意 Erlang 表达式进行求值计算；    
+调用格式为
+```shell
+eval {expr}
+```
+
+在 `rabbitmqctl` 脚本中可以看到
+```shell
+RABBITMQ_USE_LONGNAME=${RABBITMQ_USE_LONGNAME} \
+exec ${ERL_DIR}erl \
+    -pa "${RABBITMQ_HOME}/ebin" \
+    -noinput \
+    -hidden \
+    ${RABBITMQ_CTL_ERL_ARGS} \
+    -boot "${CLEAN_BOOT_FILE}" \
+    -sasl errlog_type error \
+    -mnesia dir "\"${RABBITMQ_MNESIA_DIR}\"" \
+    -s rabbit_control_main \
+    -nodename $RABBITMQ_NODENAME \
+    -extra "$@"
+```
+
+因此，最终是将 `eval 'xxx'` 传给了 `rabbit_control_main.erl` 模块进行处理，代码如下
+
+```erlang
+action(eval, Node, [Expr], _Opts, _Inform) ->
+	%% 词法分析 eval 后指定的命令字串
+    case erl_scan:string(Expr) of
+        {ok, Scanned, _} ->
+	        %% 基于词法分析后的内容得到调用序列信息
+            case erl_parse:parse_exprs(Scanned) of
+                {ok, Parsed} -> {value, Value, _} =
+					                %% 进行 RPC 调用
+					                %% 即在 Node 节点通过 erl_eval:exprs/1 执行
+					                %% exit(erlang:whereis(rabbit_mgmt_db), please_terminate).
+                                    unsafe_rpc(
+                                      Node, erl_eval, exprs, [Parsed, []]), 
+                                io:format("~p~n", [Value]),
+                                ok;
+                {error, E}   -> {error_string, format_parse_error(E)}
+            end;
+        {error, E, _} ->
+            {error_string, format_parse_error(E)}
+    end;
+```
+
+而 `exit(erlang:whereis(rabbit_mgmt_db), please_terminate).` 就很简单了，就是向 rabbit_mgmt_db 进程发送了一个原因为 `please_terminate` 的退出信号；
+
+
+在官方文档中有如下说明
+
+```erlang
+exit(Pid, Reason) -> true
+```
+
+> Sends an exit signal with exit reason `Reason` to the process or port identified by `Pid`.
+> 
+> The following behavior applies if Reason is any term, except `normal` or `kill`:
+>> - If Pid is not trapping exits, Pid itself exits with exit reason Reason.
+>> - If Pid is trapping exits, the exit signal is transformed into a message `{'EXIT', From, Reason}` and delivered to the message queue of Pid.
+
+因为 rabbit_mgmt_db 进程并没有对退出信号进行捕获，因此，当其收到上述退出信号后，则直接退出执行；同时由于 rabbit_mgmt_db 进程是 worker 进程，且配置成 permanent 以保证总是被重启，故我们可以在 RabbitMQ 的日志中看到如下输出
+
+输出 rabbit_mgmt_db 进程退出信息；
+```shell
+=SUPERVISOR REPORT==== 1-Aug-2016::14:44:56 ===
+     Supervisor: {<0.338.0>,mirrored_supervisor_sups}
+     Context:    child_terminated
+     Reason:     please_terminate
+     Offender:   [{pid,<0.4410.4>},
+                  {name,rabbit_mgmt_db},
+                  {mfargs,{rabbit_mgmt_db,start_link,[]}},
+                  {restart_type,permanent},
+                  {shutdown,4294967295},
+                  {child_type,worker}]
+```
+
+输出 rabbit_mgmt_db 重新被启动信息；
+```shell
+=INFO REPORT==== 1-Aug-2016::14:44:56 ===
+Statistics database started.
+```
+
+在上述过程中只有 rabbit_mgmt_db 进程发生了重启行为，其它进程没有任何变化，故对系统影响非常小；
+
+
