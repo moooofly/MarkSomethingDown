@@ -88,11 +88,11 @@ exit(Pid, Reason) -> true
 
 输出 rabbit_mgmt_db 进程退出信息；
 ```shell
-=SUPERVISOR REPORT==== 1-Aug-2016::14:44:56 ===
-     Supervisor: {<0.338.0>,mirrored_supervisor_sups}
+=SUPERVISOR REPORT==== 1-Aug-2016::17:32:09 ===
+     Supervisor: {<0.333.0>,mirrored_supervisor_sups}
      Context:    child_terminated
      Reason:     please_terminate
-     Offender:   [{pid,<0.4410.4>},
+     Offender:   [{pid,<0.338.0>},
                   {name,rabbit_mgmt_db},
                   {mfargs,{rabbit_mgmt_db,start_link,[]}},
                   {restart_type,permanent},
@@ -102,11 +102,18 @@ exit(Pid, Reason) -> true
 
 输出 rabbit_mgmt_db 重新被启动信息；
 ```shell
-=INFO REPORT==== 1-Aug-2016::14:44:56 ===
+=INFO REPORT==== 1-Aug-2016::17:32:09 ===
 Statistics database started.
 ```
 
 通过上述日志信息，以及 RabbitMQ 内部进程实际变化情况，可以得出结论：上述过程中只有 `rabbit_mgmt_db` 进程发生了重启行为，其它进程没有任何变化，故对系统影响非常小；
+
+发信号前
+
+![停止rabbit_mgmt_db进程前](https://raw.githubusercontent.com/moooofly/ImageCache/master/rabbitmq_management_plugin/%E4%BB%85%E5%81%9C%E6%AD%A2rabbit_mgmt_db%E7%9A%84%E6%96%B9%E5%BC%8F_1.png "停止rabbit_mgmt_db进程前")
+
+发信号后
+![停止rabbit_mgmt_db进程后](https://raw.githubusercontent.com/moooofly/ImageCache/master/rabbitmq_management_plugin/%E4%BB%85%E5%81%9C%E6%AD%A2rabbit_mgmt_db%E7%9A%84%E6%96%B9%E5%BC%8F_2.png "停止rabbit_mgmt_db进程后")
 
 
 # 第二种方式
