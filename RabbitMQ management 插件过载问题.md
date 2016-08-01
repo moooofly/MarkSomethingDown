@@ -329,16 +329,23 @@ rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000
 
 有同事问：通过如下两种方式重启 management 插件有何区别？
 
+## 重置 management 插件数据库的两种方式
+
 方式一：
-```shell
-$ rabbitmqctl eval 'application:stop(rabbitmq_management), application:start(rabbitmq_management).'
-```
-方式二：
 ```shell
 $ rabbitmqctl eval 'exit(erlang:whereis(rabbit_mgmt_db), please_terminate).'
 ```
 
-两种方式都是通过 rabbitmqctl 的 eval 子命令调用 erlang 模块导出函数实现的**某种**程度的重置功能；
+方式二：
+```shell
+$ rabbitmqctl eval 'application:stop(rabbitmq_management), application:start(rabbitmq_management).'
+```
+
+可以看到，两种方式都是通过 rabbitmqctl 的 eval 子命令调用 erlang 模块导出函数实现的**某种**重置功能；
+
+那么哪种方式对系统的影响比较小呢？
+
+## eval 子命令代码执行路径
 
 官方对 eval 子命令的解释为：针对任意 Erlang 表达式进行求值计算；    
 调用格式为
@@ -386,10 +393,11 @@ action(eval, Node, [Expr], _Opts, _Inform) ->
     end;
 ```
 
-而 `exit(erlang:whereis(rabbit_mgmt_db), please_terminate).` 就很简单了，就是向 rabbit_mgmt_db 进程发送了一个原因为 `please_terminate` 的退出信号；
+## 第一种方式
 
+通过 `exit(erlang:whereis(rabbit_mgmt_db), please_terminate).` 重置数据库，其实就是向 `rabbit_mgmt_db` 进程发送了一个原因为 `please_terminate` 的退出信号；
 
-在官方文档中有如下说明
+在 erlang 官方文档中有如下说明
 
 ```erlang
 exit(Pid, Reason) -> true
@@ -401,7 +409,7 @@ exit(Pid, Reason) -> true
 >> - If Pid is not trapping exits, Pid itself exits with exit reason Reason.
 >> - If Pid is trapping exits, the exit signal is transformed into a message `{'EXIT', From, Reason}` and delivered to the message queue of Pid.
 
-因为 rabbit_mgmt_db 进程并没有对退出信号进行捕获，因此，当其收到上述退出信号后，则直接退出执行；同时由于 rabbit_mgmt_db 进程是 worker 进程，且配置成 permanent 以保证总是被重启，故我们可以在 RabbitMQ 的日志中看到如下输出
+从代码中可以看到，`rabbit_mgmt_db` 进程并没有对退出信号进行捕获，因此当其收到退出信号后，将直接退出执行；同时由于 `rabbit_mgmt_db` 进程是 `worker` 进程，且配置成 `permanent` 以保证总是被重启，故我们可以在 RabbitMQ 的日志中看到如下输出
 
 输出 rabbit_mgmt_db 进程退出信息；
 ```shell
@@ -423,6 +431,7 @@ exit(Pid, Reason) -> true
 Statistics database started.
 ```
 
-在上述过程中只有 rabbit_mgmt_db 进程发生了重启行为，其它进程没有任何变化，故对系统影响非常小；
+通过上述日志信息，以及 RabbitMQ 内部进程实际变化情况，可以得出结论：上述过程中只有 `rabbit_mgmt_db` 进程发生了重启行为，其它进程没有任何变化，故对系统影响非常小；
 
 
+## 第二种方式
