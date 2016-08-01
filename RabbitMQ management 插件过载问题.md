@@ -53,7 +53,7 @@ handle_call({get_overview, User, Ranges}, _From,
     reply([{message_stats, format_samples(Ranges, MessageStats, State)},
            {queue_totals,  format_samples(Ranges, QueueStats, State)},
            {object_totals, ObjectTotals},
-           %% 获取当前 rabbit_mgmt_db 进程中积压消息数量
+           %% 获取 rabbit_mgmt_db 进程中积压消息数量
            {statistics_db_event_queue, get(last_queue_length)}], State);
 ...
 reply(Reply, NewState) -> {reply, Reply, NewState, hibernate}.
@@ -84,7 +84,7 @@ If you want to deploy cluster nodes which do not have the full management plugin
 
 ## 统计数据库重启问题
 
-统计数据库是被整体保存在内存中的；因此其内容全部都是临时性的，外部访问者也需要这么理解；通过重启统计数据库相关 erlang 进程，可以实现集群节点上迁移统计数据库的行为；
+统计数据库是整体保存在**内存**中的；因此其内容全部都是**临时性**的，外部访问者需要基于这个前提进行相应设计；通过重启统计数据库相关 erlang 进程，可以实现集群节点上迁移统计数据库的行为；
 
 在 RabbitMQ 3.6.2 版本之前，统计数据库被直接保存在统计进程的内存中；
 从 RabbitMQ 3.6.2 版本开始，统计数据库被保存在 ETS 表中；
@@ -96,6 +96,7 @@ rabbitmqctl eval 'exit(erlang:whereis(rabbit_mgmt_db), please_terminate).'
 ```
 
 从 RabbitMQ 3.6.2 版本开始，重启该数据库需要执行
+
 ```erlang
 rabbitmqctl eval 'supervisor2:terminate_child(rabbit_mgmt_sup_sup, rabbit_mgmt_sup), rabbit_mgmt_sup_sup:start_child().'
 ```
@@ -121,7 +122,7 @@ management 插件中统计数据库占用的内存情况可以通过如下命令
 
 或者通过 HTTP API 发送 GET 请求到 `/api/nodes/<node_name>` 进行获取；
 
-统计信息会按照 `collect_statistics_interval` 指定的时间间隔周期性发送；也可能在某些组件被创建/声明，或者关闭/销毁时发送（例如打开新 connection 或 channel，或者进行 queue 声明）；
+统计信息会按照 `collect_statistics_interval` 设置的时间间隔周期性采集；也可能在某些组件被创建/声明，或者关闭/销毁时进行采集（例如打开新 connection 或 channel，或者进行 queue 声明）；
 消息速率的设置不会直接对 management 插件统计数据库内存占用产生影响；
 
 统计数据库占用内存的总量取决于：
