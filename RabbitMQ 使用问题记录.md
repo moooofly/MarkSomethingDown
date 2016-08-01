@@ -264,7 +264,64 @@ open({A,B,C,D}=EpmdAddr, Timeout) when ?ip(A,B,C,D) ->
 > **Sometimes Erlang distribution will get confused when your network changes**.     
 > Otherwise try restarting epmd using `epmd -kill` or similar commands.    
 
+### 补充
 
+此问题在公司网络环境下没有出现，回到家后就出现了
+
+在公司测试时，可以看到如下输出
+```erlang
+7>
+7> inet_db:gethostname().
+"sunfeideMacBook-Pro"
+8>
+8> inet:gethostbyname("sunfeideMacBook").
+{error,nxdomain}
+9>
+9> inet:gethostbyname("sunfeideMacBook-Pro").
+{ok,{hostent,"sunfeideMacBook-Pro",[],inet,4,[{127,0,0,1}]}}
+10>
+10> inet:gethostbyname("sunfeideMacBook-Pro.local").
+{ok,{hostent,"sunfeidemacbook-pro.local",[],inet,4,
+             [{127,0,0,1}]}}
+11>
+11> inet:gethostbyname("aaaaaaa").
+{error,nxdomain}
+12>
+```
+
+```shell
+➜  ~
+➜  ~ hostname
+sunfeideMacBook-Pro.local
+➜  ~
+➜  ~ ping sunfeideMacBook
+ping: cannot resolve sunfeideMacBook: Unknown host
+➜  ~
+➜  ~ ping sunfeideMacBook-Pro
+ping: cannot resolve sunfeideMacBook-Pro: Unknown host
+➜  ~
+➜  ~ ping sunfeideMacBook-Pro.local
+PING sunfeidemacbook-pro.local (127.0.0.1): 56 data bytes
+64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.036 ms
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.110 ms
+^C
+--- sunfeidemacbook-pro.local ping statistics ---
+2 packets transmitted, 2 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 0.036/0.073/0.110/0.037 ms
+➜  ~
+➜  ~ ping aaaaaaa
+ping: cannot resolve aaaaaaa: Unknown host
+➜  ~
+```
+
+在家测试时，可以看到如下输出
+```erlang
+(回家补充)
+```
+
+```shell
+(回家补充)
+```
 
 
 # Ubuntu 系统
