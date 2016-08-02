@@ -138,6 +138,8 @@ management 插件中统计数据库占用的内存情况可以通过如下命令
 
 channel 以及统计信息收集进程的内存使用可以通过 `stats_event_max_backlog` 参数设置最大 backlog queue 大小进行限制；如果 backlog queue 已满，则新建 channel 信息和 queue 统计信息都会被丢弃，直到 backlog queue 上尚未处理的消息被处理；
 
+> ⚠️ `stats_event_max_backlog` 参数在配置文件和代码中均未找到；
+
 统计信息采集时间间隔支持运行时动态调整；进行调整不会对已存在的 connections, channels 或 queues 造成影响；仅对新加入的统计实体产生影响；
 
 运行时调整命令如下
@@ -147,6 +149,30 @@ rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000
 
 可以通过重启统计数据库达成强行释放所占用内存的目的（当然会丢失一部分统计数据）；
 
+
+
+----------
+
+
+刚才反馈的 publish 等曲线掉底的问题，经过 @张斌 确认，结论如下：
+1.在掉底曲线的时间段内，rabbitmq 的统计信息数据库（或队列）积压了几十万条统计信息；
+2.同一时间段内，业务获取 channel 超时飙高；
+3.张斌重启 rabbitmq 的 management 管理插件后（等于清空积压的统计信息），统计数据库从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
+
+
+所以，建议将 rabbitmq management 插件所使用的统计数据库部署到单独一个节点上，避免对业务造成影响；应该可以立刻取得改善；之后我会深入研究下 rabbitmq management 插件的使用和调优姿势，看看内否进一步改进
+
+
+----------
+
+结论推断：
+publish 等曲线掉底是由于 esm 基于 HTTP API 从 RabbitMQ 获取统计信息失败导致；
+获取统计信息失败是由于 rabbit_mgmt_db 中积压了过多消息导致；
+rabbit_mgmt_db 中积压了过多消息是由于业务针对每条 publish 消息都创建和销毁 connection 和 channel 导致；
+
+业务获取 channel 超时飙高可能原因
+- 由于 RabbitMQ 内部忙于处理统计信息相关内容导致；
+- 由于业务采用了类似短连接的访问方式 ＋ 线上 goproxy 采用了不合理的健康监测 TCP 序列导致；
 
 
 ----------
@@ -167,13 +193,4 @@ rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000
 > In computing, the memory footprint of an executable program indicates its runtime memory requirements, while the program executes. 
 
 
-----------
 
-
-刚才反馈的 publish 等曲线掉底的问题，经过 @张斌 确认，结论如下：
-1.在掉底曲线的时间段内，rabbitmq 的统计信息数据库（或队列）积压了几十万条统计信息；
-2.同一时间段内，业务获取 channel 超时飙高；
-3.张斌重启 rabbitmq 的 management 管理插件后（等于清空积压的统计信息），统计数据库从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
-
-
-所以，建议将 rabbitmq management 插件所使用的统计数据库部署到单独一个节点上，避免对业务造成影响；应该可以立刻取得改善；之后我会深入研究下 rabbitmq management 插件的使用和调优姿势，看看内否进一步改进
