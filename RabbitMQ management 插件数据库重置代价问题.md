@@ -166,9 +166,9 @@ $ rabbitmqctl eval 'application:stop(rabbitmq_management), application:start(rab
 会重启 management 插件这个应用，对 RabbitMQ 的影响较大；
 
 从如下日志和源码中可以看到，这种重启行为至少会进行如下操作
-- 新建用于记录基于 HTTP API 进行访问时的日志文件（如果设置了 http_log_dir 的话）；
-- 新建 management 插件的监听 socket（基于 listener 配置） 
-- 新建 management 插件对应的整个 erlang 进程树结构；
+- 重建用于记录基于 HTTP API 进行访问时的日志文件（如果设置了 http_log_dir 的话）；
+- 重建 management 插件的监听 socket（基于 listener 配置） 
+- 重建 management 插件对应的整个 erlang 进程树结构；
 
 此外，还会重建 `rabbit_web_dispatch_sup_15672` 和其下的 N 个子进程；
 
