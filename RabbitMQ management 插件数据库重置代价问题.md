@@ -140,3 +140,39 @@ Statistics database started.
 
 ![重启 management 插件后的树信息](https://raw.githubusercontent.com/moooofly/ImageCache/master/rabbitmq_management_plugin/%E9%87%8D%E5%90%AFmanagement%E6%8F%92%E4%BB%B6%E5%90%8E%E7%9A%84%E6%A0%91%E4%BF%A1%E6%81%AF.png "重启 management 插件后的树信息")
 
+
+# 结论
+
+
+方式一：
+```shell
+$ rabbitmqctl eval 'exit(erlang:whereis(rabbit_mgmt_db), please_terminate).'
+```
+
+仅重置 management 插件中的 rabbit_mgmt_db 进程，即维护统计数据库的进程，对 RabbitMQ 的影响较小；但该方式会在 SASL 日志中输出 `SUPERVISOR REPORT` 错误报告信息；
+
+
+方式二：
+```shell
+$ rabbitmqctl eval 'application:stop(rabbitmq_management), application:start(rabbitmq_management).'
+```
+
+会重启 management 插件这个应用，对 RabbitMQ 的影响较大；
+
+从如下日志和源码中可以看到，这种重启行为至少会进行如下操作
+- 新建用于记录基于 HTTP API 进行访问时的日志文件（如果设置了 http_log_dir 的话）；
+- 新建 management 插件的监听 socket（基于 listener 配置） 
+- 新建 management 插件对应的整个 erlang 进程树结构；
+
+此外，还会重建 `rabbit_web_dispatch_sup_15672` 和其下的 N 个子进程；
+
+```shell
+=INFO REPORT==== 2-Aug-2016::16:44:16 ===
+opening log file: "/Users/sunfei/workspace/WGET/rabbitmq_server-3.6.1/var/log/rabbitmq/access.log.2016_08_02_08"
+
+=INFO REPORT==== 2-Aug-2016::16:44:16 ===
+Management plugin started. Port: 15672
+
+=INFO REPORT==== 2-Aug-2016::16:44:16 ===
+Statistics database started.
+```
