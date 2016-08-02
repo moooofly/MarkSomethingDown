@@ -151,6 +151,12 @@ $ rabbitmqctl eval 'exit(erlang:whereis(rabbit_mgmt_db), please_terminate).'
 
 仅重置 management 插件中的 rabbit_mgmt_db 进程，即维护统计数据库的进程，对 RabbitMQ 的影响较小；但该方式会在 SASL 日志中输出 `SUPERVISOR REPORT` 错误报告信息；
 
+同时会输出如下信息表明重启成功
+```shell
+=INFO REPORT==== 2-Aug-2016::17:52:11 ===
+Statistics database started.
+```
+
 
 方式二：
 ```shell
