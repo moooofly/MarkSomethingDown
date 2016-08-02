@@ -7,8 +7,8 @@
 （据说最严重的情况下，积压了几十万条消息）
 
 上述内容提供了以下几点信息：
-- management 插件通过一个专门的统计数据库维护 web 页面展示所需的相关数据；
-- management 插件使用了内部 queue 有序处理消息，随着 queue 中消息的增多，势必造成内存消耗的增加，统计信息的即时性变差；
+- management 插件在内存中创建统计数据库维护了大量 web 页面展示所需的相关数据；
+- management 插件基于内部 gen_server2 行为模式，通过内部 buffer 和 message queue 的组合将消息进行缓存和有序处理，随着消息的增多，势必造成内存消耗的增加，针对统计信息处理的即时性变差；
 - 设置 `rates_mode` 选项参数的值为 node 可能有所改善；
 
 
@@ -69,6 +69,16 @@ prioritise_call(_Msg, _From, Len, _State) ->
     %% 通过数字设定当前消息优先级，优先级越高越先得到处理，默认优先级为 0
     5.
 ```
+
+
+----------
+
+
+/api/overview
+
+/api/queues
+
+/api/nodes
 
 ----------
 
