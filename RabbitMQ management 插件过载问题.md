@@ -131,43 +131,43 @@ enabled_plugins | 被显式使能且处于运行状态的插件列表
 exchange_types | 当前节点上可用 exchange 类型
 fd_total | 可用文件描述符数目
 fd_used | 已用文件描述符数目
-io_read_avg_time | 在上一次统计时间间隔内，每次 disk 读操作的平均 wall time（以毫秒为单位）
+io_read_avg_time | 在上一次统计时间间隔内，每次 disk read 操作的平均 wall time（以毫秒为单位）
 io_read_bytes | 由 persister 从 disk 上读取的总字节数
 io_read_count | persister 进行 read 操作的总次数
-io_reopen_count | Total number of times the persister has needed to recycle file handles between queues. In an ideal world this number will be zero; if the number is large, performance might be improved by increasing the number of file handles available to RabbitMQ.
-io_seek_avg_time | Average wall time (milliseconds) for each seek operation in the last statistics interval.
+io_reopen_count | persister 不得不在不同 queue 之间 recycle 文件句柄的总次数；在理想情况下，该值应该为 0 ；如果其值非常大，那么通过增大 RabbitMQ 可用文件句柄数目可以令性能得到改善；
+io_seek_avg_time | 在上一次统计时间间隔内，每次 disk seek 操作的平均 wall time（以毫秒为单位）
 io_seek_count | persister 进行 seek 操作的总次数
-io_sync_avg_time | Average wall time (milliseconds) for each fsync() operation in the last statistics interval.
-io_sync_count | Total number of fsync() operations by the persister.
-io_write_avg_time | Average wall time (milliseconds) for each disk write operation in the last statistics interval.
-io_write_bytes | Total number of bytes written to disk by the persister.
-io_write_count | Total number of write operations by the persister.
-log_file | Location of main log file.
-mem_used | Memory used in bytes.
-mem_alarm | Whether the memory alarm has gone off.
-mem_limit | Point at which the memory alarm will go off.
-mnesia_disk_tx_count | Number of Mnesia transactions which have been performed that required writes to disk. (e.g. creating a durable queue). Only transactions which originated on this node are included.
-mnesia_ram_tx_count	Number of Mnesia transactions which have been performed that did not require writes to disk. (e.g. creating a transient queue). Only transactions which originated on this node are included.
-msg_store_read_count	Number of messages which have been read from the message store.
-msg_store_write_count	Number of messages which have been written to the message store.
-name	Node name.
-net_ticktime	Current kernel net_ticktime setting for the node.
-os_pid	Process identifier for the Operating System under which this node is running.
-partitions	List of network partitions this node is seeing.
-proc_total	Maximum number of Erlang processes.
-proc_used	Number of Erlang processes in use.
-processors	Number of cores detected and usable by Erlang.
-queue_index_journal_write_count	Number of records written to the queue index journal. Each record represents a message being published to a queue, being delivered from a queue, and being acknowledged in a queue.
-queue_index_read_count	Number of records read from the queue index.
-queue_index_write_count	Number of records written to the queue index.
-rates_mode	'none', 'basic' or 'detailed'.
-run_queue	Average number of Erlang processes waiting to run.
-running	Boolean for whether this node is up. Obviously if this is false, most other stats will be missing.
-sasl_log_file	Location of sasl log file.
-sockets_total	File descriptors available for use as sockets.
-sockets_used	File descriptors used as sockets.
-type	'disc' or 'ram'.
-uptime	Time since the Erlang VM started, in milliseconds.
+io_sync_avg_time | 在上一次统计时间间隔内，每次 fsync 操作的平均 wall time（以毫秒为单位）
+io_sync_count | persister 进行 fsync 操作的总次数
+io_write_avg_time | 在上一次统计时间间隔内，每次 disk write 操作的平均 wall time（以毫秒为单位）
+io_write_bytes | 由 persister 向 disk 写入的总字节数
+io_write_count | persister 进行 write 操作的总次数
+log_file | main log 文件所在位置
+mem_used | 内存使用，以字节为单位
+mem_alarm | 是否内存告警已经取消
+mem_limit | 内存告警被取消的阈值
+mnesia_disk_tx_count | 请求进行 disk write 的 Mnesia 事务数（例如创建一个持久化 queue）；只有由当前节点发起的事务才被统计在内；
+mnesia_ram_tx_count | 请求进行非 disk write 的 Mnesia 事务数（例如创建一个临时 queue）；只有由当前节点发起的事务才被统计在内；
+msg_store_read_count | 从当前 message store 中读取的消息数量；
+msg_store_write_count | 向当前 message store 中写入的消息数量；
+name | 节点名字；
+net_ticktime | 针对当前节点设置 net_ticktime 内核参数；
+os_pid | 当前节点对应的操作系统 pid ；
+partitions | 当前节点所看到的 network partitions 情况；
+proc_total | 允许使用的 Erlang processe 最大数目；
+proc_used | 当前已经被创建的 Erlang processe 数目；
+processors | 被 Erlang 监测到可用的 CPU 核数目；
+queue_index_journal_write_count | 被写入 queue index journal 中的记录数目；每条记录或者代表了被 publish 到 queue 上的消息，或者为从 queue 中 deliver 出去的消息，或者being acknowledged in a queue.
+queue_index_read_count | 从 queue index 中读取的记录数目；
+queue_index_write_count	 | 写入到 queue index 中的记录数目；
+rates_mode | 'none', 'basic' 或 'detailed'.
+run_queue | 待运行 Erlang processe 的平均数目；
+running | 当前节点是否处于运行状态；很显然，如果该值为 false ，其他大部分统计信息将不会存在；
+sasl_log_file | sasl 日志文件位置；
+sockets_total | 可用于 socket 的文件描述符数目；
+sockets_used | 已用做 socket 的文件描述符数目；
+type | 当前节点的类型，'disc' 或 'ram' ；
+uptime | 自 Erlang VM 启动以来过去的时间，以毫秒为单位；
 
 
 ----------
