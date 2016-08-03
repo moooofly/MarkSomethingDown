@@ -157,7 +157,7 @@ partitions | 当前节点所看到的 network partitions 情况；
 proc_total | 允许使用的 Erlang processe 最大数目；
 proc_used | 当前已经被创建的 Erlang processe 数目；
 processors | 被 Erlang 监测到可用的 CPU 核数目；
-queue_index_journal_write_count | 被写入 queue index journal 中的记录数目；每条记录或者代表了被 publish 到 queue 上的消息，或者为从 queue 中 deliver 出去的消息，或者being acknowledged in a queue.
+queue_index_journal_write_count | 被写入 queue index journal 中的记录数目；每条记录或者代表了被 publish 到 queue 上的消息，或者为从 queue 中 deliver 出去的消息，或者为对 queue 进行了确认的消息；
 queue_index_read_count | 从 queue index 中读取的记录数目；
 queue_index_write_count	 | 写入到 queue index 中的记录数目；
 rates_mode | 'none', 'basic' 或 'detailed'.
