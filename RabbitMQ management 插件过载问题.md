@@ -79,6 +79,8 @@ prioritise_call(_Msg, _From, Len, _State) ->
 
 ## Overview 信息
 
+描述整个系统的各种信息；
+
 ```shell
 /api/overview
 ```
@@ -86,23 +88,25 @@ prioritise_call(_Msg, _From, Len, _State) ->
 
   field   | value
 --------- | ----------
-cluster_name     | cluster 名，通过 rabbitmqctl set_cluster_name 进行设置
-contexts | cluster 中包含的 web 应用 context 列表
-erlang_full_version    | erlang 版本信息 ＋ Erlang VM 信息
-erlang_version     | erlang 版本信息
-exchange_types     | 可用的所有 exchange 类型列表
-listeners     | cluster 中所有节点上的 non-HTTP 的网络 listener
-management_version     | 当前使用的 management 插件版本
+cluster_name     | cluster 名，通过 rabbitmqctl set_cluster_name 进行设置；
+contexts | cluster 中包含的 web 应用 context 列表；
+erlang_full_version    | erlang 版本信息 ＋ Erlang VM 信息；
+erlang_version     | erlang 版本信息；
+exchange_types     | 可用的所有 exchange 类型列表；
+listeners     | cluster 中所有节点上的 non-HTTP 的网络 listener ；
+management_version     | 当前使用的 management 插件版本；
 message_stats     | 用户能够看到的、对应 message_stats 对象的所有信息；该信息显示和权限有关；
-node     | 当前 management 插件实例所运行的 cluster 节点名
+node     | 当前 management 插件实例所运行的 cluster 节点名；
 object_totals     | 包含针对所有 connections, channels, exchanges, queues 和 consumers 的全局计数值；权限约束同 message_stats ；
 queue_totals     | 包含针对所有 queue 中处于 messages, messages_ready 和 messages_unacknowledged 状态消息的统计数据；权限约束同 message_stats ；
 rabbitmq_version     | 处理该请求的、当前节点上运行的 RabbitMQ 版本；
-rates_mode     | 'none', 'basic' 或 'detailed'.
+rates_mode     | 'none', 'basic' 或 'detailed' ；
 statistics_db_event_queue     | 统计数据库中待处理的 statistics events 的数量；
-statistics_db_node     | 持有 management 插件统计数据库的 cluster 节点名
+statistics_db_node     | 持有 management 插件统计数据库的 cluster 节点名；
 
 ## Queue 信息
+
+所有 queue 信息列表；
 
 ```shell
 /api/queues
@@ -111,6 +115,8 @@ statistics_db_node     | 持有 management 插件统计数据库的 cluster 节�
 
 
 ## Node 信息
+
+RabbitMQ cluster 中包含的所有节点信息；
 
 ```shell
 /api/nodes
