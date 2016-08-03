@@ -272,9 +272,9 @@ rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000
 ----------
 
 结论推断：
-publish 等曲线掉底是由于 esm 基于 HTTP API 从 RabbitMQ 获取统计信息失败导致；
-获取统计信息失败是由于 rabbit_mgmt_db 中积压了过多消息导致；
-rabbit_mgmt_db 中积压了过多消息是由于业务针对每条 publish 消息都创建和销毁 connection 和 channel 导致；
+- publish 等曲线掉底是由于 esm 基于 HTTP API 从 RabbitMQ 获取统计信息失败导致；
+- 获取统计信息失败是由于 rabbit_mgmt_db 中积压了过多消息导致；
+- rabbit_mgmt_db 中积压了过多消息是由于业务针对每条 publish 消息都创建和销毁 connection 和 channel 导致；
 
 业务获取 channel 超时飙高可能原因
 - 由于 RabbitMQ 内部忙于处理统计信息相关内容导致；
