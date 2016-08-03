@@ -1,8 +1,6 @@
 
 # 内存使用
 
-官网地址：[这里](http://www.rabbitmq.com/memory-use.html)
-
 RabbitMQ 能够报告自身的内存使用情况，以便用户获知系统的哪部分正在使用内存；
 
 需要注意的是，所有的指标值都是基于底层 Erlang VM 返回的大概值；但是，你仍旧应该认为其足够准确可用；
@@ -50,3 +48,9 @@ Memory used by atoms. Should be fairly constant.
 
 其他系统内存
 被 Erlang 自身使用的其他内存；其中的一种就是可用文件描述符数目；
+
+
+----------
+
+
+官网地址：[这里](http://www.rabbitmq.com/memory-use.html)
