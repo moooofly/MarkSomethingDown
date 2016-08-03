@@ -24,26 +24,29 @@ Memory belonging to processes not counted above, and memory assigned to "process
 
 
 Mnesia
-Mnesia keeps an in-memory copy of all its data (even on disc nodes). Typically this will only be large when there are a large number of queues, exchanges, bindings, users or virtual hosts.
-
+mnesia 数据库会维护所有数据的一份内存拷贝（即使当前节点为磁盘节点）；典型情况下，只有当存在大量 queues, exchanges, bindings, users 或 virtual hosts 时才会占用很大内存；
 
 Message store index
-The default message store implementation keeps an in-memory index of all messages, including those paged out to disc.
+默认的消息存储实现会在内存中维护一份针对所有消息的索引，包括那些已经被 page out 到磁盘上的消息的索引；
 
-Management database
-The management database (if the management plugin is loaded). In a cluster, this will only be present on one node.
+Management 插件的统计数据库占用的内存
+在使能了 management 插件的情况下，其使用的统计数据库占用的内存；
+在 cluster 中，该数据库仅会出现某一个节点上；
 
-Other ETS tables
-Other in-memory tables besides the three sets above. Note that due to a bug in current versions of the Erlang runtime, some memory will be counted under this heading for all tables, including the three sets above.
+其他 ETS 表
+除了上面三种集合之外的其他内存表占用的内存；
+需要注意的是，由于当前 Erlang 运行时版本中的 bug ，某些内存占用会被统计到这里，但同时也统计到其他表自身内存占用中；
 
-Binaries
-Memory used by shared binary data in the Erlang VM. In-memory message bodies show up here.
+Binary 数据
+在 Erlang VM 中由共享 binary 数据使用的内存；In-memory message bodies show up here.
 
 Code
 Memory used by code. Should be fairly constant.
+代码本身占用的内存；该值基本不会有啥变化；
 
 Atoms
 Memory used by atoms. Should be fairly constant.
+由 atom 占用的内存；该值基本不会有啥变化；
 
-Other system memory
-Other memory used by Erlang. One contributor to this value is the number of available file descriptors.
+其他系统内存
+被 Erlang 自身使用的其他内存；其中的一种就是可用文件描述符数目；
