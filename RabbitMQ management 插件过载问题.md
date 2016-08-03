@@ -261,9 +261,9 @@ rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000
 
 
 之前反馈的 publish 等曲线掉底的问题，经过确认，结论如下：
-1.在掉底曲线的时间段内，rabbitmq 的统计信息数据库（或队列）积压了几十万条统计信息；
-2.同一时间段内，业务获取 channel 超时飙高；
-3.运维重启 rabbitmq 的 management 管理插件后（等于清空积压的统计信息），统计数据库从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
+1. 在掉底曲线的时间段内，rabbitmq 的统计信息数据库（或队列）积压了几十万条统计信息；
+2. 同一时间段内，业务获取 channel 超时飙高；
+3. 运维重启 rabbitmq 的 management 管理插件后（等于清空积压的统计信息），统计数据库从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
 
 所以，建议将 RabbitMQ management 插件所使用的统计数据库部署到单独一个节点上，避免对业务造成影响；应该可以立刻取得改善；之后我会深入研究下 rabbitmq management 插件的使用和调优姿势，看看内否进一步改进
 
