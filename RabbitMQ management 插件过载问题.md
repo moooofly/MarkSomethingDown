@@ -75,7 +75,7 @@ prioritise_call(_Msg, _From, Len, _State) ->
 
 # esm-agent 信息采集实现方式
 
-从源码中可以看到，esm-agent 主要通过如下 HTTP API 获取统计信息
+从源码中可以看到，esm-agent 主要通过如下 HTTP API 获取统计信息（10 秒采集一次）
 
 ## Overview 信息
 
@@ -111,7 +111,6 @@ statistics_db_node     | 持有 management 插件统计数据库的 cluster 节�
 ```shell
 /api/queues
 ```
-
 
 
 ## Node 信息
@@ -182,6 +181,7 @@ uptime | 自 Erlang VM 启动以来过去的时间，以毫秒为单位；
 
 
 ## 插件的集群感知行为
+
 management 插件对 cluster 是感知的；你可以在 cluster 中的某个或多个节点上启动该插件，之后通过 management 插件获取的信息将是与整个 cluster 相关的，无论你连接到 cluster 中的哪个节点；
 
 如果你想要部署某个 cluster 节点，但不启动 management 插件的全部功能，仍然需要在每一个节点上启用 rabbitmq-management-agent 插件（这样才能通过特定节点获取到整个 cluster 的统计信息）；
@@ -260,13 +260,12 @@ rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000
 ----------
 
 
-刚才反馈的 publish 等曲线掉底的问题，经过 @张斌 确认，结论如下：
+之前反馈的 publish 等曲线掉底的问题，经过确认，结论如下：
 1.在掉底曲线的时间段内，rabbitmq 的统计信息数据库（或队列）积压了几十万条统计信息；
 2.同一时间段内，业务获取 channel 超时飙高；
-3.张斌重启 rabbitmq 的 management 管理插件后（等于清空积压的统计信息），统计数据库从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
+3.运维重启 rabbitmq 的 management 管理插件后（等于清空积压的统计信息），统计数据库从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
 
-
-所以，建议将 rabbitmq management 插件所使用的统计数据库部署到单独一个节点上，避免对业务造成影响；应该可以立刻取得改善；之后我会深入研究下 rabbitmq management 插件的使用和调优姿势，看看内否进一步改进
+所以，建议将 RabbitMQ management 插件所使用的统计数据库部署到单独一个节点上，避免对业务造成影响；应该可以立刻取得改善；之后我会深入研究下 rabbitmq management 插件的使用和调优姿势，看看内否进一步改进
 
 
 ----------
