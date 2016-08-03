@@ -75,7 +75,9 @@ prioritise_call(_Msg, _From, Len, _State) ->
 
 # esm-agent 信息采集实现方式
 
-从源码中可以看到，esm-agent 主要通过下面三种 HTTP API 获取统计信息
+从源码中可以看到，esm-agent 主要通过如下 HTTP API 获取统计信息
+
+## Overview 信息
 
 ```shell
 /api/overview
@@ -100,20 +102,72 @@ rates_mode     | 'none', 'basic' 或 'detailed'.
 statistics_db_event_queue     | 统计数据库中待处理的 statistics events 的数量；
 statistics_db_node     | 持有 management 插件统计数据库的 cluster 节点名
 
-
-
-
-
-
-
+## Queue 信息
 
 ```shell
 /api/queues
 ```
 
+
+
+## Node 信息
+
 ```shell
 /api/nodes
 ```
+
+  field   | value
+--------- | ----------
+applications | 运行在当前节点上的所有 Erlang 应用
+auth_mechanisms | 安装在当前节点上的所有 SASL 鉴权机制
+cluster_links | cluster 中包含的其他节点列表；针对每个节点，都会输出到当前节点的详细 TCP 连接信息，以及针对其他数据发送的统计信息；
+config_files | 当前节点所读取的配置文件列表
+contexts | 当前节点上所有针对 HTTP 的 listener 列表
+db_dir | 当前节点进行持久存储的位置
+disk_free | Disk free space in bytes.
+disk_free_alarm | 是否 disk 告警已经取消
+disk_free_limit | disk 告警取消的阈值
+enabled_plugins | 被显式使能且处于运行状态的插件列表
+exchange_types | 当前节点上可用 exchange 类型
+fd_total | 可用文件描述符数目
+fd_used | 已用文件描述符数目
+io_read_avg_time | 在上一次统计时间间隔内，每次 disk 读操作的平均 wall time（以毫秒为单位）
+io_read_bytes | 由 persister 从 disk 上读取的总字节数
+io_read_count | persister 进行 read 操作的总次数
+io_reopen_count | Total number of times the persister has needed to recycle file handles between queues. In an ideal world this number will be zero; if the number is large, performance might be improved by increasing the number of file handles available to RabbitMQ.
+io_seek_avg_time | Average wall time (milliseconds) for each seek operation in the last statistics interval.
+io_seek_count | persister 进行 seek 操作的总次数
+io_sync_avg_time | Average wall time (milliseconds) for each fsync() operation in the last statistics interval.
+io_sync_count | Total number of fsync() operations by the persister.
+io_write_avg_time | Average wall time (milliseconds) for each disk write operation in the last statistics interval.
+io_write_bytes | Total number of bytes written to disk by the persister.
+io_write_count | Total number of write operations by the persister.
+log_file | Location of main log file.
+mem_used | Memory used in bytes.
+mem_alarm | Whether the memory alarm has gone off.
+mem_limit | Point at which the memory alarm will go off.
+mnesia_disk_tx_count | Number of Mnesia transactions which have been performed that required writes to disk. (e.g. creating a durable queue). Only transactions which originated on this node are included.
+mnesia_ram_tx_count	Number of Mnesia transactions which have been performed that did not require writes to disk. (e.g. creating a transient queue). Only transactions which originated on this node are included.
+msg_store_read_count	Number of messages which have been read from the message store.
+msg_store_write_count	Number of messages which have been written to the message store.
+name	Node name.
+net_ticktime	Current kernel net_ticktime setting for the node.
+os_pid	Process identifier for the Operating System under which this node is running.
+partitions	List of network partitions this node is seeing.
+proc_total	Maximum number of Erlang processes.
+proc_used	Number of Erlang processes in use.
+processors	Number of cores detected and usable by Erlang.
+queue_index_journal_write_count	Number of records written to the queue index journal. Each record represents a message being published to a queue, being delivered from a queue, and being acknowledged in a queue.
+queue_index_read_count	Number of records read from the queue index.
+queue_index_write_count	Number of records written to the queue index.
+rates_mode	'none', 'basic' or 'detailed'.
+run_queue	Average number of Erlang processes waiting to run.
+running	Boolean for whether this node is up. Obviously if this is false, most other stats will be missing.
+sasl_log_file	Location of sasl log file.
+sockets_total	File descriptors available for use as sockets.
+sockets_used	File descriptors used as sockets.
+type	'disc' or 'ram'.
+uptime	Time since the Erlang VM started, in milliseconds.
 
 
 ----------
