@@ -11,22 +11,32 @@
 
 ## Configuring the Memory Threshold
 
-The memory threshold at which the flow control is triggered can be adjusted by editing the configuration file. The example below sets the threshold to the default value of 0.4:
 
+可以通过配置文件调整能够触发流控机制的内存阈值；下面的示例中将阈值设置成默认的 0.4 ：
+```shell
 [{rabbit, [{vm_memory_high_watermark, 0.4}]}].
-The default value of 0.4 stands for 40% of installed RAM or 40% of available virtual address space, whichever is smaller. E.g. on a 32-bit platform, if you have 4GB of RAM installed, 40% of 4GB is 1.6GB, but 32-bit Windows normally limits processes to 2GB, so the threshold is actually to 40% of 2GB (which is 820MB).
+```
 
-Alternatively, the memory threshold can be adjusted by setting an absolute limit of RAM used by the node. The example below sets the threshold to 1073741824 bytes (1024 MB):
+默认值 0.4 代表了 40% 的已安装 RAM 或者 40% 的可用虚拟地址空间（比前者更小）；例如在一个32-bit 平台上，如果你安装了 4GB 的 RAM ，那么 40% 的 4GB 为 1.6GB ，但是在 32-bit 的 Windows 上，通常会限制进程只能使用 2GB ，因此这里实际的阈值为 2GB 的 40% ，即 820MB ；
 
+另一种方案为，直接设置节点可用的内存阈值为一个具体数值；下面的例子中设置阈值为 1073741824 字节（1024 MB） ：
+```shell
 [{rabbit, [{vm_memory_high_watermark, {absolute, 1073741824}}]}].
-Same example, but using memory units:
+```
+
+相同的例子，但使用了内存自己的单位：
+```shell
 [{rabbit, [{vm_memory_high_watermark, {absolute, "1024MiB"}}]}].
-If the absolute limit is larger than the installed RAM or available virtual address space, the threshold is set to whichever limit is smaller.
+```
 
-The memory limit is appended to the RABBITMQ_NODENAME.log file when the RabbitMQ server starts:
+如果上面设置的绝对数值超过了实际安装的 RAM 大小，或者可用的虚拟地址空间大小，阈值会被自动调整为两者中较小的那个值；
 
+在 RabbitMQ server 启动时，内存使用限制信息会输出到 RABBITMQ_NODENAME.log 文件中：
+```shell
 =INFO REPORT==== 29-Oct-2009::15:43:27 ===
 Memory limit set to 2048MB.
+```
+
 The memory limit may also be queried using the rabbitmqctl status command.
 The threshold can be changed while the broker is running using the rabbitmqctl set_vm_memory_high_watermark fraction command or rabbitmqctl set_vm_memory_high_watermark absolute memory_limit command. Memory units can also be used in this command. This command will take effect until the broker shuts down. The corresponding configuration setting should also be changed when the effects should survive a broker restart. The memory limit may change on systems with hot-swappable RAM when this command is executed without altering the threshold, due to the fact that the total amount of system RAM is queried.
 
