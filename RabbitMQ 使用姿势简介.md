@@ -1,27 +1,27 @@
 
 
 
+# 初级用户指令
 
-
-# 创建用户
+## 创建用户
 
 ```shell
 rabbitmqctl add_user moooofly moooofly
 ```
 
-# 设置用户角色
+## 设置用户角色
 
 ```shell
 rabbitmqctl set_user_tags moooofly administrator
 ```
 
-# 设置用户权限
+## 设置用户权限
 
 ```shell
 rabbitmqctl set_permissions -p / moooofly ".\*" ".\*" ".\*"
 ```
 
-# 单机集群构建
+## 单机集群构建
 
 ```shell
 RABBITMQ_NODE_PORT=5672 RABBITMQ_NODENAME=rabbit_1 RABBITMQ_SERVER_START_ARGS="-rabbitmq_management listener [{port,15672}]" rabbitmq-server -detached
@@ -39,3 +39,16 @@ rabbitmqctl -n rabbit_3 join_cluster rabbit_1@`hostname -s`
 rabbitmqctl -n rabbit_3 start_app
 ```
 
+
+----------
+
+# 高级用户指令
+
+## ets 表内存占用计算 
+
+根据 erlang 进程注册名统计 owner 为对应目标进程的 ets 表占用的内存（字节为单位）
+```erlang
+Procs = [msg_store_persistent, msg_store_transient].
+Owners = [whereis(N) || N <- Procs].
+lists:sum([erlang:system_info(wordsize) * ets:info(T, memory) || T <- ets:all(), O <- [ets:info(T, owner)], lists:member(O, Owners)]).
+```
