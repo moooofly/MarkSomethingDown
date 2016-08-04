@@ -39,6 +39,13 @@ rabbitmqctl -n rabbit_3 join_cluster rabbit_1@`hostname -s`
 rabbitmqctl -n rabbit_3 start_app
 ```
 
+## 远程连接
+
+```shell
+erl -sname dbg -remsh NodeName@`hostname -s` -setcookie xxx
+```
+
+
 
 ----------
 
