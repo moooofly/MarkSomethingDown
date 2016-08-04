@@ -1,5 +1,7 @@
 
 
+在使用 RabbitMQ 的过程中，经常会调用 `rabbitmqctl status` 命令查看状态信息，但输出信息都的具体含义，以及如何判定系统存在隐患呢？本文试图从特定角度进行一些说明；
+
 ```shell
 ➜  ~ rabbitmqctl status
 Status of node 'rabbit_2@sunfeideMacBook-Pro' ...
@@ -99,11 +101,59 @@ status() ->
     S1 ++ S2 ++ S3 ++ S4.
 ```
 
-因为我主要关注**内存使用**相关信息，因此只分析一下几个输出内容：
+本文主要关注**内存使用**相关部分，因此只分析一下几个输出内容：
 
 ## 内存整体使用
 
- {memory, rabbit_vm:memory()}
+```shell
+{memory, rabbit_vm:memory()}
+```
+
+对应到 `rabbit_vm.erl` 中的代码如下
+
+```erlang
+[
+	{total,               Total},         %% 总体内存分配量
+	{connection_readers,  ConnsReader},   %% amqp_sup 和 ranch_conns_sup 下作为 reader 的 connection 占用的内存
+	{connection_writers,  ConnsWriter},   %% amqp_sup 和 ranch_conns_sup 下作为 writer 的 connection 占用的内存
+	{connection_channels, ConnsChannel},  %% amqp_sup 和 ranch_conns_sup 下 channel 占用的内存
+	{connection_other,    ConnsOther},    %% amqp_sup 和 ranch_conns_sup 下其他用途 connection 占用的内存
+	{queue_procs,         Qs},      %% rabbit_amqqueue_sup_sup 下 master 角色的 queue 占用的内存
+	{queue_slave_procs,   QsSlave}, %% rabbit_amqqueue_sup_sup 下 slave 角色的 queue 占用的内存
+	{plugins,             Plugins}, %% 启动的所有插件应用中 worker 进程占用的内存
+	{other_proc,          lists:max([0, OtherProc])}, %% [1]
+	{mnesia,              Mnesia},  %% mnesia 中内存表占用的内存
+	{mgmt_db,             MgmtDbETS + MgmtDbProc},  %% management 插件中统计数据库   ets 表和 worker 进程占用的内存 
+	{msg_index,           MsgIndexETS + MsgIndexProc}, %% 持久和临时消息索引维护 ets 表 ＋ 消息存储 worker 进程占用的内存
+	{other_ets,           ETS - Mnesia - MsgIndexETS - MgmtDbETS},
+	{binary,              Bin},
+	{code,                Code},
+	{atom,                Atom},
+	{other_system,        System - ETS - Atom - Bin - Code}
+].
+```
+
+
+
+
+作为对比，可以看一下 `erlang:memory()` 的输出；
+```shell
+(rabbit_1@sunfeideMacBook-Pro)7> erlang:memory().
+[{total,55034248},
+ {processes,16109744},
+ {processes_used,16104120},
+ {system,38924504},
+ {atom,992433},
+ {atom_used,979877},
+ {binary,1146296},
+ {code,24306356},
+ {ets,2232600}]
+(rabbit_1@sunfeideMacBook-Pro)8>
+```
+
+上述输出均为系统整体情况；
+
+
 
 
 ## 虚拟机内存水位设置
