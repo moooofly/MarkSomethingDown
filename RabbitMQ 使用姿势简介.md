@@ -74,3 +74,23 @@ lists:sum([ erlang:system_info(wordsize) * mnesia:table_info(Tab, memory) || Tab
 ```
 
 
+## 根据 erlang 进程 pid 获取进程注册名
+
+假设某进程 pid 为 <0,441,0>
+```erlang
+Pid = pid(0,441,0).
+erlang:process_info(Pid,registered_name).
+```
+
+- 若进程不存在，则返回 undefined ；
+- 若进程存在，但没有注册名字，则返回 [] ；
+- 若进程存在，且注册了名字，则返回 {registered_name, xxx} ；
+
+
+## 根据 erlang 进程注册名获取进程 pid
+
+```erlang
+erlang:whereis(Process_Register_Name).
+```
+
+
