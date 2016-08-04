@@ -44,7 +44,14 @@ rabbitmqctl -n rabbit_3 start_app
 
 # 高级用户指令
 
-## ets 表内存占用计算 
+## ets - 获取属于指定进程的表名字
+
+```erlang
+ProcName = msg_store_persistent.
+[ets:info(T,name) || T <- ets:all(), O <- [ets:info(T, owner)], O =:= erlang:whereis(ProcName) ].
+```
+
+## ets - 获取属于指定进程的表的内存占用情况
 
 根据 erlang 进程注册名统计 owner 为对应目标进程的 ets 表占用的内存（字节为单位）
 ```erlang
@@ -52,3 +59,11 @@ Procs = [msg_store_persistent, msg_store_transient].
 Owners = [whereis(N) || N <- Procs].
 lists:sum([erlang:system_info(wordsize) * ets:info(T, memory) || T <- ets:all(), O <- [ets:info(T, owner)], lists:member(O, Owners)]).
 ```
+
+## mnesia - 获取内存表的内存占用情况
+
+```erlang
+lists:sum([ erlang:system_info(wordsize) * mnesia:table_info(Tab, memory) || Tab <- mnesia:system_info(tables)]).
+```
+
+
