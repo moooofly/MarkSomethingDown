@@ -1,37 +1,40 @@
 
-
-
 # Memory Alarms
 
-在启动并且执行过 `rabbitmqctlset_vm_memory_high_watermark fraction` 命令后，RabbitMQ server 会探测计算机上安装的 RAM 总量；默认情况下，当 RabbitMQ server 使用了超过 40% 的 RAM 内存时，会触发 memory alarm 并阻塞住所有 connection ；一旦 memory alarm 被清除（例如，由于 server 将消息 page out 到磁盘时，或者将消息 delivery 到客户端时）常规服务能力就能够恢复了；
+在启动了 RabbitMQ 后，若执行过 `rabbitmqctl set_vm_memory_high_watermark fraction` 命令，RabbitMQ server 会探测计算机上已安装 RAM 总量；默认情况下，当 RabbitMQ server 使用了超过 40% 的 RAM 内存时，会触发内存告警并阻塞住所有 connection ；一旦告警被解除（例如当 server 将消息 page out 到磁盘时，或者将消息 delivery 到客户端时）常规服务能力就能够恢复了；
 
-默认的内存阈值被设置为已安装 RAM 的 40% ；注意，该值并不会真正阻止 RabbitMQ server 使用超过 40% 的内存，而只是一个会令 publisher 开始受限的点；在最坏的情况下，Erlang 的垃圾回收器能够导致内存使用量的 double（默认情况下为 RAM 的 80%）；因此，强烈建议开启 OS 自身的swap 或 page 文件功能；
+内存阈值默认被设置为安装 RAM 的 **40%** ；
 
-在 32-bit 体系架构中，每个进程可用内存的限制为 2GB ；而常规实现的 64-bit 体系架构（即AMD64 和Intel EM64T）仅允许每个进程使用区区 256TB ；64-bit Windows 更进一步将其限制为8TB ；另外需要注意的是，就算在 64-bit 操作系统中，一个 32-bit 进程通常也只会使用最大 2GB 的地址空间；
+> ⚠️ 该值并不会真正阻止 RabbitMQ server 使用超过 40% 的内存，而只是一个会令 publisher 开始被阻塞的点；在最坏的情况下，由于 Erlang 垃圾回收器的原因，可能会导致内存使用量被 double（默认情况下为 RAM 的 80%）；因此强烈建议开启操作系统本身的 swap 或 page 功能；
+
+在 32-bit 体系架构中，每个进程可用内存的限制为 2GB ；而常规实现的 64-bit 体系架构（即AMD64 和 Intel EM64T）中仅允许每个进程使用区区 256TB ；64-bit Windows 更进一步将其限制为8TB ；另外需要注意的是，就算在 64-bit 操作系统中，一个 32-bit 进程通常也只会使用最大 2GB 的地址空间；
 
 ## Configuring the Memory Threshold
 
+可以通过配置文件调整触发**流控机制**的内存阈值；下面的示例中将阈值设置成默认的 0.4 ：
 
-可以通过配置文件调整能够触发流控机制的内存阈值；下面的示例中将阈值设置成默认的 0.4 ：
 ```shell
 [{rabbit, [{vm_memory_high_watermark, 0.4}]}].
 ```
 
-默认值 0.4 代表了 40% 的已安装 RAM 或者 40% 的可用虚拟地址空间（比前者更小）；例如在一个32-bit 平台上，如果你安装了 4GB 的 RAM ，那么 40% 的 4GB 为 1.6GB ，但是在 32-bit 的 Windows 上，通常会限制进程只能使用 2GB ，因此这里实际的阈值为 2GB 的 40% ，即 820MB ；
+默认值 0.4 代表了 40% 的已安装 RAM 或者 40% 的可用虚拟地址空间（比前者更小）；例如在一个32-bit 平台上，如果你安装了 4GB 的 RAM ，那么 40% 的 4GB 为 1.6GB ，但是在 32-bit 的 Windows 上，通常会限制进程只能使用 2GB 内存，因此这里实际得到的阈值为 2GB 的 40% ，即 820MB ；
 
-另一种方案为，直接设置节点可用的内存阈值为一个具体数值；下面的例子中设置阈值为 1073741824 字节（1024 MB） ：
+另一种方案为，直接设置节点可用内存阈值为一个具体数值；下面的例子中设置阈值为 1073741824 字节（1024 MB） ：
+
 ```shell
 [{rabbit, [{vm_memory_high_watermark, {absolute, 1073741824}}]}].
 ```
 
-相同的例子，但使用了内存自己的单位：
+与上面相同的例子，但使用了内存单位 MiB：
+
 ```shell
 [{rabbit, [{vm_memory_high_watermark, {absolute, "1024MiB"}}]}].
 ```
 
 如果上面设置的绝对数值超过了实际安装的 RAM 大小，或者可用的虚拟地址空间大小，阈值会被自动调整为两者中较小的那个值；
 
-在 RabbitMQ server 启动时，内存使用限制信息会输出到 RABBITMQ_NODENAME.log 文件中：
+在 RabbitMQ server 启动时，内存使用限制信息会输出到 `RABBITMQ_NODENAME.log` 文件中：
+
 ```shell
 =INFO REPORT==== 29-Oct-2009::15:43:27 ===
 Memory limit set to 2048MB.
@@ -39,11 +42,22 @@ Memory limit set to 2048MB.
 
 可以通过 `rabbitmqctl status` 命令查询内存阈值的具体数值；
 
-可以在 broker 处于运行状态时进行阈值的修改，只需执行 `rabbitmqctl set_vm_memory_high_watermark fraction` 或者 `rabbitmqctl set_vm_memory_high_watermark absolute memory_limit` 命令；可以在上述命令中直接使用内存单位（如 Mib）；变更效果在 broker 停止运行前一直有效；若想 broker 重启后仍然有效，需要将相应的配置写入到配置文件中；在具有 hot-swappable RAM 的系统中，内存限制会有所不同，when this command is executed without altering the threshold, due to the fact that the total amount of system RAM is queried.
+可以在 broker 处于运行状态时进行阈值的修改，只需执行 `rabbitmqctl set_vm_memory_high_watermark fraction` 或者 `rabbitmqctl set_vm_memory_high_watermark absolute memory_limit` 命令；
+
+可以在上述命令中直接使用内存单位（如 MiB）；
+
+通过上述命令进行变更后，修改在 broker 停止运行前一直有效；若想 broker 重启后仍然有效，需要将相应的配置写入到配置文件中；
+
+在具有 hot-swappable RAM 的系统中，内存限制会有所不同，when this command is executed without altering the threshold, due to the fact that the total amount of system RAM is queried.
 
 ### Disabling all publishing
-设置成 0 会立刻触发 memory alarm ，并且令所有的 publishing 行为被停止（这对于希望能够实现全局范围内停止 publish 来说非常有用）；设置命令为 `rabbitmqctl set_vm_memory_high_watermark 0` ；
 
+若设置 `set_vm_memory_high_watermark` 为 0 则会立刻触发内存告警 ，并且令所有的 publishing 行为立即停止（这对于希望实现全局范围内进行 publish 停止功能来说非常有用）；
+
+设置命令为
+```shell
+rabbitmqctl set_vm_memory_high_watermark 0
+```
 
 ## Limited Address Space
 
