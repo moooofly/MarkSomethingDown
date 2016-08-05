@@ -65,16 +65,17 @@ memory alarm 系统是不完美的；尽管停止 publishing 行为通常会阻�
 
 在 broker 真正得到内存使用上限并阻塞 publish 行为前，会尝试通过 page out queue 中内容到磁盘的方式释放内存占用；page out 行为同时针对 persistent 和 transient 消息（persistent 消息已经存在于磁盘上了，上述操作只是将其从内存中清除干净）；
 
-By default this starts to happen when the broker is 50% of the way to the high watermark (i.e. with a default high watermark of 0.4, this is when 20% of memory is used). To change this value, modify the vm_memory_high_watermark_paging_ratio configuration from its default value of 0.5. For example:
+默认情况下，上述行为开始于 broker 内存使用达到了高水位 50% 的时候；（也就是说，当默认的高水位设置为 0.4 时，当内存使用量达到 20% 后就会触发）；可以通过修改 `vm_memory_high_watermark_paging_ratio` 配置项进行调整，默认值为 0.5 ：
 
 ```shell
 [{rabbit, [{vm_memory_high_watermark_paging_ratio, 0.75},
          {vm_memory_high_watermark, 0.4}]}].
 ```
 
-The above configuration starts paging at 30% of memory used, and blocks publishers at 40%.
+上述配置会在内存使用达到 30% 时开始进行 page 操作，达到 40% 时阻塞 publisher ；
 
-It is possible to set vm_memory_high_watermark_paging_ratio to a greater value than 1.0. In this case queues will not page their contents to disc. If this causes the memory alarm to go off, then producers will be blocked as explained above.
+设置 `vm_memory_high_watermark_paging_ratio` 的值大于 1.0 是可以的；在这种情况下，queues 将不会将其内容 page 到磁盘上；在这种情况下，如果 memory alarm 被触发了，producer  会照上面所说的被阻塞；
+
 
 ## Unrecognised platforms
 
