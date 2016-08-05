@@ -7,7 +7,15 @@ RabbitMQ 能够报告自身的内存使用情况，以便用户获知系统的�
 
 需要注意的是，所有的指标值都是基于底层 Erlang VM 返回的大概值；但是你仍旧应该认为其足够准确；
 
-你可以通过 `rabbitmqctl status` 命令获取内存使用情况报告；或者通过 management 插件 Web UI 中的 node 详情页进行查看；内存使用情况被划分为下面几类（相互直接没有覆盖）：
+你可以通过 `rabbitmqctl status` 命令获取内存使用情况报告；
+
+![rabbitmqctl status 中的 memory 输出信息](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/rabbitmqctl%20status%20中输出的%20memory%20详情.png "rabbitmqctl status 中的 memory 输出信息")
+
+或者通过 management 插件 Web UI 中的 node 详情页进行查看；
+
+![web UI 中的 memory 输出信息](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/web%20UI%20上输出的memory%20详情.png "web UI 中的 memory 输出信息")
+
+内存使用情况被划分为下面几类（相互直接没有覆盖）：
 
 ## Connections
 
