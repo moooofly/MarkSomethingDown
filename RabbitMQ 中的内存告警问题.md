@@ -70,38 +70,36 @@ Crashes due to memory exhaustion are possible - see
 http://www.rabbitmq.com/memory.html#address-space
 ```
 
-memory alarm 系统是不完美的；尽管停止 publishing 行为通常会阻止任何后续内存使用，但仍有可能存在其他的东东继续内存消耗；当发生这种情况时，通常物理内存会被耗尽，之后操作系统会开始进行 swap 操作；但是当运行在受限地址空间的情况下，内存使用超限将会导致 VM 崩溃；
+内存告警系统并不是完美的；尽管停止 publishing 行为通常会阻止任何后续内存使用，但仍有可能存在其他东东继续内存消耗；当发生这种情况时，通常物理内存会被耗尽，之后操作系统会开始进行 swap 操作；但是当运行在受限地址空间的情况下，内存使用超限将会导致 VM 崩溃；
 
 因此，强烈建议在  64 bit 操作系统上只使用 64 bit Erlang VM ；
 
 
 ## Configuring the Paging Threshold
 
-在 broker 真正得到内存使用上限并阻塞 publish 行为前，会尝试通过 page out queue 中内容到磁盘的方式释放内存占用；page out 行为同时针对 persistent 和 transient 消息（persistent 消息已经存在于磁盘上了，上述操作只是将其从内存中清除干净）；
+在 broker 真正达到内存使用上限并阻塞 publishing 行为前，会尝试通过 page out 方式将 queue 中内容换出到磁盘，以释放内存占用；page out 行为是同时针对 persistent 和 transient 消息的（persistent 消息已经存在于磁盘上了，page out 操作只是将其他信息从内存中清除干净）；
 
-默认情况下，上述行为开始于 broker 内存使用达到了高水位 50% 的时候；（也就是说，当默认的高水位设置为 0.4 时，当内存使用量达到 20% 后就会触发）；可以通过修改 `vm_memory_high_watermark_paging_ratio` 配置项进行调整，默认值为 0.5 ：
+默认情况下，page out 行为开始于 broker 的内存占用达到了阈值 50% 的时候；也就是说，当默认的高水位（阈值）设置为 0.4 时，内存使用量在达到 20% 后就会触发 page out 操作；可以通过 `vm_memory_high_watermark_paging_ratio` 配置项进行调整，默认值为 0.5 ：
 
 ```shell
 [{rabbit, [{vm_memory_high_watermark_paging_ratio, 0.75},
          {vm_memory_high_watermark, 0.4}]}].
 ```
 
-上述配置会在内存使用达到 30% 时开始进行 page 操作，达到 40% 时阻塞 publisher ；
+上述配置会在内存使用达到 30% 时开始进行 page out 操作，达到 40% 时阻塞 publishing 行为 ；
 
-设置 `vm_memory_high_watermark_paging_ratio` 的值大于 1.0 是可以的；在这种情况下，queues 将不会将其内容 page 到磁盘上；在这种情况下，如果 memory alarm 被触发了，producer  会照上面所说的被阻塞；
-
+> ⚠️ 设置 `vm_memory_high_watermark_paging_ratio` 的值大于 1.0 是可以的；在这种情况下，queues 将不会将其内容 page 到磁盘上；在这种情况下，如果 memory alarm 被触发了，producer  会照上面所说的被阻塞；
 
 ## Unrecognised platforms
 
-如果 RabbitMQ server 无法识别你的系统，其会在 RABBITMQ_NODENAME.log 文件中附加如下告警信息；并假定系统中安装了 1GB 的 RAM ：
+如果 RabbitMQ server 无法识别你的系统，其会在 `RABBITMQ_NODENAME.log` 文件中附加如下告警信息，其中假定系统安装了 1GB 的 RAM ：
 
 ```shell
 =WARNING REPORT==== 29-Oct-2009::17:23:44 ===
 Unknown total memory size for your OS {unix,magic_homebrew_os}. Assuming memory size is 1024MB.
 ```
 
-在这种情况下，`vm_memory_high_watermark` 配置值被用作 scale 假定的 1GB RAM 的乘数；若 `vm_memory_high_watermark` 被设置为 0.4 ，RabbitMQ 的内存阈值将被设置为 410MB ，即无论何时 RabbitMQ 使用了超过 410MB 的内存，都会导致 producer 被阻塞；也就是说，当 RabbitMQ 无法识别你的平台时，如果你实际安装了 8GB RAM ，并且你想让 RabbitMQ 在内存使用超过 3GB 时阻塞 producer ，你就可以设置 `vm_memory_high_watermark` 为 3 ；
-
+在这种情况下，`vm_memory_high_watermark` 配置值会被用作放大假定的 1GB RAM 的乘数；若 `vm_memory_high_watermark` 被设置为 0.4 ，RabbitMQ 的内存阈值将被设置为 410MB ，即无论何时 RabbitMQ 使用了超过 410MB 的内存，都会导致 producer 被阻塞；也就是说，当 RabbitMQ 无法识别你的平台时，如果你实际安装了 8GB RAM ，并且你想让 RabbitMQ 在内存使用超过 3GB 时阻塞 producer ，你就可以设置 `vm_memory_high_watermark` 为 3 ；
 
 关于推荐 RAM 水位设置，可以参考 [Production Checklist](http://www.rabbitmq.com/production-checklist.html) ；
 
