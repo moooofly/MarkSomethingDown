@@ -37,29 +37,36 @@
 Memory limit set to 2048MB.
 ```
 
-The memory limit may also be queried using the rabbitmqctl status command.
-The threshold can be changed while the broker is running using the rabbitmqctl set_vm_memory_high_watermark fraction command or rabbitmqctl set_vm_memory_high_watermark absolute memory_limit command. Memory units can also be used in this command. This command will take effect until the broker shuts down. The corresponding configuration setting should also be changed when the effects should survive a broker restart. The memory limit may change on systems with hot-swappable RAM when this command is executed without altering the threshold, due to the fact that the total amount of system RAM is queried.
+可以通过 `rabbitmqctl status` 命令查询内存阈值的具体数值；
 
-Disabling all publishing
-A value of 0 makes the memory alarm go off immediately and thus disables all publishing (this may be useful if you wish to disable publishing globally); use rabbitmqctl set_vm_memory_high_watermark 0.
+可以在 broker 处于运行状态时进行阈值的修改，只需执行 `rabbitmqctl set_vm_memory_high_watermark fraction` 或者 `rabbitmqctl set_vm_memory_high_watermark absolute memory_limit` 命令；可以在上述命令中直接使用内存单位（如 Mib）；变更效果在 broker 停止运行前一直有效；若想 broker 重启后仍然有效，需要将相应的配置写入到配置文件中；在具有 hot-swappable RAM 的系统中，内存限制会有所不同，when this command is executed without altering the threshold, due to the fact that the total amount of system RAM is queried.
 
-Limited Address Space
+### Disabling all publishing
+设置成 0 会立刻触发 memory alarm ，并且令所有的 publishing 行为被停止（这对于希望能够实现全局范围内停止 publish 来说非常有用）；设置命令为 `rabbitmqctl set_vm_memory_high_watermark 0` ；
 
-When running RabbitMQ inside a 32 bit Erlang VM in a 64 bit OS (or a 32 bit OS with PAE), the addressable memory is limited. The server will detect this and log a message like:
 
+## Limited Address Space
+
+当在 64 bit 的操作系统（或者 32 bit 带有 PAE 的操作系统）上将 RabbitMQ 运行在 32 bit 的 Erlang VM 中时，可访问的内存是受限的；服务器会检测到这种情况，并记录如下日志信息：
+
+```shell
 =WARNING REPORT==== 19-Dec-2013::11:27:13 ===
 Only 2048MB of 12037MB memory usable due to limited address space.
 Crashes due to memory exhaustion are possible - see
 http://www.rabbitmq.com/memory.html#address-space
-The memory alarm system is not perfect. While stopping publishing will usually prevent any further memory from being used, it is quite possible for other things to continue to increase memory use. Normally when this happens and the physical memory is exhausted the OS will start to swap. But when running with a limited address space, running over the limit will cause the VM to crash.
+```
 
-It is therefore strongly recommended that when running on a 64 bit OS you use a 64 bit Erlang VM.
+memory alarm 系统是不完美的；尽管停止 publishing 行为通常会阻止任何后续内存使用，但仍有可能存在其他的东东继续内存消耗；当发生这种情况时，通常物理内存会被耗尽，之后操作系统会开始进行 swap 操作；但是当运行在受限地址空间的情况下，内存使用超限将会导致 VM 崩溃；
 
-Configuring the Paging Threshold
+因此，强烈建议在  64 bit 操作系统上只使用 64 bit Erlang VM ；
 
-Before the broker hits the high watermark and blocks publishers, it will attempt to free up memory by instructing queues to page their contents out to disc. Both persistent and transient messages will be paged out (the persistent messages will already be on disc but will be evicted from memory).
+
+## Configuring the Paging Threshold
+
+在 broker 真正得到内存使用上限并阻塞 publish 行为前，会尝试通过 page out queue 中内容到磁盘的方式释放内存占用；page out 行为同时针对 persistent 和 transient 消息（persistent 消息已经存在于磁盘上了，上述操作只是将其从内存中清除干净）；
 
 By default this starts to happen when the broker is 50% of the way to the high watermark (i.e. with a default high watermark of 0.4, this is when 20% of memory is used). To change this value, modify the vm_memory_high_watermark_paging_ratio configuration from its default value of 0.5. For example:
+
 
 [{rabbit, [{vm_memory_high_watermark_paging_ratio, 0.75},
          {vm_memory_high_watermark, 0.4}]}].
