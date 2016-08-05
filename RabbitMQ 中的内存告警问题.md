@@ -89,4 +89,9 @@ Unknown total memory size for your OS {unix,magic_homebrew_os}. Assuming memory 
 在这种情况下，`vm_memory_high_watermark` 配置值被用作 scale 假定的 1GB RAM 的乘数；若 `vm_memory_high_watermark` 被设置为 0.4 ，RabbitMQ 的内存阈值将被设置为 410MB ，即无论何时 RabbitMQ 使用了超过 410MB 的内存，都会导致 producer 被阻塞；也就是说，当 RabbitMQ 无法识别你的平台时，如果你实际安装了 8GB RAM ，并且你想让 RabbitMQ 在内存使用超过 3GB 时阻塞 producer ，你就可以设置 `vm_memory_high_watermark` 为 3 ；
 
 
-关于推荐 RAM 水位设置，可以参考 [Production Checklist]() ；
+关于推荐 RAM 水位设置，可以参考 [Production Checklist](http://www.rabbitmq.com/production-checklist.html) ；
+
+
+----------
+
+官网原文：[这里](http://www.rabbitmq.com/memory.html)
