@@ -67,19 +67,25 @@ memory alarm 系统是不完美的；尽管停止 publishing 行为通常会阻�
 
 By default this starts to happen when the broker is 50% of the way to the high watermark (i.e. with a default high watermark of 0.4, this is when 20% of memory is used). To change this value, modify the vm_memory_high_watermark_paging_ratio configuration from its default value of 0.5. For example:
 
-
+```shell
 [{rabbit, [{vm_memory_high_watermark_paging_ratio, 0.75},
          {vm_memory_high_watermark, 0.4}]}].
+```
+
 The above configuration starts paging at 30% of memory used, and blocks publishers at 40%.
 
 It is possible to set vm_memory_high_watermark_paging_ratio to a greater value than 1.0. In this case queues will not page their contents to disc. If this causes the memory alarm to go off, then producers will be blocked as explained above.
 
-Unrecognised platforms
+## Unrecognised platforms
 
-If the RabbitMQ server is unable to recognise your system, it will append a warning to the RABBITMQ_NODENAME.log file. It then assumes than 1GB of RAM is installed:
+如果 RabbitMQ server 无法识别你的系统，其会在 RABBITMQ_NODENAME.log 文件中附加如下告警信息；并假定系统中安装了 1GB 的 RAM ：
 
+```shell
 =WARNING REPORT==== 29-Oct-2009::17:23:44 ===
 Unknown total memory size for your OS {unix,magic_homebrew_os}. Assuming memory size is 1024MB.
-In this case, the vm_memory_high_watermark configuration value is used to scale the assumed 1GB RAM. With the default value of vm_memory_high_watermark set to 0.4, RabbitMQ's memory threshold is set to 410MB, thus it will throttle producers whenever RabbitMQ is using more than 410MB memory. Thus when RabbitMQ can't recognize your platform, if you actually have 8GB RAM installed and you want RabbitMQ to throttle producers when the server is using above 3GB, set vm_memory_high_watermark to 3.
+```
 
-For guidelines on recommended RAM watermark settings, see Production Checklist.
+在这种情况下，`vm_memory_high_watermark` 配置值被用作 scale 假定的 1GB RAM 的乘数；若 `vm_memory_high_watermark` 被设置为 0.4 ，RabbitMQ 的内存阈值将被设置为 410MB ，即无论何时 RabbitMQ 使用了超过 410MB 的内存，都会导致 producer 被阻塞；也就是说，当 RabbitMQ 无法识别你的平台时，如果你实际安装了 8GB RAM ，并且你想让 RabbitMQ 在内存使用超过 3GB 时阻塞 producer ，你就可以设置 `vm_memory_high_watermark` 为 3 ；
+
+
+关于推荐 RAM 水位设置，可以参考 [Production Checklist]() ；
