@@ -182,7 +182,7 @@ RabbitMQ->HAProxy: SYN,ACK
 HAProxy->RabbitMQ: RST,ACK
 ```
 
-两者其实存在一定区别：根据 TCP/IP 协议中的说明，被动打开连接的一方，在收到三次握手的最后一个 ACK 时才进去 ESTABLISHED 状态，进而才能够被用户态 accept 取走；对比上面两种实现方式，goproxy 的实现方式为先完成三次握手，再通过 RST 强行终止连接，RabbitMQ 看到的情况为：有客户端向自己建立了连接，又莫名其妙的断开，而 HAProxy 的实现方式为通过 RST 直接终止三次握手，RabbitMQ 在业务层面不需要感知；
+两者其实存在一定区别：根据 TCP/IP 协议中的说明，被动打开连接的一方，在收到三次握手的最后一个 ACK 时才进入 ESTABLISHED 状态，进而才能够被用户态 accept 取走；对比上面两种实现方式，goproxy 的实现方式为先完成三次握手，再通过 RST 强行终止连接，RabbitMQ 看到的情况为：有客户端向自己建立了连接，又莫名其妙的断开；而 HAProxy 的实现方式为通过 RST 直接终止三次握手，RabbitMQ 在业务层面不会感知到这种行为；
 
 ## 影响范围
 
@@ -449,13 +449,14 @@ extract_child(Child) when is_list(Child#child.pid) ->
 
 
 ## haproxy 健康检查方式
-![haproxy 健康监测序列](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/haproxy%E5%81%A5%E5%BA%B7%E7%9B%91%E6%B5%8B%E5%BA%8F%E5%88%97.png"haproxy 健康监测序列")
+
+![haproxy 健康监测序列](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/haproxy%E5%81%A5%E5%BA%B7%E7%9B%91%E6%B5%8B%E5%BA%8F%E5%88%97.png "haproxy 健康监测序列")
 
 ## goproxy agent 健康检查方式
 
 （据说此方式为老版本的实现，新版本已经和 haproxy 实现方式一致）
 
-![goproxy 健康监测序列](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%E5%81%A5%E5%BA%B7%E7%9B%91%E6%B5%8B%E5%BA%8F%E5%88%97.png"goproxy  健康监测序列")
+![goproxy 健康监测序列](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%E5%81%A5%E5%BA%B7%E7%9B%91%E6%B5%8B%E5%BA%8F%E5%88%97.png "goproxy  健康监测序列")
 
 - goproxy agent 每次保活探测的执行序列
 ![goproxy agent 每次保活探测的执行序列](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%20agent%E4%B8%80%E6%AC%A1%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B%E7%9A%84%E6%89%A7%E8%A1%8C%E5%BA%8F%E5%88%97.png "goproxy agent 每次保活探测的执行序列")
