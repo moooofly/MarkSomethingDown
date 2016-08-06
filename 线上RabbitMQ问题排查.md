@@ -426,8 +426,10 @@ extract_child(Child) when is_list(Child#child.pid) ->
 
 ## 原因总结
 
-通过源码可知，rabbit_channel_sup_sup 进程的创建对应了 rabbit_reader 进程收到来自 client 的 AMQP connection.open 信令；而 rabbit_channel_sup 和其下子进程的创建对应了 rabbit_reader 进程收到来自 client 的 AMQP channel.open 信令；    
-从 SASL 日志中看到：`Supervisor: {<0.25278.357>, rabbit_channel_sup_sup}` 中的 `<0.25278.357>` 即 rabbit_channel_sup_sup 进程 pid 不断变化，没有重复（可以通过过滤进行确认），说明以 rabbit_channel_sup_sup 为根的进程树在不断的销毁和创建；    
+通过源码可知，rabbit_channel_sup_sup 进程的创建对应了 rabbit_reader 进程收到来自 client 的 AMQP connection.open 信令；而 rabbit_channel_sup 和其下子进程的创建对应了 rabbit_reader 进程收到来自 client 的 AMQP channel.open 信令；
+
+从 SASL 日志中看到：`Supervisor: {<0.25278.357>, rabbit_channel_sup_sup}` 中的 `<0.25278.357>` 即 rabbit_channel_sup_sup 进程 pid 不断变化，没有重复（可以通过过滤进行确认），说明以 rabbit_channel_sup_sup 为根的进程树在不断的销毁和创建；
+
 在正常的连接关闭序列下，应该不会报上述错误日志，因此，该问题应该和业务的连接关闭处理逻辑有关；（后续我会自己搭建环境进行试验验证，确认正确执行序列下，RabbitMQ 会输出哪些日志）
 
 ## 影响范围
@@ -456,8 +458,6 @@ extract_child(Child) when is_list(Child#child.pid) ->
 
 （据说此方式为老版本的实现，新版本已经和 haproxy 实现方式一致）
 
-![goproxy 健康监测序列](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%E5%81%A5%E5%BA%B7%E7%9B%91%E6%B5%8B%E5%BA%8F%E5%88%97.png "goproxy  健康监测序列")
-
 - goproxy agent 每次保活探测的执行序列
 ![goproxy agent 每次保活探测的执行序列](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%20agent%E4%B8%80%E6%AC%A1%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B%E7%9A%84%E6%89%A7%E8%A1%8C%E5%BA%8F%E5%88%97.png "goproxy agent 每次保活探测的执行序列")
 
@@ -482,7 +482,6 @@ extract_child(Child) when is_list(Child#child.pid) ->
 - 若想要同时使用 goproxy 和 heartbeat 两种方式进行监测，则建议：根据实际情况，调整 heartbeat 超时时间，默认配置为 600s ，建议调整为 30s 或 60s ；目前抓包显示，业务使用了 2.5s 的时间间隔，会导致 RabbitMQ 处理大量心跳消息，理论上讲，会导致常规业务消息的处理被拖慢；
 
 
-
 ----------
 
 # 业务中的 Producer 行为分析
@@ -494,12 +493,11 @@ extract_child(Child) when is_list(Child#child.pid) ->
 
 ## 结论
 
-从抓包中可以看到，每次发送一条消息的时候都会重新执行 channel.open 打开新的 channel ，发送完毕之后在调用 channel.close 进行关闭；并且可以看到，每次创建后得到的 channel 号都是相同的；而根据 AMQP 协议，这种使用方式并不能获得额外的好处，反正会增加系统负担；     
+从抓包中可以看到，每发送一条消息都会重新执行 `channel.open` 打开新的 channel ，发送完毕之后再调用 `channel.close` 进行关闭；并且可以看到，每次创建后得到的 channel 号都是相同的；而根据 AMQP 协议，这种使用方式并不能获得额外的好处，反正会增加系统负担；     
 （上述结论，如果有异议，欢迎找我讨论）
 
 
-## producer 为每条消息都会创建和销毁 connection 和 channel
-
+## producer 为每条消息都创建和销毁 connection 和 channel
 
 - producer 为每条消息都会创建和销毁 connection 和 channel
 ![producer 为每条消息都会创建和销毁 connection 和 channel](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/producer%E6%AF%8F%E5%8F%91%E4%B8%80%E6%9D%A1%E6%B6%88%E6%81%AF%E5%88%9B%E5%BB%BA%E4%B8%80%E6%9D%A1connection%2Bchannel%E5%86%8D%E9%94%80%E6%AF%81.png "producer 为每条消息都会创建和销毁 connection 和 channel")
