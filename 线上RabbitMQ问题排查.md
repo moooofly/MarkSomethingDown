@@ -174,7 +174,7 @@ goproxy agent->RabbitMQ: ACK
 goproxy agent->RabbitMQ: RST,ACK
 ```
 
-而 HAProxy 的健康监测 TCP 序列如下
+而 HAProxy 的健康检测 TCP 序列如下
 
 ```sequence
 HAProxy->RabbitMQ: SYN
@@ -186,7 +186,12 @@ HAProxy->RabbitMQ: RST,ACK
 
 ## 影响范围
 
-目前看来只是造成了日志中出现大量相关错误信息，浪费了部分可用连接数量；    
+目前看来，该问题会造成
+- 日志中出现大量连接相关错误信息；
+- 会占用部分可用的并发连接数量；
+- 会浪费一定的 Erlang VM 调度处理时间（处理这种不必要逻辑所浪费的 reduction 时间片）；
+- （在相关进程的创建销毁过程中）可能会造成一定程度的内存消耗（和 GC 处理方式有关系）；    
+
 据说上述行为逻辑属于老版本的实现，新版本已经和 haproxy 实现方式一致；建议升级 goproxy 和 goproxy agent 为最新版本；
 
 ## 源码分析
@@ -368,7 +373,7 @@ n sec ～ n min
 - **heartbeat_sender** - 负责 heartbeat 发送处理；
 - **heartbeat_receiver** - 负责 heartbeat 接收处理；
 - **rabbit_queue_collector** - 负责处理具有 exclusive 属性的 queue ；
-- **rabbit_channel_sup** - 收到来自 client 的 channel.open 信令时，会在 rabbit_channel_sup_sup 下创建以 rabbit_channel_sup 为根的进程树，对应一个 channel 的处理；
+- **rabbit_channel_sup** - 收到来自 client 的 `channel.open` 信令时，会在 rabbit_channel_sup_sup 下创建以 rabbit_channel_sup 为根的进程树，对应一个 channel 的处理；
 - **rabbit_channel** - 对应 AMQP 0-9-1 中的 channel 实现；
 - **rabbit_writer** - 负责发送 frame 给 client ；
 - **rabbit_limiter** - 负责与 QoS 和流控相关的 channel 处理；
@@ -426,7 +431,7 @@ extract_child(Child) when is_list(Child#child.pid) ->
 
 ## 原因总结
 
-通过源码可知，rabbit_channel_sup_sup 进程的创建对应了 rabbit_reader 进程收到来自 client 的 AMQP connection.open 信令；而 rabbit_channel_sup 和其下子进程的创建对应了 rabbit_reader 进程收到来自 client 的 AMQP channel.open 信令；
+通过源码可知，rabbit_channel_sup_sup 进程的创建对应了 rabbit_reader 进程收到来自 client 的 AMQP `connection.open` 信令；而 rabbit_channel_sup 和其下子进程的创建对应了 rabbit_reader 进程收到来自 client 的 AMQP `channel.open` 信令；
 
 从 SASL 日志中看到：`Supervisor: {<0.25278.357>, rabbit_channel_sup_sup}` 中的 `<0.25278.357>` 即 rabbit_channel_sup_sup 进程 pid 不断变化，没有重复（可以通过过滤进行确认），说明以 rabbit_channel_sup_sup 为根的进程树在不断的销毁和创建；
 
@@ -434,7 +439,7 @@ extract_child(Child) when is_list(Child#child.pid) ->
 
 ## 影响范围
 
-目前看来，该问题除了会导致 RabbitMQ 进程的不断创建和销毁外（增加了一定开销），未造成其它直接影响；
+目前看来，该问题除了会导致相关进程被不断创建和销毁外（增加了一定开销），未造成其它直接影响；（可能会导致 management 插件中的统计事件数目的增加）
 
 ----------
 
@@ -444,30 +449,36 @@ extract_child(Child) when is_list(Child#child.pid) ->
 
 - 业务以 2.5s 时间间隔发送 heartbeat 给 RMQ
 
-![业务每 2.5 秒发送一次 heartbeat 包](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E4%B8%9A%E5%8A%A1%E6%AF%8F2.5%E7%A7%92%E5%8F%91%E9%80%81%E4%B8%80%E6%AC%A1heartbeat%E5%8C%85.png "业务发送 heartbeat 包情况")
+![业务每 2.5 秒发送一次 heartbeat 包](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E4%B8%9A%E5%8A%A1%E6%AF%8F2.5%E7%A7%92%E5%8F%91%E9%80%81%E4%B8%80%E6%AC%A1heartbeat%E5%8C%85.png "业务每 2.5 秒发送一次 heartbeat 包")
 
-- RMQ 以 5s 时间间隔发送 heartbeat 给业务
+- RabbitMQ 以 5s 时间间隔发送 heartbeat 给业务
+
 ![RabbitMQ 每 5 秒发送一次 heartbeat 包](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/RabbitMQ%E6%AF%8F5%E7%A7%92%E5%8F%91%E9%80%81%E4%B8%80%E6%AC%A1heartbeat%E5%8C%85.png "RabbitMQ 发送 heartbeat 包情况")
-
 
 ## haproxy 健康检查方式
 
-![haproxy 健康监测序列](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/haproxy%E5%81%A5%E5%BA%B7%E7%9B%91%E6%B5%8B%E5%BA%8F%E5%88%97.png "haproxy 健康监测序列")
+- haproxy 健康检测执行序列
+
+![haproxy 健康检测序列](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/haproxy%E5%81%A5%E5%BA%B7%E7%9B%91%E6%B5%8B%E5%BA%8F%E5%88%97.png "haproxy 健康检测序列")
 
 ## goproxy agent 健康检查方式
 
 （据说此方式为老版本的实现，新版本已经和 haproxy 实现方式一致）
 
 - goproxy agent 每次保活探测的执行序列
+
 ![goproxy agent 每次保活探测的执行序列](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%20agent%E4%B8%80%E6%AC%A1%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B%E7%9A%84%E6%89%A7%E8%A1%8C%E5%BA%8F%E5%88%97.png "goproxy agent 每次保活探测的执行序列")
 
-- goproxy agent 在两次保活探测之间仅处理 heartbeat 包的情况
+- goproxy agent 在两次保活探测之间仅存在 heartbeat 的情况
+
 ![goproxy agent 每 2s 进行一次保活探测－1](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%20agent%E6%AF%8F%E9%9A%942%E7%A7%92%E5%BF%85%E5%AE%9A%E8%BF%9B%E8%A1%8C%E4%B8%80%E6%AC%A1%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B_1%EF%BC%88%E4%B8%8D%E5%90%88%E7%90%86%EF%BC%89.png "goproxy agent 每 2s 进行一次保活探测－1")
 
 - goproxy agent 在两次保活探测之间会进行消息消费处理的情况
+
 ![goproxy agent 每 2s 进行一次保活探测－2](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/goproxy%20agent%E6%AF%8F%E9%9A%942%E7%A7%92%E5%BF%85%E5%AE%9A%E8%BF%9B%E8%A1%8C%E4%B8%80%E6%AC%A1%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B_2%EF%BC%88%E4%B8%8D%E5%90%88%E7%90%86%EF%BC%89.png "goproxy agent 每 2s 进行一次保活探测－2")
 
 - RabbitMQ 每秒会收到来自 goproxy agent 保活探测的数目（大概值）
+
 ![RabbitMQ 每秒会收到来自 goproxy agent 保活探测](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/RabbitMQ%E5%9C%A81%E7%A7%92%E5%86%85%E6%94%B6%E5%88%B0%E7%9A%84goproxy%20agent%E4%BF%9D%E6%B4%BB%E6%8E%A2%E6%B5%8B%E8%BF%9E%E6%8E%A5%E5%A4%84%E7%90%86.png "RabbitMQ 每秒会收到来自 goproxy agent 保活探测")
 
 
@@ -477,9 +488,16 @@ extract_child(Child) when is_list(Child#child.pid) ->
 
 ## 影响范围
 
-- goproxy 中实现的健康检查方式建议和 HAProxy 一致；
-- 理论上讲，业务通过 AMQP 协议中的 heartbeat 功能就能够实现可靠监测；个人认为使用这种方式更合理；
-- 若想要同时使用 goproxy 和 heartbeat 两种方式进行监测，则建议：根据实际情况，调整 heartbeat 超时时间，默认配置为 600s ，建议调整为 30s 或 60s ；目前抓包显示，业务使用了 2.5s 的时间间隔，会导致 RabbitMQ 处理大量心跳消息，理论上讲，会导致常规业务消息的处理被拖慢；
+抓包内容暴露出的问题：
+- 业务使用 2.5s 的时间间隔通过 heartbeat 进行保活，会导致 RabbitMQ 需要处理大量心跳消息，理论上讲，会拖慢常规业务消息的处理；
+- 业务侧和 RabbitMQ 侧发送 heartbeat 的时间间隔不一致，应该存在问题（原因暂时未知）；
+- goproxy 的健康检测方式会导致 TCP 处理相关进程的反复创建和销毁，会造成一定内存消耗，和处理资源的浪费；
+
+## 改进建议
+
+- 建议 goproxy 中采用与 HAProxy 一致健康检查方式；
+- 理论上讲，业务通过 AMQP 协议中的 heartbeat 功能就能够实现可靠检测；个人认为使用这种方式更合理；
+- 若希望同时使用 goproxy 和 heartbeat 两种方式进行检测，建议根据实际情况，调整 heartbeat 时间间隔，默认配置为 600s ，建议调整为 30s 或 60s ；
 
 
 ----------
