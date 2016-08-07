@@ -1,6 +1,10 @@
 
 
-在使用 RabbitMQ 的过程中，经常会调用 `rabbitmqctl status` 命令查看状态信息，但输出信息都的具体含义，以及如何判定系统存在隐患呢？本文试图从特定角度进行一些说明；
+在使用 RabbitMQ 的过程中，经常会使用 `rabbitmqctl status` 命令查看节点状态信息，但输出的信息的具体含义是什么，以及如何判定系统是否存在隐患呢？本文试图从特定角度进行一些说明；
+
+
+----------
+
 
 ```shell
 ➜  ~ rabbitmqctl status
@@ -101,7 +105,7 @@ status() ->
     S1 ++ S2 ++ S3 ++ S4.
 ```
 
-本文主要关注**内存使用**相关部分，因此只分析一下几个输出内容：
+本文主要关注**内存使用**相关部分，因此只分析以下输出内容：
 
 ## 内存整体使用
 
@@ -118,12 +122,12 @@ status() ->
 	{connection_writers,  ConnsWriter},   %% amqp_sup 和 ranch_conns_sup 下作为 writer 的 connection 占用的内存
 	{connection_channels, ConnsChannel},  %% amqp_sup 和 ranch_conns_sup 下 channel 占用的内存
 	{connection_other,    ConnsOther},    %% amqp_sup 和 ranch_conns_sup 下其他用途 connection 占用的内存
-	{queue_procs,         Qs},      %% rabbit_amqqueue_sup_sup 下 master 角色的 queue 占用的内存
-	{queue_slave_procs,   QsSlave}, %% rabbit_amqqueue_sup_sup 下 slave 角色的 queue 占用的内存
-	{plugins,             Plugins}, %% 启动的所有插件应用中 worker 进程占用的内存
+	{queue_procs,         Qs},            %% rabbit_amqqueue_sup_sup 下 master 角色的 queue 占用的内存
+	{queue_slave_procs,   QsSlave},       %% rabbit_amqqueue_sup_sup 下 slave 角色的 queue 占用的内存
+	{plugins,             Plugins},       %% 启动的所有插件应用中 worker 进程占用的内存
 	{other_proc,          lists:max([0, OtherProc])}, %% [1]
-	{mnesia,              Mnesia},  %% mnesia 中内存表占用的内存
-	{mgmt_db,             MgmtDbETS + MgmtDbProc},  %% management 插件中统计数据库   ets 表和 worker 进程占用的内存 
+	{mnesia,              Mnesia},        %% mnesia 中内存表占用的内存
+	{mgmt_db,             MgmtDbETS + MgmtDbProc},     %% management 插件中统计数据库   ets 表和 worker 进程占用的内存 
 	{msg_index,           MsgIndexETS + MsgIndexProc}, %% 持久和临时消息索引维护 ets 表 ＋ 消息存储 worker 进程占用的内存
 	{other_ets,           ETS - Mnesia - MsgIndexETS - MgmtDbETS},
 	{binary,              Bin},
