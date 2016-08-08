@@ -21,10 +21,10 @@ development. The work was driven by the Erlang development team at Ericsson
 with participation and contributions from Tony Rogvall (then at Synapse) and the
 HiPE group at Uppsala University. 
 
-The strategy was (and still is):
-- First, ”make it work”
-- Second, ”measure” and find bottlenecks
-- Third, ”optimize” by removing bottlenecks
+策略如下（现在仍然是这个策略）：
+- 首先，”make it work”
+- 其次，”measure” 并找到瓶颈点
+- 最后，通过移除瓶颈点进行 ”optimize”
 
 带有 SMP 支持的第一个稳定运行时 release 版本为 2006 年  5 月发布的 OTP R11B ；
 
@@ -77,16 +77,18 @@ Erlang (BEAM) emulator version 5.6.4 [source] [smp:4] .....
 
 > ⚠️ 在一些操作系统上，单个进程可以使用的 CPU 或核心数量可以通过命令进行限制；例如，在Linux 上，命令 "taskset" 就可用于此目的；Erlang VM 当前只能检测到可用 CPU 或核心数量，而不会将 "taskset" 设置的 mask 值考虑在内；
 
-Because of this it can happen and has happened that e.g. only 2 Cores are used even if the Erlang VM runs with 4 schedulers. It is the OS that limits this because it take the mask from "taskset" into account.
-The schedulers in the Erlang VM are run on one OS-thread each and it is the OS that decides if the threads are executed on different Cores. Normally the OS will do this just fine and will also keep the thread on the same Core throughout the execution.
+基于上述原因，可能会发生，并且实际已经发生了诸如只有 2 个核心被使用，尽管 Erlang VM 运行了 4 个 scheduler 的情况；这是由于操作系统自身采取的限制导致的，因为其将 "taskset" 设置的 mask 考虑在内了；
+
+在 Erlang VM 中，每一个 scheduler 都运行在一个操作系统线程中，并由操作系统自行决定这些线程是否在不同的核上被执行；通常情况下，操作系统的默认处理方式就很好，会令线程在执行过程中跑在同一个核心上；
 
 Erlang 进程在不同时段内会被不同的 scheduler 所运行，因为只要某个 scheduler 空闲，其就会从同一个 common run-queue 中提取 Erlang 进程或 IO 任务进行调度；
 
 
 ## Performance and scalability
-The SMP VM with only one scheduler is slightly slower (10%) than the non SMP VM.
 
-This is because the SMP VM need to use locks for all shared datastructures. But as long as there are no lock-conflicts the overhead caused by locking is not that high (it is the lock conflicts that takes time). 
+只启动一个 scheduler 的 SMP VM  的性能要略低于（10%）non SMP VM ；
+
+这是因为 SMP VM 需要针对所有共享数据结构使用锁；但是只要没有锁冲突问题，由其导致的额外开销就不会很高（只有锁冲突才会花费大量时间）
 
 This explains why it in some cases can be more efficient to run several SMP VM's
 with one scheduler each instead on one SMP VM with several schedulers. Of course
@@ -110,10 +112,12 @@ SMP VM without changes and even without need to recompile the code.
 
 
 ## Our strategy with SMP
-Already from the beginning when we started implementation of the SMP VM we
-decided on the strategy:
 
+早在最开始的实现 SMP VM 的时候，我们就定下了如下策略：
+
+```shell
 "First make it work, then measure, then optimize".
+```
 
 We are still following this strategy consistently since the first stable working SMP VM
 that we released in May 2006 (R11B).
@@ -147,10 +151,8 @@ etc. you will find new optimizations.
 
 
 ### Some known bottlenecks
-Below some of the most significant bottlenecks that we know of are described, there
-are for sure more bottlenecks than this and we intend to address them one after one.
-It is worth noting that after removal of one bottleneck there might be new ones
-coming up and the already known ones may have got changed importance. 
+
+下面列出一些我们知道的、最重要的瓶颈点；可以肯定的是，还有更多的瓶颈存在着，等待我们一个一个去解决；在移除一个瓶颈后，马上会有新的瓶颈点出现，还可能导致已知的其他点的重要性发生变更；
 
 #### The common run-queue
 
@@ -180,9 +182,7 @@ ets-tables.
 
 #### Message passing
 
-When many processes are sending messages to the same receiving process there
-will be a lot of lock conflicts. There are ways to optimize this by reducing the amount
-of work being done while having the lock. 
+当许多进程同时发送消息到相同的接收进程时，将会存在大量的锁冲突；可以通过减少需要访问锁的待处理工作量优化该问题；
 
 #### A process can block the scheduler
 
@@ -202,8 +202,7 @@ of work being done while having the lock.
 
 当每个 scheduler 都具有独立的 run queue 时，问题将从访问同一个 run queue 时的锁冲突，变成了迁移逻辑的实现效率和公平性问题；
 
-The implementation we have so far will need a lot more benchmarking and fine
-tuning before it works optimally. It works roughly like this:
+目前我们已有的实现还需要大量的 benchmark 测试和精细调优，才能保证其工作在最优状态；粗略的说，其工作方式如下：
 
 The maximum number of runable processes over all schedulers is measured
 approximately 4 times per second. This value divided by number of schedulers is
