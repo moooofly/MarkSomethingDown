@@ -38,18 +38,15 @@ This ended the first cycle of the strategy and a new iteration with “measure�
 
 ### 2.1 Erlang VM with no SMP support
 
-The Erlang VM without SMP support has 1 scheduler which runs in the main process
-thread. The scheduler picks run able Erlang processes and IO-jobs from the runqueue
-and there is no need to lock data structures since there is only one thread
-accessing them.
+不带 SMP 支持的 Erlang VM 只会在主线程中运行一个 scheduler ；scheduler 从 run queue 中选取可运行的 Erlang 进程和 IO 任务进行执行，并且必须要锁定任何数据结构，因为只有一个线程进行数据访问；
 
-![Erlang (non SMP) VM today](http  "Erlang (non SMP) VM today")
+![Erlang (non SMP) VM today](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang (non SMP) VM today.png  "Erlang (non SMP) VM today")
 
 ### Erlang VM with SMP support (in R11B and R12B)
 
-The Erlang VM with SMP support can have 1 to 1024 schedulers which are run in 1 thread each. 
+带 SMP 支持的 Erlang VM 能够启动 1 - 1024 个 scheduler ，每一个 scheduler 都运行于一个线程之中；
 
-The schedulers pick runable Erlang processes and IO-jobs from one common runqueue. In the SMP VM all shared data structures are protected with locks, the runqueue is one example of a shared data structure protected with locks.
+全部 scheduler 都会从一个 common run queue 中选取可运行 Erlang 进程和 IO 任务；在支持 SMP 的 VM 中，所有共享数据结构都会被锁保护，而 run queue 是通过锁保护共享数据结构的其中一个例子；
 
 ![Erlang SMP VM today](http "Erlang SMP VM today")
 
