@@ -46,7 +46,7 @@ This ended the first cycle of the strategy and a new iteration with “measure�
 
 带 SMP 支持的 Erlang VM 能够启动 1 - 1024 个 scheduler ，每一个 scheduler 都运行于一个线程之中；
 
-全部 scheduler 都会从一个 common run queue 中选取可运行 Erlang 进程和 IO 任务；在支持 SMP 的 VM 中，所有共享数据结构都会被锁保护，而 run queue 是通过锁保护共享数据结构的其中一个例子；
+全部 scheduler 都会从同一个 common run queue 中选取可运行 Erlang 进程和 IO 任务；在支持 SMP 的 VM 中，所有共享数据结构都会被锁保护，而 run queue 是通过锁保护共享数据结构的其中一个例子；
 
 ![Erlang SMP VM today](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang SMP VM today.png "Erlang SMP VM today")
 
@@ -78,14 +78,15 @@ The default behaviour can be overridden with the
 "-smp [enable|disable|auto]" auto is default and to set the number of
 schedulers, if smp is set to enable or auto use "+S Number" where Number is the number of schedulers (1..1024) 
 
-Note ! It is normally nothing to gain from running with more schedulers than the number of CPU's or Cores.
+> ⚠️ 运行超过 CPU 或 CPU 核数的 scheduler 通常不会有任何额外的收益；
 
-Note2 ! On some operating systems the number of CPU's or Cores to be used by a process can be restricted with commands. For example on Linux the command "taskset" can be used for this. The Erlang VM will currently only detect number of available CPU's or Cores and will not take the mask set by "taskset" into account.
+> ⚠️ On some operating systems the number of CPU's or Cores to be used by a process can be restricted with commands. For example on Linux the command "taskset" can be used for this. The Erlang VM will currently only detect number of available CPU's or Cores and will not take the mask set by "taskset" into account.
 
 Because of this it can happen and has happened that e.g. only 2 Cores are used even if the Erlang VM runs with 4 schedulers. It is the OS that limits this because it take the mask from "taskset" into account.
 The schedulers in the Erlang VM are run on one OS-thread each and it is the OS that decides if the threads are executed on different Cores. Normally the OS will do this just fine and will also keep the thread on the same Core throughout the execution.
 
-The Erlang processes will be run by different schedulers over time because they are picked from a common run-queue by the first scheduler that becomes available. 
+Erlang 进程在不同时段内会被不同的 scheduler 所运行，因为只要某个 scheduler 空闲，其就会从同一个 common run-queue 中提取 Erlang 进程或 IO 任务进行调度；
+
 
 ## Performance and scalability
 The SMP VM with only one scheduler is slightly slower (10%) than the non SMP VM.
@@ -158,11 +159,9 @@ coming up and the already known ones may have got changed importance.
 
 #### The common run-queue
 
-The single common run-queue will become a dominant bottleneck when the number
-of CPU's or Cores increase.
+当 CPU 或 CPU 核数增多时，单独一个 common run-queue 将会成为主要瓶颈；
 
-This will be visible from 4 cores and upwards, but 4 cores will probably still give ok
-performance for many applications.
+从 4 核开始该问题就会显现出来，但对于许多应用来说，4 核情况下仍能给出不错的性能表现；
 
 We are working on a solution with one run-queue per scheduler as the most
 important improvement right now. Read more about this later in the document. 
@@ -192,42 +191,31 @@ of work being done while having the lock.
 
 #### A process can block the scheduler
 
-If a process is blocked waiting to get a lock for example to access an ets-table the
-whole scheduler is blocked doing nothing until the lock is accuired and the process
-can continue it’s execution. This can be improved by introducing what we call
-“process level locking” which means that if a process is blocked waiting to get a lock
-it will be scheduled out and the scheduler will schedule in the next process from the
-run-queue instead. We have already implemented and measured on this solution and
-concluded that it probably can be introduced when the separate run-queues are in
-place. We still need to verify that it does not degrade performance for certain special
-cases. 
+一旦某个进程在阻塞等待获取访问某个 ets 表的锁，整个 scheduler 将会被阻塞住，什么也做不了；直到锁被成功获取后，进程才会继续执行；
+
+上述情况可以通过引入“进程级别锁“进行改进，即如果某个进程在阻塞等待获取锁，则会被调度出 scheduler ，之后 scheduler 会从 run queue 中提取下一个进程进行调度；
+
+我们已经实现并测量了这种解决方案，结论是该方案可以在独立 run queue 可用时被引入；我们仍旧需要确认该方案在某些特殊情况下是否会导致性能下降；
 
 ### Separate run-queues per scheduler
 
-The next big performance improvement regarding SMP support in the Erlang runtime
-system is the change from having one common run-queue to having a separate runqueue
-per scheduler. This change will decrease the number of lock conflicts
-dramatically for systems with many cores or processors. The improvement in
-performance will in many applications be significant already from 4 cores and will of
-course be even more noticeable in systems with 8, 16 or even more cores.
+针对 SMP 的下一个 Erlang 运行时系统的重大性能改进，就是将所有 scheduler 共享同一个 run queue 变更为每一个 scheduler 使用一个独立的 run queue ；该变化会极大的减少多核或多处理器系统中锁冲突的数量；从 4 核 开始，性能改进的效果已经体现在许多应用中了，并且在具有 8, 16 或者更多核的系统中，将会有更佳出色的表现；
 
-![Erlang SMP VM next step](http "Erlang SMP VM next step")
+![Erlang SMP VM next step](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang SMP VM next step.png "Erlang SMP VM next step")
 
 #### Migration logic
 
-When there are separate run-queues per scheduler the problem is moved from the
-locking conflicts when accessing the run-queue to the migration logic which must be
-both efficient and reasonably fair.
+当每个 scheduler 都具有独立的 run queue 时，问题将从访问同一个 run queue 时的锁冲突，变成了迁移逻辑的实现效率和公平性问题；
 
 The implementation we have so far will need a lot more benchmarking and fine
 tuning before it works optimally. It works roughly like this:
 
-The maximum number of run able processes over all schedulers is measured
+The maximum number of runable processes over all schedulers is measured
 approximately 4 times per second. This value divided by number of schedulers is
 then used to trigger migration of processes from one scheduler to another scheduler.
 
 When a scheduler is about to schedule in a new process it will first check if its
-number of run able processes is above the max value described above and if it is it
+number of runable processes is above the max value described above and if it is it
 will migrate the process to another scheduler according to the migration path set up. 
 
 There are also 2 other occasions in addition to the “schedule in” of a new process
