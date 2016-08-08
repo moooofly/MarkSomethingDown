@@ -243,26 +243,15 @@ the improvement is significant.
 
 ### Is there any difference in the .beam file depending on if it should run in a SMP or non SMP system?
 
-As long as the module is not compiled with “native” option with a HiPE enabled
-system the .beam files are the same and can be run in both SMP and non SMP
-systems. 
+只要目标模块没有在使能了 HiPE 的系统中启动 “native” 选项进行编译，.beam 文件就是相同的，并且可以在 SMP 和 non-SMP 系统中通用；
 
 ### Can an Erlang process be locked to a specific processor core?
 
-An Erlang process can not be locked to a specific processor by the programmer and
-this is intentional. In a future release it might be possible to lock a scheduler to a
-specific core. 
+程序员无法将 Erlang 进程锁定到特定的处理器上执行，并且这种实现是有意为之；在未来的  release 版本中，可能允许将某个 scheduler 锁定到某个特定的 core 上执行； 
 
 ### What is the relation between asynch threads and SMP?
 
-The asynch thread pool has nothing with SMP todo. The asynch threads are only
-used by the file driver and by user written drivers that specifically uses the thread
-pool. The file driver uses this to avoid locking of the whole Erlang VM for a longer
-time period in case of a lengthy file operation. The asynch threads was introduced
-long before the SMP support in the VM and works for the non SMP VM as well. In
-fact the asynch threads are even more important for a non SMP system because
-without it a lengthy file operation will block the whole VM. 
-
+异步线程池和 SMP 没有一毛钱关系；异步线程池只用于文件驱动器和用户自己实现的（使用该池）驱动器；文件驱动器使用该池可以在遇到大文件操作时避免整个 Erlang VM 被长时间锁住；对于 VM 来说，异步线程池的引入要远远早于 SMP ；并且异步线程池在  non SMP VM 中也工作良好；事实上，对于 non SMP 系统来说异步线程池更加重要，因为如果没有这个池，遇到大文件操作时，整个 VM 都会被阻塞住；
 
 
 ----------
