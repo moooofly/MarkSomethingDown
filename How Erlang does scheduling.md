@@ -40,6 +40,8 @@ Erlang 是为保证**低时延**和**软实时**而精心打造的。2000 的 re
 
 [^n3]: 这里可以设想为单核情况；多核虽然依靠多个核心从某种程度上讲“消化”了问题，但问题其实仍然存在；
 
+[^n4]: abc
+
 (Smaller edits made to the document at Mon 14th Jan 2013)
 
 
