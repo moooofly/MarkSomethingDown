@@ -6,9 +6,7 @@
 
 ## Introduction
 
-The history of support for SMP (Symmetrical Multi Processor) in Erlang started
-around 1997-1998 as a master thesis work by Pekka Hedqvist with Tony Rogvall
-(Ericsson Computer Science Lab) as supervisor.
+在 Erlang 中支持 SMP (对称多处理器) 的历史可以追溯到 1997-1998 左右，自 Pekka Hedqvist 的硕士论文开始，其导师为 Tony Rogvall (Ericsson Computer Science Lab)；
 
 The implementation was run on a Compaq with 4 Pentium Pro 200 Mhz CPU’s
 (an impressive machine in those days) and showed a great potential for scalability
@@ -28,8 +26,7 @@ The strategy was (and still is):
 - Second, ”measure” and find bottlenecks
 - Third, ”optimize” by removing bottlenecks
 
-The first release of a stable runtime system with support for SMP came in OTP
-R11B in May 2006.
+带有 SMP 支持的第一个稳定运行时 release 版本为 2006 年  5 月发布的 OTP R11B ；
 
 This ended the first cycle of the strategy and a new iteration with “measure”,
 “optimize” and “make it work” started. Read more about it in the next pages. 
@@ -63,24 +60,22 @@ The performance improvements achieved on a dual core processor for a real teleco
 
 #### SMP in R12B
 
-From OTP R12B the SMP version of the VM is automatically started as default if the OS reports more than 1 CPU (or Core) and with the same number of schedulers as CPU's or Cores.
+从 OTP R12B 开始，如果操作系统发现自身具有超过 1 个 CPU（或核心），则 VM 默认就会启动SMP ，并创建与 CPU 或核心数目相同的 scheduler ；
 
-You can see what was chosen at the first line of printout from the erl command.
+你可以在 erl 命令的第一行输出中看到如下信息
 
-E.g. 
-
+例如
 ```shell
 Erlang (BEAM) emulator version 5.6.4 [source] [smp:4] .....
 ```
+上面的 `[smp:4]` 表明正在运行支持 SMP 的 VM ，并且启动了 4 个  scheduler ；
 
-The [smp:4] above tells that the SMP VM is run and with 4 schedulers.
-The default behaviour can be overridden with the
-"-smp [enable|disable|auto]" auto is default and to set the number of
-schedulers, if smp is set to enable or auto use "+S Number" where Number is the number of schedulers (1..1024) 
+默认行为可以通过 "-smp [enable|disable|auto]" 进行覆盖；`auto` 为默认值；
+若想设置启动 scheduler 的具体数量，需要设置 -smp 为 enable 或 auto ，并使用 "+S Number" 选项，其中 Number 值为 scheduler 的数量（1..1024）； 
 
 > ⚠️ 运行超过 CPU 或 CPU 核数的 scheduler 通常不会有任何额外的收益；
 
-> ⚠️ On some operating systems the number of CPU's or Cores to be used by a process can be restricted with commands. For example on Linux the command "taskset" can be used for this. The Erlang VM will currently only detect number of available CPU's or Cores and will not take the mask set by "taskset" into account.
+> ⚠️ 在一些操作系统上，单个进程可以使用的 CPU 或核心数量可以通过命令进行限制；例如，在Linux 上，命令 "taskset" 就可用于此目的；Erlang VM 当前只能检测到可用 CPU 或核心数量，而不会将 "taskset" 设置的 mask 值考虑在内；
 
 Because of this it can happen and has happened that e.g. only 2 Cores are used even if the Erlang VM runs with 4 schedulers. It is the OS that limits this because it take the mask from "taskset" into account.
 The schedulers in the Erlang VM are run on one OS-thread each and it is the OS that decides if the threads are executed on different Cores. Normally the OS will do this just fine and will also keep the thread on the same Core throughout the execution.
