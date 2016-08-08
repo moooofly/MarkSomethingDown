@@ -28,22 +28,21 @@
 
 Erlang 是为保证**低时延**和**软实时**而精心打造的。2000 的 reduction 值非常小，因此会促成许多小的上下文切换。将需要花费较长时间执行的 BIF 从时间片角度进行拆分，以便其可以被中等计算单元所抢占，是非常昂贵。但这可以保证 Erlang 系统在面对更多工作任务时，以优雅的方式进行服务降级。在 Ericsson 这样需要低时延的公司里，Erlang 系统是无可替代的。你无法神奇的指望换一种面向吞吐量的语言，同时还能得到这么低的时延。除非你自己去搞定。坦白地说，如果低时延对于你来说是关键属性，那么不选择 Erlang 真的是很奇怪。
 
+----------
 
 [1]: http://kth.diva-portal.org/smash/record.jsf?searchId=2&pid=diva2:392243 "《多核心处理器中Erlang虚拟机可扩展性的特征》"
 [2]: http://en.wikipedia.org/wiki/Preemption_(computing) 
 [3]: http://en.wikipedia.org/wiki/Real-time_computing 
 
+----------
 
 [^n1]: 进程堆是进程独立的，因此一个进程并不能对其它进程的 GC时间产生多大影响； 
-
 [^n2]: 本段内容同时说明了为什么我们必须警惕需要长时间运行的 NIFs 。其运行默认不会被抢占，也不会触发 reduction 的减少。因此，会为系统引入延迟；
-
 [^n3]: 这里可以设想为单核情况；多核虽然依靠多个核心从某种程度上讲“消化”了问题，但问题其实仍然存在；
 
-[^n4]: abc
+----------
 
 (Smaller edits made to the document at Mon 14th Jan 2013)
-
 
 ----------
 
