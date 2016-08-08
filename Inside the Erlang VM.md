@@ -33,7 +33,7 @@ This ended the first cycle of the strategy and a new iteration with “measure�
 
 ## How it works
 
-### 2.1 Erlang VM with no SMP support
+### Erlang VM with no SMP support
 
 不带 SMP 支持的 Erlang VM 只会在主线程中运行一个 scheduler ；scheduler 从 run queue 中选取可运行的 Erlang 进程和 IO 任务进行执行，并且必须要锁定任何数据结构，因为只有一个线程进行数据访问；
 
@@ -113,7 +113,7 @@ SMP VM without changes and even without need to recompile the code.
 
 ## Our strategy with SMP
 
-早在最开始的实现 SMP VM 的时候，我们就定下了如下策略：
+早在最开始实现 SMP VM 的时候，我们就定下了如下策略：
 
 ```shell
 "First make it work, then measure, then optimize".
@@ -160,8 +160,7 @@ etc. you will find new optimizations.
 
 从 4 核开始该问题就会显现出来，但对于许多应用来说，4 核情况下仍能给出不错的性能表现；
 
-We are working on a solution with one run-queue per scheduler as the most
-important improvement right now. Read more about this later in the document. 
+我们正在实现每个 scheduler 一个 run-queue 的解决方案，并将此作为当前最重要的改进点；本文的后续内容会有说明；
 
 #### Ets tables
 
