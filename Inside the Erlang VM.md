@@ -48,7 +48,7 @@ This ended the first cycle of the strategy and a new iteration with “measure�
 
 全部 scheduler 都会从一个 common run queue 中选取可运行 Erlang 进程和 IO 任务；在支持 SMP 的 VM 中，所有共享数据结构都会被锁保护，而 run queue 是通过锁保护共享数据结构的其中一个例子；
 
-![Erlang SMP VM today](http "Erlang SMP VM today")
+![Erlang SMP VM today](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang SMP VM today.png "Erlang SMP VM today")
 
 #### First release for use in Products, March 2007
 
