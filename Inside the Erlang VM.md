@@ -237,7 +237,7 @@ other processes and answer with a ‘pong’ message for all ‘ping’ it recei
 The “fat” lines in the graph shows the multiple run-queue case and as can be seen
 the improvement is significant. 
 
-![Number of schedulers](http "Number of schedulers")
+![Number of schedulers](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Number of schedulers.png "Number of schedulers")
 
 ## Frequently Asked Questions
 
