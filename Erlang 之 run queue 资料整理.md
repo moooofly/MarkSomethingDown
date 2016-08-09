@@ -32,15 +32,17 @@ First of all, the operating system can’t be trusted to handle the processes.
 
 ----------
 
-以下内容取自：[这里](http://erlang-factory.com/upload/presentations/105/KennethLundin-ErlangFactory2009London-AboutErlangOTPandMulti-coreperformanceinparticular.pdf)
 
-SMP 和 run queue 的演变
+
+以下内容取自：《[About Erlang/OTP and Multi-core performance in particular](http://erlang-factory.com/upload/presentations/105/KennethLundin-ErlangFactory2009London-AboutErlangOTPandMulti-coreperformanceinparticular.pdf)》
+
+# Erlang VM 的演变（SMP & run queue）
 
 ![Erlang (non SMP)](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang (non SMP).png "Erlang (non SMP)")
 
 ![Erlang SMP VM (before R13)](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang SMP VM (before R13).png "Erlang SMP VM (before R13)")
 
-![Erlang SMP VM (R13)](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/rlang SMP VM (R13).png "Erlang SMP VM (R13)")
+![Erlang SMP VM (R13)](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang SMP VM (R13).png "Erlang SMP VM (R13)")
 
 
 迁移逻辑：
