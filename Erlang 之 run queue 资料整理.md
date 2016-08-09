@@ -63,6 +63,7 @@
 
 以下内容取自：《[Characterizing the Scalability of Erlang VM on Many-core Processors](http://kth.diva-portal.org/smash/get/diva2:392243/FULLTEXT01)》
 
+> ⚠️ 这里给出的内容并非原文中章节的顺序，而是我根据和 run queue 的相关性摘录出的部分；
 
 # Erlang’s Concurrency primitives
 
@@ -94,7 +95,6 @@ SMP Erlang VM 属于多线程程序实现；在 Linux 上，其使用了 POSIX t
 对于每一个 scheduler 来说都存在一个 run queue 用于保存与其相关的待运行进程任务和 port 任务；在多核处理器上，Erlang VM 通常会配置成每个核心启用一个 scheduler 的形式，或者每个硬件线程一个 scheduler 的形式（如果支持硬件多线程的话）
 
 Erlang 运行时系统提供了许多和操作系统相关的特性，例如，内存管理，进程调度，以及网络管理；在后续章节中，我们会介绍并分析当前 SMP VM 实现的不同部分（针对 R13B04），这些部分都和多核处理器扩展性相关，包括进程结构，消息传递，调度，同步和内存管理等；
-
 
 
 # Message Passing
