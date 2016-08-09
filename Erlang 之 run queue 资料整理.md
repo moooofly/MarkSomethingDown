@@ -78,13 +78,14 @@ after % optional clause
 end
 ```
 
-在上述语句中，`after` 关键字（实现 timeout 机制），`other` 字句和 guard 断言都是可选的；当一个进程的 receive 执行时，VM 会检查进程消息队列中的每一条消息以确认其是否匹配表达式中给出的某个模式；模式的匹配是按照顺序进行的；如果某个模式和相应的 guard 成功匹配，其后的表达式将被求值，之后其它的模式将不再继续进行匹配；当消息队列中没有任何消息时，或者没有任何消息能匹配模式时，当前进程将被挂起，并调度出 scheduler ；被挂起的进程需要等待新消息的到来以重新变回可运行状态，进而被重新放入当前进程关联的 scheduler 的 run queue 之中；. Then when the process is selected to execute, the new message is matched to the pat- terns in the receive statement again. It is possible that the new message doesn’t match any patterns, and the process is suspended once more. Sometimes, the last pattern other is set to match all messages, and if a message doesn’t match any previous patterns, the expressions following the last pattern will be executed and the message is removed from the message queue.
-When there is an after clause and the process is suspended waiting for a message, it will be woken up after Timeout milliseconds if it doesn’t receive a matching message during that time and then the corresponding expressions are executed.
+在上述语句中，`after` 关键字（实现 timeout 机制），`other` 字句和 guard 断言都是可选的；当一个进程的 receive 执行时，VM 会检查进程消息队列中的每一条消息以确认其是否匹配表达式中给出的某个模式；模式的匹配是按照顺序进行的；如果某个模式和相应的 guard 成功匹配，其后的表达式将被求值，之后其它的模式将不再继续进行匹配；当消息队列中没有任何消息时，或者没有任何消息能匹配模式时，当前进程将被挂起，并调度出 scheduler ；被挂起的进程需要等待新消息的到来以重新变回可运行状态，进而被重新放入当前进程关联的 scheduler 的 run queue 之中；之后当该进程在此被选中执行时，新消息会被再次同 receive 中的模式进行匹配；很有可能新消息仍旧无法匹配任何模式，然后进程再次被挂起；有些时候，最后的匹配分支（比如这里的 Other）会被设置成匹配所有消息，因此，一旦某个消息无法匹配任何目标模式时，将会执行全匹配分支后的求值，进而令该消息成功从消息队列中被移除；
+
+当存在 after 关键字时，当前进程在挂起等待匹配消息到来时（⚠️ 收到无法匹配模式的消息并不会解除超时定时器），会在 Timeout 毫秒后触发超时被唤醒，并对其后的表达式进行求值；
 
 
 # Erlang Runtime System
 
-Currently BEAM1 is the standard virtual machine for Erlang, originating from Turbo Erlang [16]. It is an efficient register-based abstract machine2. The first experimental implementation of SMP (parallel) VM occurred in 1998 as a result of a master degree project [17]. From 2006, the SMP VM is included in official releases.
+当前 BEAM 作为 Erlang 的标准 VM 实现起源于 Turbo Erlang ；BEAM 是一种高效的基于寄存器的 abstract machine ；第一个实验版本的支持 SMP (parallel) 的 VM 出现于 1998 的一篇硕士论文；从 2006 年开始，SMP VM 已经被默认包含在官方 release 中了；
 
 The SMP Erlang VM is a multithreaded program. On Linux, it utilizes POSIX thread (Pthread) libraries. Threads in an OS process share a memory space. An Erlang scheduler is a thread that schedules and executes Erlang processes and ports. Thus it is both a scheduler and a worker. Scheduling and execution of processes and ports are interleaved. There is a separate run queue for each scheduler storing the runnable processes and ports associated with it. On many-core processors, the Erlang VM is usually configured with one scheduler per core or one scheduler per hardware thread if hardware multi-threading is supported.
 
