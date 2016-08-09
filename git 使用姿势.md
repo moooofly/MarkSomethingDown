@@ -53,3 +53,41 @@ git push -u
 ```shell
 git branch --set-upstream-to=origin/new_branch new_branch
 ```
+
+
+# fork 别人项目后如何同步其后续更新
+
+先从自己的 github 中 clone 一份内容
+```shell
+git clone git@github.com:moooofly/sre.git
+```
+
+此时只有名为 origin 的 remote
+```shell
+git remote -v
+```
+
+新增名为 eleme_sre 的 remote ，即当前 repo 的始祖；
+```shell
+git remote add eleme_sre https://github.com/eleme/sre.git
+```
+
+再次查看时，已经增加了名为 eleme_sre 的 remote ；
+```shell
+git remote -v
+```
+
+从 eleme_sre 的 master 分支上拉取内容到本地；
+```shell
+git pull eleme_sre master
+```
+
+将拉取到本地的内容推到名为 origin 的 master 分支，即推到自己的 github 仓库中；
+```shell
+git push
+```
+
+
+
+
+
