@@ -87,9 +87,13 @@ end
 
 当前 BEAM 作为 Erlang 的标准 VM 实现起源于 Turbo Erlang ；BEAM 是一种高效的基于寄存器的 abstract machine ；第一个实验版本的支持 SMP (parallel) 的 VM 出现于 1998 的一篇硕士论文；从 2006 年开始，SMP VM 已经被默认包含在官方 release 中了；
 
-The SMP Erlang VM is a multithreaded program. On Linux, it utilizes POSIX thread (Pthread) libraries. Threads in an OS process share a memory space. An Erlang scheduler is a thread that schedules and executes Erlang processes and ports. Thus it is both a scheduler and a worker. Scheduling and execution of processes and ports are interleaved. There is a separate run queue for each scheduler storing the runnable processes and ports associated with it. On many-core processors, the Erlang VM is usually configured with one scheduler per core or one scheduler per hardware thread if hardware multi-threading is supported.
+SMP Erlang VM 属于多线程程序实现；在 Linux 上，其使用了 POSIX thread (Pthread) 库；我们知道，同一个操作系统进程中的线程会共享进程内存空间；而 Erlang scheduler 正这样的一个线程，其负责调度和执行 Erlang 进程任务和 port 任务；因此，可以认为其既是一个 scheduler ，又是一个工作进程；
 
-The Erlang runtime system provides many features often associated with operating systems, for instance, memory management, process scheduling and networking. In the remainder of this chapter, we will introduce and analyze the different parts of the current SMP VM implementation (R13B04 as mentioned before) which are relevant to the scalability on many-core processors, including process structure, message passing, scheduling, synchronization and memory management.
+需要注意：进程任务和 port 任务的调度和执行是交织进行的；
+
+对于每一个 scheduler 来说都存在一个 run queue 用于保存与其相关的待运行进程任务和 port 任务；在多核处理器上，Erlang VM 通常会配置成每个核心启用一个 scheduler 的形式，或者每个硬件线程一个 scheduler 的形式（如果支持硬件多线程的话）
+
+Erlang 运行时系统提供了许多和操作系统相关的特性，例如，内存管理，进程调度，以及网络管理；在后续章节中，我们会介绍并分析当前 SMP VM 实现的不同部分（针对 R13B04），这些部分都和多核处理器扩展性相关，包括进程结构，消息传递，调度，同步和内存管理等；
 
 
 
