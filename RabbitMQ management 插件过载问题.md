@@ -38,7 +38,7 @@
 </div>
 ```
 其中，有两个重要的 if 判定：
-- 如果 `overview.statistics_db_event_queue` 中的消息量超过 `1000` 条，就会在 Web 页面上输出之前的告警信息；
+- 如果 `overview.statistics_db_event_queue` 的数值超过 `1000`，就会在 Web 页面上输出之前的告警信息；
 - 如果 `overview.rates_mode` 的值不是 `none` ，则建议改为 `none` ；
 
 
@@ -101,8 +101,8 @@ object_totals     | 包含针对所有 connections, channels, exchanges, queues 
 queue_totals     | 包含针对所有 queue 中处于 messages, messages_ready 和 messages_unacknowledged 状态消息的统计数据；权限约束同 message_stats ；
 rabbitmq_version     | 处理该请求的、当前节点上运行的 RabbitMQ 版本；
 rates_mode     | 'none', 'basic' 或 'detailed' ；
-statistics_db_event_queue     | 统计数据库中待处理的 statistics events 的数量；
-statistics_db_node     | 持有 management 插件统计数据库的 cluster 节点名；
+statistics_db_event_queue     | rabbit_mgmt_db 进程邮箱中待处理 statistics events 的数量；
+statistics_db_node     | 维护统计数据的 rabbit_mgmt_db 进程所在的节点名；
 
 ## Queue 信息
 
@@ -239,7 +239,7 @@ management 插件中统计数据库占用的内存情况可以通过如下命令
 - retention 策略；
 
 行之有效的调整方案：
-- 将 `collect_statistics_interval` 的值调整到 30-60s ，将会显著减少维护大量 queues/channels/connections 的系统的内存消耗；
+- 将 `collect_statistics_interval` 的值调整到 30-60s ，将会显著减少维护大量 queues/channels/connections 的系统中的内存消耗；
 - 调整 retention 策略以减少留存的数据量也非常有效；
 
 channel 以及统计信息收集进程的内存使用可以通过 `stats_event_max_backlog` 参数设置最大 backlog queue 大小进行限制；如果 backlog queue 已满，则新建 channel 信息和 queue 统计信息都会被丢弃，直到 backlog queue 上尚未处理的消息被处理；
