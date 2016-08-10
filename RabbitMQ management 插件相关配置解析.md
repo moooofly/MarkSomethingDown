@@ -90,7 +90,7 @@ management 插件允许你导出一个包含 broker 全部对象定义的 JSON �
 
 需要注意的是，文件中定义的对象会覆盖 broker 中存在的相应对象；使用该选项不会删除已存在的其它对象；如果你启动的是一个完全重置过的 broker ，使用该选项将会阻止常规的 default user / virtual host / permissions 的创建；
 
-### `rates_mode` - 速率的模式
+### `rates_mode` - 消息速率的模式
 
 management 插件默认会展示全局消息速率 ，全局消息速率针对的是所有 queue, channel, exchange 和 vhost ；这种方式称作 `basic` 速率模式 ；
 
@@ -102,9 +102,9 @@ management 插件默认会展示全局消息速率 ，全局消息速率针对�
 
 ### `collect_statistics` - 统计信息采集粒度
 
-负责控制统计信息得收集粒度，主要和 management 插件有关；
+控制统计信息的收集粒度，主要和 management 插件有关；
 可配置选项包括：
-- `none` - 不发送 statistics 事件；
+- `none` - 不发送（采集） statistics 事件；
 - `coarse` - 发送针对 per-queue / per-channel / per-connection 的统计信息；
 - `fine` - 发送针对 per-queue / per-channel / per-connection / per-message 的统计信息；
 
@@ -112,7 +112,7 @@ management 插件默认会展示全局消息速率 ，全局消息速率针对�
 
 ### `collect_statistics_interval` - 统计信息采集时间间隔
 
-默认情况下，服务器会每隔 `5000ms` 发送一次统计事件（包含各类统计数据）；而 management 插件所显示的各种速率值就是基于这个时间间隔计算得到的；
+默认情况下，服务器会每隔 `5000ms` 发送（采集）一次统计事件（包含各类统计数据）；而 management 插件所显示的各种速率值就是基于这个时间间隔计算得到的；
 
 > 注意：此处的统计信息采集时间间隔与 web 页面上刷新页面时间间隔（默认 5s）是两回事；
 
@@ -136,7 +136,7 @@ management 插件默认会展示全局消息速率 ，全局消息速率针对�
 
 ### sample_retention_policies - 采样＋保留策略
 
-management 插件会根据 sample_retention_policies 的配置保留一些数据采样值，例如，针对消息速率和 queue 长度信息；
+management 插件会根据 sample_retention_policies 的配置内容在内存中保留一段时间内的数据采样值，例如，针对消息速率和 queue 长度的统计信息；
 
 配置举例
 ```shell
@@ -149,15 +149,16 @@ management 插件会根据 sample_retention_policies 的配置保留一些数据
 存在 3 种配置策略类型：
 - `global` - 针对 overview 和 virtual host 页面定制策略；
 - `basic` - 针对单独的 connections, channels, exchanges 和 queues 定制策略；
-- `detailed` - 针对消息速率为不同的 connections, channels, exchanges 和 queues 组合定制策略；
+- `detailed` - 针对消息速率为不同的 connections, channels, exchanges 和 queues 组合定制策略；注意，相应信息会展现在 "Message rates breakdown" 框中；
 
 每种配置策略类型都可以通过参数 `{MaxAgeInSeconds, SampleEveryNSeconds}` 进行配置；其中，`SampleEveryNSeconds` 表示每 N 秒采样一次；`MaxAgeInSeconds` 表示采样数据的最长保留时间；
 
+> ⚠️ 这里存在一个隐含信息：无论从 Web 页面上，还是在代码中，均能看到基于 retention policy 保留的数据最长为 24 小时，最短为 1 分钟；因此，若想保留更长时间的抽样值，需要寻求其他实现方案；
 
 ## 参数调整建议
 
-- `rates_mode` - 建议使用默认值 basic ；
-- `collect_statistics` - 建议维持线上配置原状；
-- `collect_statistics_interval` - 建议根据 esm 系统需要进行调整；原则上，可以在满足 esm 数据采集要求的前提下，尽量将该值调大；
+- `rates_mode` - 建议使用默认值 basic ；一般不需要查看各种 fabric 的组合速率；
+- `collect_statistics` - 建议维持线上配置原状；一般为 `coarse` ；
+- `collect_statistics_interval` - 建议根据 esm-agent 的需求进行调整；原则上，在满足 esm-agent 数据采集要求的前提下，尽量将该值调大；
 - `http_log_dir` 建议不要开启，因为 esm 和其他系统应该都是通过该接口获取的统计数据，开启会对磁盘 I/O 产生影响；
-- `sample_retention_policies` - 建议
+- `sample_retention_policies` - 建议直接使用默认配置，除非知道自己想要干什么；
