@@ -7,8 +7,8 @@
 （据说最严重的情况下，积压了几十万条消息）
 
 上述内容提供了以下几点信息：
-- management 插件在内存中创建统计数据库维护了大量 web 页面展示所需的相关数据；
-- management 插件基于内部 gen_server2 行为模式，通过内部 buffer 和 message queue 的组合将消息进行缓存和有序处理，随着消息的增多，势必造成内存消耗的增加，针对统计信息处理的即时性变差；
+- management 插件在内存中通过统计数据库维护了大量 web 页面展示所需的相关数据；
+- management 插件基于 gen_server2 行为模式，通过内部的 buffer 和 message queue 组合对收到的消息进行缓存和有序处理；但随着消息的增多，势必造成内存消耗的增加，响应外部请求的即时性变差；
 - 设置 `rates_mode` 选项参数的值为 node 可能有所改善；
 
 
@@ -227,20 +227,22 @@ management 插件中统计数据库占用的内存情况可以通过如下命令
 ...
 ```
 
+> ⚠️ 这里 mgmt_db 对应的值其实为 management 插件用于维护统计数据的 ets 表，以及 rabbit_mgmt_sup_sup 下的 worker 进程占用的内存的总和；
+
 或者通过 HTTP API 发送 GET 请求到 `/api/nodes/<node_name>` 进行获取；
 
 统计信息会按照 `collect_statistics_interval` 设置的时间间隔周期性采集；也可能在某些组件被创建/声明，或者关闭/销毁时进行采集（例如打开新 connection 或 channel，或者进行 queue 声明）；
 
-消息速率的设置不会直接对 management 插件统计数据库内存占用产生影响；
+消息速率的设置（即 rates_mode 类型）不会直接对 management 插件统计数据库内存占用产生影响；
 
 **统计数据库占用内存的总量**取决于：
 - 统计信息的采集时间间隔；
-- effective rates ；
+- 实际使用的 rates mode；
 - retention 策略；
 
 行之有效的调整方案：
 - 将 `collect_statistics_interval` 的值调整到 30-60s ，将会显著减少维护大量 queues/channels/connections 的系统中的内存消耗；
-- 调整 retention 策略以减少留存的数据量也非常有效；
+- 调整 retention 策略以减少留存数据量也非常有效；
 
 channel 以及统计信息收集进程的内存使用可以通过 `stats_event_max_backlog` 参数设置最大 backlog queue 大小进行限制；如果 backlog queue 已满，则新建 channel 信息和 queue 统计信息都会被丢弃，直到 backlog queue 上尚未处理的消息被处理；
 
@@ -259,28 +261,70 @@ rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000
 
 ----------
 
+# 线上问题
 
-之前反馈的 publish 等曲线掉底的问题，经过确认，结论如下：
-1. 在掉底曲线的时间段内，rabbitmq 的统计信息数据库（或队列）积压了几十万条统计信息；
-2. 同一时间段内，业务获取 channel 超时飙高；
-3. 运维重启 rabbitmq 的 management 管理插件后（等于清空积压的统计信息），统计数据库从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
-
-所以，建议将 RabbitMQ management 插件所使用的统计数据库部署到单独一个节点上，避免对业务造成影响；应该可以立刻取得改善；之后我会深入研究下 rabbitmq management 插件的使用和调优姿势，看看内否进一步改进
+之前反馈出来的 publish 等曲线掉底的问题，经过分析，结论如下：
+1. 在曲线掉底的时间段内，RabbitMQ 的 management 插件所维护的统计信息数据库中积压了几十万条待处理统计消息（事件）；
+2. 同一时间段内，业务基于打点绘出的“获取 channel 耗时“曲线飙高；
+3. 运维人员通过重启 RabbitMQ 的 management 插件后（等于清空积压的统计信息），统计数据库（实际上应该说成 rabbit_mgmt_db 进程）从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
 
 
-----------
+# 分析结论
 
-结论推断：
-- publish 等曲线掉底是由于 esm-agent 基于 management 插件提供的 HTTP API ，从 RabbitMQ 获取统计信息失败导致的；
+## 最初的结论
+建议将 RabbitMQ 的 management 插件维护的统计数据库部署到单独一个节点上，以避免对业务造成影响；该措施应该可以立刻取得改善；
+
+## 深入研究后的结论
+深入代码后发现，所谓统计数据库，其实是 rabbit_mgmt_db 进程中维护的 10 个 ets 内存表，因此准确的说法为，rabbit_mgmt_db 进程位于 cluster 中的哪个 RabbitMQ 节点上，相关的统计信息就会迁移到哪个节点上；
+
+另外一个关键点为，rabbit_mgmt_db 作为维护统计信息的进程，要接收系统中所有需要上报信息的进程的消息，因此需要处理的消息量比普通进程要大很多；RabbitMQ 专门为 rabbit_mgmt_db 进程使用了优化过的 gen_server2 行为模式，并将 rabbit_mgmt_db 进程的调度优先级设置为 high（普通进程默认的优先级为 normal）；这么做的目的是为了保证，即使 rabbit_mgmt_db 进程处于过载状态，也依然能够及时响应来自外部的请求；但这也可能就是导致某些时候，RabbitMQ 不响应 Producer 和 Consumer 的原因；优先级的差别决定了相应进程被调度的频度；
+
+# 总结
+
+有了上述结论，基本上我可以做出如下推断；
+
+publish 等曲线掉底的原因：
+- 由于 esm-agent 基于 management 插件提供的 HTTP API  从 RabbitMQ 获取统计信息失败导致的；
 - 获取统计信息失败是由于 rabbit_mgmt_db 中积压了过多消息导致的；
-- rabbit_mgmt_db 中积压了过多消息是由于业务针对每条 publish 消息都创建和销毁 connection 和 channel 导致的；
+- rabbit_mgmt_db 中积压了过多消息是由于业务针对每条 publish 消息都创建和销毁 connection 和 channel 产生大量统计信息导致的；
 
-业务获取 channel 超时曲线飙高可能原因：
-- 由于 RabbitMQ 内部忙于处理统计信息相关内容导致；
-- 由于业务采用了类似短连接的访问方式 ＋ 线上 goproxy 采用了不合理的健康监测 TCP 序列导致；
+业务获取 channel 超时曲线飙高原因：
+- 由于 RabbitMQ 基于进程优先级，忙于处理负责统计信息聚合的 rabbit_mgmt_db 进程，导致其他进程得不到应有的调度时间片；
+- 而 rabbit_mgmt_db 进程邮箱中消息量暴增的主要原因，是由于业务采用了类似短连接的访问方式 ＋ 线上 goproxy 采用了不合理的健康监测 TCP 序列导致；
 
 
 ----------
+
+关于优先级的说明
+
+
+There are four priority levels: low, normal, high, and max. Default is normal.
+
+> ⚠️ Priority level max is reserved for internal use in the Erlang runtime system, and is not to be used by others.
+
+Internally in each priority level, processes are scheduled in a round robin fashion.
+
+Execution of processes on priority normal and low are interleaved. Processes on priority low are selected for execution less frequently than processes on priority normal.
+
+When there are runnable processes on priority high, no processes on priority low or normal are selected for execution. Notice however, that this does not mean that no processes on priority low or normal can run when there are processes running on priority high. On the runtime system with SMP support, more processes can be running in parallel than processes on priority high, that is, a low and a high priority process can execute at the same time.
+
+When there are runnable processes on priority max, no processes on priority low, normal, or high are selected for execution. As with priority high, processes on lower priorities can execute in parallel with processes on priority max.
+
+Scheduling is preemptive. Regardless of priority, a process is preempted when it has consumed more than a certain number of reductions since the last time it was selected for execution.
+
+
+> ⚠️ Do not depend on the scheduling to remain exactly as it is today. Scheduling, at least on the runtime system with SMP support, is likely to be changed in a future release to use available processor cores better.
+
+There is no automatic mechanism for avoiding priority inversion, such as priority inheritance or priority ceilings. When using priorities, take this into account and handle such scenarios by yourself.
+
+Making calls from a high priority process into code that you have no control over can cause the high priority process to wait for a process with lower priority. That is, effectively decreasing the priority of the high priority process during the call. Even if this is not the case with one version of the code that you have no control over, it can be the case in a future version of it. This can, for example, occur if a high priority process triggers code loading, as the code server runs on priority normal.
+
+Other priorities than normal are normally not needed. When other priorities are used, use them with care, especially priority high. A process on priority high is only to perform work for short periods. Busy looping for long periods in a high priority process does most likely cause problems, as important OTP servers run on priority normal.
+
+Returns the old value of the flag.
+
+----------
+
 
 
 # 补充
