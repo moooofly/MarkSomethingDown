@@ -1,20 +1,58 @@
 
+# 线上问题表现
 
-当业务和 RabbitMQ 的消息交互量大到一定程度时，RabbitMQ 的 Web 管理页面 Overview 标签中会出现如下告警信息：
+线上环境 RabbitMQ 的 Web 管理首页中出现如下告警信息：
 
 ![RabbitMQ management 插件告警](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/managerment%20statistics%20database%20%E8%BF%87%E8%BD%BD%E9%97%AE%E9%A2%98.png "RabbitMQ management 插件告警")
 
 （据说最严重的情况下，积压了几十万条消息）
 
-上述内容提供了以下几点信息：
-- management 插件在内存中通过统计数据库维护了大量 web 页面展示所需的相关数据；
-- management 插件基于 gen_server2 行为模式，通过内部的 buffer 和 message queue 组合对收到的消息进行缓存和有序处理；但随着消息的增多，势必造成内存消耗的增加，响应外部请求的即时性变差；
-- 设置 `rates_mode` 选项参数的值为 node 可能有所改善；
+> 上述内容提供了以下几点信息：
+> - management 插件在内存中通过统计数据库维护了大量 web 页面展示所需的相关数据；
+> - management 插件基于 gen_server2 行为模式，通过内部的 buffer 和 message queue 组合对收到的消息进行缓存和有序处理；但随着消息的增多，势必造成内存消耗的增加，响应外部请求的即时性变差；
+> - 设置 `rates_mode` 选项参数的值为 node 可能有所改善；
 
 
-本文针对 management 管理插件的原理，以及在消息量大到一定程度时的行为进行展开；
+# 运维提供的辅助信息
+
+运维人员根据反馈的 publish 等曲线掉底情况，进行了如下问题分析和验证：
+1. 在曲线掉底的时间段内，RabbitMQ 的 management 插件所维护的统计信息数据库中积压了几十万条待处理统计消息（事件）；
+2. 同一时间段内，业务基于打点绘出的“获取 channel 耗时“曲线飙高；
+3. 运维人员通过重启 RabbitMQ 的 management 插件后（等于清空积压的统计信息），统计数据库（实际上应该说成 rabbit_mgmt_db 进程）从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
+
+
+# 结论分析
+
+经过艰苦卓绝的代码研究～
+
+## 最初的结论
+
+建议将 RabbitMQ 的 management 插件维护的统计数据库部署到单独一个节点上，以避免对业务造成影响；该措施应该可以立刻取得改善；
+
+## 深入研究后的结论
+
+深入后发现，所谓统计数据库，其实是 rabbit_mgmt_db 进程中维护的 10 个 ets 内存表，因此准确的说法为：management 插件（应用）的 rabbit_mgmt_db 进程位于 cluster 中的哪个 RabbitMQ 节点上，相关的统计信息就会迁移到哪个节点上；
+
+另外一个关键点为，rabbit_mgmt_db 作为维护统计信息的进程，负责接收系统中所有需要上报信息进程的消息，因此需要处理的消息量比普通进程要大很多；RabbitMQ 专门为 rabbit_mgmt_db 进程使用了优化过的 gen_server2 行为模式，并将 rabbit_mgmt_db 进程的调度优先级设置为 high（普通进程默认的优先级为 normal）；这么做的目的是为了保证，即使 rabbit_mgmt_db 进程处于过载状态，也依然能够及时响应来自外部的请求；但这也正是在某些时候 RabbitMQ 无法及时响应 Producer 和 Consumer 的原因；优先级的差别决定了相应进程被调度的频度；
+
+# 总结
+
+有了上述结论，基本上我可以做出如下推断；
+
+publish 等曲线掉底的原因：
+- 由于 esm-agent 基于 management 插件提供的 HTTP API  从 RabbitMQ 获取统计信息失败导致的；
+- 获取统计信息失败是由于 rabbit_mgmt_db 中积压了过多消息导致的；
+- rabbit_mgmt_db 中积压了过多消息是由于业务针对每条 publish 消息都创建和销毁 connection 和 channel 产生大量统计信息导致的；
+
+业务获取 channel 超时曲线飙高原因：
+- 由于 RabbitMQ 基于进程优先级，忙于处理负责统计信息聚合的 rabbit_mgmt_db 进程，导致其他进程得不到应有的调度时间片；
+- 而 rabbit_mgmt_db 进程邮箱中消息量暴增的主要原因，是由于业务采用了类似短连接的访问方式 ＋ 线上 goproxy 采用了不合理的健康监测 TCP 序列导致；
+
 
 ----------
+
+
+下面的内容主要为针对 management 管理插件各个方面的研究，不感兴趣的话可以直接跳过；
 
 # management 插件相关代码研究
 
@@ -259,38 +297,7 @@ rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000
 
 
 
-----------
 
-# 线上问题
-
-之前反馈出来的 publish 等曲线掉底的问题，经过分析，结论如下：
-1. 在曲线掉底的时间段内，RabbitMQ 的 management 插件所维护的统计信息数据库中积压了几十万条待处理统计消息（事件）；
-2. 同一时间段内，业务基于打点绘出的“获取 channel 耗时“曲线飙高；
-3. 运维人员通过重启 RabbitMQ 的 management 插件后（等于清空积压的统计信息），统计数据库（实际上应该说成 rabbit_mgmt_db 进程）从 xg-napos-rmq-1 节点随机迁移到 xg-napos-rmq-3 节点，此时发现，整体 qps 从原来的 2000 上升到 4000 左右；此时业务获取 channel 超时时间恢复正常；
-
-
-# 分析结论
-
-## 最初的结论
-建议将 RabbitMQ 的 management 插件维护的统计数据库部署到单独一个节点上，以避免对业务造成影响；该措施应该可以立刻取得改善；
-
-## 深入研究后的结论
-深入代码后发现，所谓统计数据库，其实是 rabbit_mgmt_db 进程中维护的 10 个 ets 内存表，因此准确的说法为，rabbit_mgmt_db 进程位于 cluster 中的哪个 RabbitMQ 节点上，相关的统计信息就会迁移到哪个节点上；
-
-另外一个关键点为，rabbit_mgmt_db 作为维护统计信息的进程，要接收系统中所有需要上报信息的进程的消息，因此需要处理的消息量比普通进程要大很多；RabbitMQ 专门为 rabbit_mgmt_db 进程使用了优化过的 gen_server2 行为模式，并将 rabbit_mgmt_db 进程的调度优先级设置为 high（普通进程默认的优先级为 normal）；这么做的目的是为了保证，即使 rabbit_mgmt_db 进程处于过载状态，也依然能够及时响应来自外部的请求；但这也可能就是导致某些时候，RabbitMQ 不响应 Producer 和 Consumer 的原因；优先级的差别决定了相应进程被调度的频度；
-
-# 总结
-
-有了上述结论，基本上我可以做出如下推断；
-
-publish 等曲线掉底的原因：
-- 由于 esm-agent 基于 management 插件提供的 HTTP API  从 RabbitMQ 获取统计信息失败导致的；
-- 获取统计信息失败是由于 rabbit_mgmt_db 中积压了过多消息导致的；
-- rabbit_mgmt_db 中积压了过多消息是由于业务针对每条 publish 消息都创建和销毁 connection 和 channel 产生大量统计信息导致的；
-
-业务获取 channel 超时曲线飙高原因：
-- 由于 RabbitMQ 基于进程优先级，忙于处理负责统计信息聚合的 rabbit_mgmt_db 进程，导致其他进程得不到应有的调度时间片；
-- 而 rabbit_mgmt_db 进程邮箱中消息量暴增的主要原因，是由于业务采用了类似短连接的访问方式 ＋ 线上 goproxy 采用了不合理的健康监测 TCP 序列导致；
 
 
 ----------
