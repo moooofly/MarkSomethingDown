@@ -70,7 +70,7 @@ lists:sum([erlang:system_info(wordsize) * ets:info(T, memory) || T <- ets:all(),
 ## mnesia - 获取内存表的内存占用情况
 
 ```erlang
-lists:sum([ erlang:system_info(wordsize) * mnesia:table_info(Tab, memory) || Tab <- mnesia:system_info(tables)]).
+lists:sum([erlang:system_info(wordsize) * mnesia:table_info(Tab, memory) || Tab <- mnesia:system_info(tables)]).
 ```
 
 
@@ -89,8 +89,35 @@ erlang:process_info(Pid,registered_name).
 
 ## 根据 erlang 进程注册名获取进程 pid
 
+在当前 node 上进行获取
 ```erlang
 erlang:whereis(Process_Register_Name).
+```
+
+- 若进程不存在，则返回 undefined ；
+- 若进程存在，则返回类似 <0,xxx,0> 的 pid 值；
+
+在 cluster 范围内进行获取
+```erlang
+global:whereis_name(Process_Register_Name)
+```
+
+- 若进程不存在，则返回 undefined ；
+- 若进程存在，则返回进程 pid ；
+    - 若目标进程位于本地节点，则返回类似 <0,xxx,0> 的 pid 值；
+    - 若目标进程位于 cluster 中的其他节点，则返回类似 <xxx,xxx,0> 的 pid 值；
+
+> 获取目标 pid 对应的节点名，使用 node(Pid) 得到，其中 Pid 可以为上述两种形式；
+
+## 获取 RabbitMQ 当前使用的 Erlang 版本信息
+
+```erlang
+erlang:system_info(system_version).
+```
+或者
+
+```erlang
+list_to_binary(string:strip(erlang:system_info(system_version), both, $\n)).
 ```
 
 
