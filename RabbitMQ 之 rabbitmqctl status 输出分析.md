@@ -141,15 +141,15 @@ status() ->
 作为对比，可以看一下 `erlang:memory()` 的输出；
 ```shell
 (rabbit_1@sunfeideMacBook-Pro)7> erlang:memory().
-[{total,55034248},
- {processes,16109744},
- {processes_used,16104120},
- {system,38924504},
- {atom,992433},
- {atom_used,979877},
- {binary,1146296},
- {code,24306356},
- {ets,2232600}]
+[{total,55034248},             %% 当前分配的内存总量
+ {processes,16109744},         %% 当前针对 Erlang 进程分配的内存总量
+ {processes_used,16104120},    %% 
+ {system,38924504},            %% 当前针对 emulator 分配的内存总量（这部分内存不直接与任何 Erlang 进程相关）
+ {atom,992433},                %% 当前针对 atom 分配的内存总量
+ {atom_used,979877},           %% 当前针对 Erlang 进程分配的内存总量
+ {binary,1146296},             %% 当前针对 binary 分配的内存总量
+ {code,24306356},              %% 当前针对 Erlang code 分配的内存总量
+ {ets,2232600}]                %% 当前针对 ets 表分配的内存总量
 (rabbit_1@sunfeideMacBook-Pro)8>
 ```
 
