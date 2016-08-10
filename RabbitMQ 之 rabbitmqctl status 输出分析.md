@@ -127,7 +127,7 @@ status() ->
 	{plugins,             Plugins},       %% 启动的所有插件应用中 worker 进程占用的内存
 	{other_proc,          lists:max([0, OtherProc])},
 	{mnesia,              Mnesia},                     %% mnesia 中内存表占用的内存
-	{mgmt_db,             MgmtDbETS + MgmtDbProc},     %% management 插件统计数据库 ets 表和 worker 进程占用的内存 
+	{mgmt_db,             MgmtDbETS + MgmtDbProc},     %% management 插件用于维护统计数据的 ets 表，以及 rabbit_mgmt_sup_sup 下的 worker 进程占用的内存 
 	{msg_index,           MsgIndexETS + MsgIndexProc}, %% 持久和临时消息索引维护 ets 表 ＋ 消息存储 worker 进程占用的内存
 	{other_ets,           ETS - Mnesia - MsgIndexETS - MgmtDbETS},
 	{binary,              Bin},
