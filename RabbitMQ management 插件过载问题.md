@@ -51,6 +51,33 @@ publish 等曲线掉底的原因：
 
 ----------
 
+# 关于进程优先级的说明
+
+
+在 Erlang 系统中存在 4 种优先级级别：low, normal, high 和 max ；默认使用 normal 级别；
+
+> ⚠️ 优先级 max 被保留为 Erlang 运行时系统内部使用，并允许被用于其他地方；
+
+针对每个优先级自身而言，进程时按照轮询（round robin）的方式被调度的；
+
+具有 normal 和 low 优先级的进程是被交叉调度执行的；但具有 low 优先级的进程被选中执行的频度要比具有 normal 优先级的进程低得多；
+
+当存在具有 high 优先级的进程等待调度时，具有 low 或 normal 优先级的进程将无法得到调度执行；但是请注意，这并不意味着只要有进程运行在 high 优先级上，具有 low 或 normal 优先级的进程就无法运行；因为在支持 SMP 的运行时系统中，普通进程可以和具有 high 优先级的进程并行运行于多个核心中，即具有 low 和 high 优先级的进程同时运行是可能的；
+
+当存在具有 max 优先级的进程等待调度时，具有 low, normal 或 high 优先级的进程将无法得到调度执行；和上述 high 优先级的情况一样，在支持 SMP 的运行时系统中，普通进程可以和具有 max 优先级的进程并行运行于多个核心中；
+
+Erlang 系统中的调度采用了抢占方式；无论是处于何种优先级，一旦进程耗尽了分配的所有时间片（reduction）后，其执行就会被抢占；
+
+> ⚠️ 不要单纯的认为调度行为永远保持不变，调度行为，至少对于支持 SMP 的运行时系统来说，很可能在将来的 release 中发生变更，以更好的使用可用的处理器核心；
+
+不存在什么自动机制可以用来避免优先级反转问题（priority inversion），比如采用 priority inheritance 或 priority ceilings ；当运用优先级特性时，需要仔细考虑上述问题，并自行采取适当的措施进行解决；
+
+在具有 high 优先级的进程中调用自身无法控制的代码时，可能会导致 high 优先级进程等待低优先级进程的完成；也就是说，这种调用方式（等同于）显著降低了 high 优先级进程的优先级；即使被 high 优先级进程调用的代码在当前版本中没有上述问题，但谁能保证将来是否一样没问题呢；例如，这种情况很容易发生于 high 优先级进程触发代码热加载的过程中，因为 code server 就运行于normal 优先级上；
+
+除 normal 外的其他优先级通常很少被使用；当确实需要使用非 normal 优先级时，需要格外消息，尤其是 high 优先级；具有 high 优先级的进程只应该用于处理短时任务；当 high 优先级进程处于长时间的 busy looping 状态时，则有很大的概率会导致问题的发生，因为 Erlang 系统中一些重要的 OTP 服务进程是运行在 normal 级别的；
+
+----------
+
 
 下面的内容描述了针对 management 管理插件进行的各方面研究，不感兴趣的话可以直接跳过；
 
@@ -123,7 +150,6 @@ prioritise_call(_Msg, _From, Len, _State) ->
 /api/overview
 ```
 
-
   field   | value
 --------- | ----------
 cluster_name     | cluster 名，通过 rabbitmqctl set_cluster_name 进行设置；
@@ -149,7 +175,6 @@ statistics_db_node     | 维护统计数据的 rabbit_mgmt_db 进程所在的节
 ```shell
 /api/queues
 ```
-
 
 ## Node 信息
 
@@ -297,38 +322,6 @@ rabbitmqctl eval 'application:set_env(rabbit, collect_statistics_interval, 60000
 
 
 
-
-
-
-----------
-
-关于优先级的说明
-
-
-There are four priority levels: low, normal, high, and max. Default is normal.
-
-> ⚠️ Priority level max is reserved for internal use in the Erlang runtime system, and is not to be used by others.
-
-Internally in each priority level, processes are scheduled in a round robin fashion.
-
-Execution of processes on priority normal and low are interleaved. Processes on priority low are selected for execution less frequently than processes on priority normal.
-
-When there are runnable processes on priority high, no processes on priority low or normal are selected for execution. Notice however, that this does not mean that no processes on priority low or normal can run when there are processes running on priority high. On the runtime system with SMP support, more processes can be running in parallel than processes on priority high, that is, a low and a high priority process can execute at the same time.
-
-When there are runnable processes on priority max, no processes on priority low, normal, or high are selected for execution. As with priority high, processes on lower priorities can execute in parallel with processes on priority max.
-
-Scheduling is preemptive. Regardless of priority, a process is preempted when it has consumed more than a certain number of reductions since the last time it was selected for execution.
-
-
-> ⚠️ Do not depend on the scheduling to remain exactly as it is today. Scheduling, at least on the runtime system with SMP support, is likely to be changed in a future release to use available processor cores better.
-
-There is no automatic mechanism for avoiding priority inversion, such as priority inheritance or priority ceilings. When using priorities, take this into account and handle such scenarios by yourself.
-
-Making calls from a high priority process into code that you have no control over can cause the high priority process to wait for a process with lower priority. That is, effectively decreasing the priority of the high priority process during the call. Even if this is not the case with one version of the code that you have no control over, it can be the case in a future version of it. This can, for example, occur if a high priority process triggers code loading, as the code server runs on priority normal.
-
-Other priorities than normal are normally not needed. When other priorities are used, use them with care, especially priority high. A process on priority high is only to perform work for short periods. Busy looping for long periods in a high priority process does most likely cause problems, as important OTP servers run on priority normal.
-
-Returns the old value of the flag.
 
 ----------
 
