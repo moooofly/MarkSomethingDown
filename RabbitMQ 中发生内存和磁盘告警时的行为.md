@@ -19,12 +19,12 @@
 > 相关阅读：
 > - [内存阈值工作方式](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ%20%E4%B8%AD%E7%9A%84%E5%86%85%E5%AD%98%E5%91%8A%E8%AD%A6%E9%97%AE%E9%A2%98.md)
 > - [磁盘阈值工作方式](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ%20%E4%B8%AD%E7%9A%84%E7%A3%81%E7%9B%98%E5%91%8A%E8%AD%A6%E9%97%AE%E9%A2%98.md)
-> - [How clients can determine if they are blocked](xxx)
+> - [How clients can determine if they are blocked](http://www.rabbitmq.com/connection-blocked.html)
 
 ## Related concepts
 
 当 RabbitMQ 的 fd 使用量接近了操作系统允许的限制值时，则会直接拒绝掉客户端的连接建立；    
-当客户端发布消息的速度快于 RabbitMQ 的处理能力时，则会进入流控处理过程；    
+当客户端发布消息的速度快于 RabbitMQ 的处理能力时，则会进入[流控](http://www.rabbitmq.com/flow-control.html)处理过程；    
 
 ----------
 
