@@ -44,7 +44,7 @@ RabbitMQ 会周期性检查空闲磁盘空间量；检查的频率和上次检�
 该阈值可以通过 `rabbitmqctl set_disk_free_limit disk_limit` 或 `rabbitmqctl set_disk_free_limit mem_relative fraction` 命令进行运行时调整；变更的效果在 broker 关闭前一直有效；若想配置一直有效，请写入配置文件；
 
 
+----------
 
-
-
+官网原文：[这里](http://www.rabbitmq.com/disk-alarms.html)
 
