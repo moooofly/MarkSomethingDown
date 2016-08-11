@@ -52,7 +52,7 @@ publish 等曲线掉底的原因：
 - 由于 RabbitMQ VM 中的 scheduler 是基于进程优先级进行调度的，因此会忙于调度执行负责统计信息聚合的 rabbit_mgmt_db 进程（具有 high 优先级），导致其他进程得不到应有的调度时间片；
 - 而 rabbit_mgmt_db 进程邮箱中消息量暴增的主要原因，是由于业务采用了类似短连接的访问方式 ＋ 线上 goproxy 采用了不合理的健康监测 TCP 序列导致；
 
-> Erlang 进程调度时间片的计算是基于 reduction 进行的；每个 Erlang 进程在整个运行周期中到底耗费了多少 CPU 时间，可以基于 `erlang:process_info(Pid, reductions).` 命令获取到的reduction 值的大小来衡量；其中 Pid 为目标进程的进程 id（⚠️ 这里的 Pid 为 Erlang 进程 Pid ，不同于操作系统中的 Pid）；
+> Erlang 进程调度时间片的计算是基于 reduction 进行的；每个 Erlang 进程在整个运行周期中到底耗费了多少 CPU 时间，可以基于 `erlang:process_info(Pid, reductions).` 命令获取到的 reduction 值大小来衡量；其中 Pid 为目标进程的 id（⚠️ 这里的 Pid 为 Erlang 进程 Pid ，不同于操作系统中的 Pid）；
 > 
 > 可以通过 `erlang:process_info(erlang:whereis(rabbit_mgmt_db), reductions).` 在运行了 rabbit_mgmt_db 进程的节点上查看其具体耗费的 reduction 值（对比其它进程的 reduction 值立刻可以发现问题）；
 
