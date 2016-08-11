@@ -29,7 +29,7 @@
 
 建议将 RabbitMQ 的 management 插件维护的统计数据库部署到单独一个节点上，以避免对业务造成影响；该措施理论上可以立刻取得改善（运维进行的重启 management 插件的操作从某种程度上讲达成了该效果）；
 
-最初还怀疑过，是否由于统计事件过多消耗了大量内存，并导致内存水位（`vm_memory_high_watermark`）或磁盘空闲空间（`disk_free_limit`）达到阈值限制，进而触发 RabbitMQ 自身的保护机制，即阻塞 Producer 继续投递消息；但经过后续证实，发生问题时，内存、磁盘、fd 资源等均有大量剩余；
+最初还怀疑过，是否由于统计事件过多消耗了大量内存，并导致内存水位（`vm_memory_high_watermark`）或磁盘空闲空间（`disk_free_limit`）达到阈值限制，进而触发 RabbitMQ 自身的保护机制（流控），即阻塞 Producer 继续投递消息；但经过后续证实，发生问题时，内存、磁盘、fd 资源等均有大量剩余；
 
 > 关于内存和磁盘告警问题，详见《[RabbitMQ 中的内存告警问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ%20%E4%B8%AD%E7%9A%84%E5%86%85%E5%AD%98%E5%91%8A%E8%AD%A6%E9%97%AE%E9%A2%98.md)》和《[RabbitMQ 中的磁盘告警问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ%20%E4%B8%AD%E7%9A%84%E7%A3%81%E7%9B%98%E5%91%8A%E8%AD%A6%E9%97%AE%E9%A2%98.md)》
 
