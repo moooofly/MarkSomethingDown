@@ -1,13 +1,13 @@
 
 
 
-Blocked Connection Notifications
+# Blocked Connection Notifications
 
-It is sometimes desirable for clients to receive a notification when their connection gets blocked due to the broker running low on resources (memory or disk).
+在某些情况下，若 broker 触发资源阈值限制（内存或磁盘）时，客户端能够接收到连接阻塞通知信息，将会非常有必要；
 
-We have introduced an AMQP protocol extension in which the broker sends to the client a connection.blocked method when the connection gets blocked, and connection.unblocked when it is unblocked.
+这里我们会介绍一种 AMQP 协议扩展，基于该扩展 broker 就能够在发生连接阻塞时，发送 `connection.blocked` 方法给客户端；在阻塞解除时，发送 `connection.unblocked` ；
 
-To receive these notifications, the client must present a capabilities table in its client-properties in which there is a key connection.blocked and a boolean value true. See the capabilities section for further details on this. Our supported clients indicate this capability by default and provide a way to register handlers for the connection.blocked and connection.unblocked methods.
+为了接收（并正确处理）上述通知（方法），客户端必须在自身的 `client-properties` 能力集中表明支持 `connection.blocked` ；官方支持的客户端已经默认支持了上述方法，并提供了注册的 handler 方法，用于处理 connection.blocked 和 connection.unblocked ；
 
 # Using Blocked Connection Notifications with Java Client
 
@@ -19,9 +19,9 @@ lve
 
 # When Notifications are Sent
 
-A connection.blocked notification is sent to publishing connections the first time RabbitMQ is low on a resource. For example, when a RabbitMQ node detects that it is low on RAM, it sends connection.blocked to all connected publishing clients supporting this feature. If before the connections are unblocked the node also starts running low on disk space, another connection.blocked will not be sent.
+`connection.blocked` 方法的发送时机为 RabbitMQ 首次触发资源阈值时；例如，当 RabbitMQ 节点检测到当前 RAM 已经达到阈值时，则会发送 `connection.blocked` 方法给所有已连接的、支持该特性的、作为 Producer 的客户端；如果在连接重回非阻塞状态前，当前节点又触发了磁盘空闲空间不足告警，则不会发送额外的 `connection.blocked` ；
 
-A connection.unblocked is sent when all resource alarms have cleared and the connection is fully unblocked
+`connection.unblocked` 方法的发送时机为所有资源告警都被恢复时，之后连接将恢复到完全非阻塞状态；
 
 
 ----------
