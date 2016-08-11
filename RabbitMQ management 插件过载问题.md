@@ -27,13 +27,13 @@
 
 ## 最初的结论
 
-建议将 RabbitMQ 的 management 插件维护的统计数据库部署到单独一个节点上，以避免对业务造成影响；该措施应该可以立刻取得改善；
+建议将 RabbitMQ 的 management 插件维护的统计数据库部署到单独一个节点上，以避免对业务造成影响；该措施理论上可以立刻取得改善（运维进行的重启 management 插件的操作从某种程度上讲达成了该效果）；
 
 ## 深入研究后的结论
 
 深入后发现，所谓统计数据库，其实是 rabbit_mgmt_db 进程中维护的 10 个 ets 内存表，因此准确的说法为：management 插件（应用）的 rabbit_mgmt_db 进程位于 cluster 中的哪个 RabbitMQ 节点上，相关的统计信息就会迁移到哪个节点上；
 
-另外一个关键点为，rabbit_mgmt_db 作为维护统计信息的进程，负责接收系统中所有需要上报信息进程的消息，因此需要处理的消息量比普通进程要大很多；RabbitMQ 专门为 rabbit_mgmt_db 进程使用了优化过的 gen_server2 行为模式，并将 rabbit_mgmt_db 进程的调度优先级设置为 high（普通进程默认的优先级为 normal）；这么做的目的是为了保证，即使 rabbit_mgmt_db 进程处于过载状态，也依然能够及时响应来自外部的请求；但这也正是在某些时候 RabbitMQ 无法及时响应 Producer 和 Consumer 的原因；优先级的差别决定了相应进程被调度的频度；
+另外一个关键点为，rabbit_mgmt_db 作为维护统计信息的进程，负责接收系统中所有需要上报信息进程的消息，因此需要处理的消息量比普通进程要大很多；RabbitMQ 专门为 rabbit_mgmt_db 进程使用了优化过的 `gen_server2` 行为模式，并将 rabbit_mgmt_db 进程的调度优先级设置为 `high`（普通进程默认的优先级为 normal）；这么做的目的是为了保证，即使 rabbit_mgmt_db 进程处于过载状态，也依然能够及时响应来自外部的请求；但这也正是某些时候 RabbitMQ 无法及时响应 Producer 和 Consumer 的真正原因：优先级的差别决定了相应进程被调度的频度和概率；
 
 # 总结
 
@@ -44,7 +44,7 @@ publish 等曲线掉底的原因：
 - 获取统计信息失败是由于 rabbit_mgmt_db 中积压了过多消息导致的；
 - rabbit_mgmt_db 中积压了过多消息是由于业务针对每条 publish 消息都创建和销毁 connection 和 channel 产生大量统计信息导致的；
 
-业务获取 channel 超时曲线飙高原因：
+业务“获取 channel 耗时“曲线飙高原因：
 - 由于 RabbitMQ 基于进程优先级，忙于处理负责统计信息聚合的 rabbit_mgmt_db 进程，导致其他进程得不到应有的调度时间片；
 - 而 rabbit_mgmt_db 进程邮箱中消息量暴增的主要原因，是由于业务采用了类似短连接的访问方式 ＋ 线上 goproxy 采用了不合理的健康监测 TCP 序列导致；
 
@@ -52,7 +52,7 @@ publish 等曲线掉底的原因：
 ----------
 
 
-下面的内容主要为针对 management 管理插件各个方面的研究，不感兴趣的话可以直接跳过；
+下面的内容描述了针对 management 管理插件进行的各方面研究，不感兴趣的话可以直接跳过；
 
 # management 插件相关代码研究
 
