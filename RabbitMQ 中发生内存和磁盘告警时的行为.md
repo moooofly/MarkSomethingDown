@@ -19,7 +19,7 @@
 > 相关阅读：
 > - [内存阈值工作方式](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ%20%E4%B8%AD%E7%9A%84%E5%86%85%E5%AD%98%E5%91%8A%E8%AD%A6%E9%97%AE%E9%A2%98.md)
 > - [磁盘阈值工作方式](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ%20%E4%B8%AD%E7%9A%84%E7%A3%81%E7%9B%98%E5%91%8A%E8%AD%A6%E9%97%AE%E9%A2%98.md)
-> - [How clients can determine if they are blocked](http://www.rabbitmq.com/connection-blocked.html)
+> - [客户端如何确定自己被阻塞了](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ%20%E4%B9%8B%E8%BF%9E%E6%8E%A5%E9%98%BB%E5%A1%9E%E9%80%9A%E7%9F%A5%E5%8A%9F%E8%83%BD.md)
 
 ## Related concepts
 
