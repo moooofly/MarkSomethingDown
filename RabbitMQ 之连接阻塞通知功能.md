@@ -11,11 +11,11 @@
 
 # Using Blocked Connection Notifications with Java Client
 
-lve
+略
 
 # Using Blocked Connection Notifications with .NET Client
 
-lve
+略
 
 # When Notifications are Sent
 
