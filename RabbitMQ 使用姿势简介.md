@@ -206,3 +206,8 @@ Eshell V8.0.2  (abort with ^G)
 内存占用中的 233 个字被用于 heap 空间（其中包含了 stack 内存）；GC 会按需增加 heap 使用；
 
 
+# 获取当前 Unix 时间戳
+
+```erlang
+calendar:datetime_to_gregorian_seconds(erlang:universaltime()).
+```
