@@ -35,7 +35,7 @@ This ended the first cycle of the strategy and a new iteration with “measure�
 
 ### Erlang VM with no SMP support
 
-不带 SMP 支持的 Erlang VM 只会在主线程中运行一个 scheduler ；scheduler 从 run queue 中选取可运行的 Erlang 进程和 IO 任务进行执行，并且必须要锁定任何数据结构，因为只有一个线程进行数据访问；
+不带 SMP 支持的 Erlang VM 只会在主线程中运行一个 scheduler ；scheduler 从 run queue 中选取可运行的 Erlang 进程和 IO 任务进行执行，并且不需要锁定任何数据结构，因为只有一个线程进行数据访问；
 
 ![Erlang (non SMP) VM today](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang (non SMP) VM today.png  "Erlang (non SMP) VM today")
 
