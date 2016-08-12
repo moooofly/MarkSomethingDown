@@ -81,7 +81,7 @@ Erlang (BEAM) emulator version 5.6.4 [source] [smp:4] .....
 
 在 Erlang VM 中，每一个 scheduler 都运行在一个操作系统线程中，并由操作系统自行决定这些线程是否在不同的核上被执行；通常情况下，操作系统的默认处理方式就很好，会令线程在执行过程中一直跑在同一个核心上；
 
-Erlang 进程在不同时段内会被不同的 scheduler 所运行，因为只要某个 scheduler 空闲，其就会从同一个 common run-queue 中提取 Erlang 进程或 IO 任务进行调度；
+同一个 Erlang 进程在不同时段会被不同 scheduler 调度运行，因为只要某个 scheduler 空闲，其就会从同一个 common run-queue 中提取 Erlang 进程或 IO 任务进行调度；
 
 
 ## Performance and scalability
