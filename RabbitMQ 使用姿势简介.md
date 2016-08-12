@@ -171,4 +171,38 @@ process_infos() ->
     [Fun(erlang:process_info(P)) || P <- erlang:processes()].
 ```
 
+基于抓取到的信息可以分析整个节点内进程的运行状态，确定一些异常的进程（如 reduction 超高的进程）
+
 以上内容取自坚强哥的[文章](http://www.cnblogs.com/me-sa/archive/2011/11/06/erlang0013.html)；
+
+
+
+## 单个 Erlang 进程占用多少内存计算
+
+Erlang 进程和操作系统线程和进程相比非常轻量；
+
+在不支持 HiPE 的 non-SMP emulator 中新建 Erlang 进程会占用 309 个字的内存；若支持 SMP 和 HiPE 则会增加一些内存占用量；
+
+计算方式如下（在 Mac 环境中）
+```erlang
+➜  ~ erl
+Erlang/OTP 19 [erts-8.0.2] [source] [64-bit] [smp:4:4] [async-threads:10] [hipe] [kernel-poll:false] [dtrace]
+
+Eshell V8.0.2  (abort with ^G)
+1>
+1> Fun = fun() -> receive after infinity -> ok end end.
+#Fun<erl_eval.20.52032458>
+2>
+2> {_,Bytes} = process_info(spawn(Fun), memory).
+{memory,2720}
+3>
+3> Bytes div erlang:system_info(wordsize).
+340
+4>
+```
+
+可以看到上面的 Erlang VM 支持 SMP 和 HiPE ，因此内存占用比 309 个字多了一点；
+
+内存占用中的 233 个字被用于 heap 空间（其中包含了 stack 内存）；GC 会按需增加 heap 使用；
+
+
