@@ -121,3 +121,54 @@ list_to_binary(string:strip(erlang:system_info(system_version), both, $\n)).
 ```
 
 
+## 如何确定进程邮箱是否存在问题
+
+查看进程邮箱中待处理消息长度
+```erlang
+erlang:process_info(Pid, messages_queue_len)
+```
+
+查看进程邮箱中待处理消息内容
+```erlang
+erlang:process_info(Pid, messages)
+```
+
+导致邮箱爆掉的常见情况：进程一直在阻塞等待某种回应消息；在这种情况下，可以使用
+```erlang
+erlang:process_info(Pid, backtrace)
+```
+和
+```erlang
+erlang:process_info(Pid, current_function)
+```
+辅助排查目标进程到底在等什么；
+
+
+## 如何抓取 Erlang 节点中所有进程的信息
+
+```erlang
+-module(fetch).
+-compile(export_all).
+
+process_infos() ->
+    filelib:ensure_dir("./log/"),
+    UnixTime = calendar:datetime_to_gregorian_seconds(erlang:universaltime()),
+    File = "./log/processes_info_" ++ erlang:integer_to_list(UnixTime) ++ ".log",
+    {ok, Fd} = file:open(File, [write, raw, binary, append]),
+    Fun = fun(Pi) ->
+                   Info = io_lib:format("=>~p \n\n",[Pi]),
+                  case  filelib:is_file(File) of
+                        true   ->
+                            io:format("."),
+                            file:write(Fd, Info);
+                        false  ->
+                            file:close(Fd),
+                            {ok, NewFd} = file:open(File, [write, raw, binary, append]),
+                            file:write(NewFd, Info)
+                     end
+                     %%timer:sleep(5)
+                 end,
+    [Fun(erlang:process_info(P)) || P <- erlang:processes()].
+```
+
+以上内容取自坚强哥的[文章](http://www.cnblogs.com/me-sa/archive/2011/11/06/erlang0013.html)；
