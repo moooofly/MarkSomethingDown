@@ -137,4 +137,3 @@ Erlang 进程的 private heap 结构设计保证了进程之间的资源隔离�
 
 1. [Erlang并发机制–进程调度](http://jzhihui.iteye.com/blog/1482175)
 2. [Erlang调度器是怎么工作的](http://www.zhihu.com/question/24732869)
-3. 
