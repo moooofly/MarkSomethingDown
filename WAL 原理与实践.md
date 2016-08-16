@@ -63,9 +63,19 @@ snapshot 的存储命名则比较容易理解，以 `$term-$index.wal` 格式进
 
 ## SQLite
 
-http://www.sqlite.org/wal.html
+SQLite 在 3.7.0 开始引入 WAL 技术，全称叫 Write Ahead Log（预写日志）；
 
-SQLite 实现原子提交和回滚的方式是基于 rollback journal ；从 3.7.0 版本开始，一种新的 "Write-Ahead Log" 选项出现了（缩写为 "WAL"；
+其原理是：修改并不直接写入到数据库文件中，而是写入到另外一个称为 WAL 的文件中；如果事务失败，WAL 中的记录会被忽略，撤销修改；如果事务成功，它将在随后的某个时间被写回到数据库文件中，提交修改；
+
+WAL 使用**检查点**将修改写回数据库，默认情况下，当 WAL 文件发现有 1000 页修改时，将自动调用检查点。这个页数大小可以自行配置。
+
+WAL技术带来以下优点：
+- 读写操作不再互相阻塞，一定程度上解决了 SQLite 在处理高并发上的性能瓶颈；
+- 大多数场景中，带来很大的性能提升；
+
+以下为[官网信息](http://www.sqlite.org/wal.html)摘录：
+
+SQLite 实现原子提交和回滚的方式是基于 rollback journal ；从 3.7.0 版本开始，一种新的 "Write-Ahead Log" 选项出现了（缩写为 "WAL"）；
 
 使用 WAL 取代 rollback journal 在一些方面有优有劣；
 
@@ -81,12 +91,22 @@ SQLite 实现原子提交和回滚的方式是基于 rollback journal ；从 3.7
 - 包含针对多个关联（ATTACHed）数据库的变更的事务，对于每个单独的数据库而言都是原子的，  但将所有数据库作为整来看时（跨数据库时），则不是原子的；
 - 在读非常多，写非常少的应用场景中，WAL 方式可能会比传统 rollback-journal 方式稍慢一点点（大概 1% 或 2%）；
 
-
 传统的 rollback journal 方式会将一份原始未经改变的数据库内容写入写入单独的 rollback journal 文件中，之后再将变更内容直接写到数据库文件中；在发生 crash 或 ROLLBACK 时，保留在 rollback journal 中的原始内容将被重放到数据库文件里，以便将数据库文件重置回原始状态；而 COMMIT 操作会在 rollback journal 文件删除时触发；
 
 WAL 方式有所不同；原始内容被保留在数据库文件中，而变更被 append 到单独的 WAL 文件中；COMMIT 行为可以通过将某个标志 commit 的特殊记录值 append 到 WAL 文件的方式进行记录；因此，COMMIT 行为可能发生于未将任何内容写入原始数据库的情况下；这也就允许 readers 能够继续在最初未改变的数据库上继续操作，与此同时，发生的变更会同时被 commit 到 WAL 中；多个事务可以被 append 到单个 WAL 文件到尾部；
 
+关于 Checkpoint 的说明：
 
+很显然，每个人都会想将所有 append 到 WAL 文件中的事务回写到原始数据库中；将 WAL 文件中的事务回写到数据库的行为称为 "checkpoint" ；
+
+另外一种判别 way to think about the difference between rollback and write-ahead log is that in the rollback-journal approach, there are two primitive operations, reading and writing, whereas with a write-ahead log there are now three primitive operations: reading, writing, and checkpointing.
+
+By default, SQLite does a checkpoint automatically when the WAL file reaches a threshold size of 1000 pages. (The SQLITE_DEFAULT_WAL_AUTOCHECKPOINT compile-time option can be used to specify a different default.) Applications using WAL do not have to do anything in order to for these checkpoints to occur. But if they want to, applications can adjust the automatic checkpoint threshold. Or they can turn off the automatic checkpoints and run checkpoints during idle moments or in a separate thread or process.
+
+
+## Berkeley DB
+
+Write-ahead-logging is the term that describes the underlying implementation that Berkeley DB uses to ensure recoverability. What it means is that before any change is made to a database, information about the change is written to a database log.
 
 
 
