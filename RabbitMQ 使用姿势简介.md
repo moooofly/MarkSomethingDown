@@ -21,7 +21,7 @@ rabbitmqctl set_user_tags moooofly administrator
 rabbitmqctl set_permissions -p / moooofly ".\*" ".\*" ".\*"
 ```
 
-## 单机集群构建
+## 单机集群构建（1 disc + 2 ram）
 
 ```shell
 RABBITMQ_NODE_PORT=5672 RABBITMQ_NODENAME=rabbit_1 RABBITMQ_SERVER_START_ARGS="-rabbitmq_management listener [{port,15672}]" rabbitmq-server -detached
@@ -32,10 +32,12 @@ RABBITMQ_NODE_PORT=5674 RABBITMQ_NODENAME=rabbit_3 RABBITMQ_SERVER_START_ARGS="-
 
 rabbitmqctl -n rabbit_2 stop_app
 rabbitmqctl -n rabbit_2 join_cluster rabbit_1@`hostname -s`
+rabbitmqctl -n rabbit_2 change_cluster_node_type ram
 rabbitmqctl -n rabbit_2 start_app
 
 rabbitmqctl -n rabbit_3 stop_app
 rabbitmqctl -n rabbit_3 join_cluster rabbit_1@`hostname -s`
+rabbitmqctl -n rabbit_3 change_cluster_node_type ram
 rabbitmqctl -n rabbit_3 start_app
 ```
 
