@@ -2,6 +2,10 @@
 
 本文用于汇总 Redis 内存相关问题！
 
+1. 为什么Redis内存不宜过大
+2. 节约内存：Instagram的Redis实践
+3. 360开源的类Redis存储系统:Pika
+
 ----------
 
 # 为什么Redis内存不宜过大
@@ -90,7 +94,92 @@ Redis 是单线程内存数据库，在 redis 需要执行耗时操作时，会 
 > 等问题，Pika 就是针对这些场景的一个解决方案，不能单纯的认为其优于 Redis 方案；
 
 
-参考：《[为什么Redis内存不宜过大](https://mp.weixin.qq.com/s?__biz=MzA4NDExOTEyOA==&mid=2649779368&idx=4&sn=a8b5f0b6c399ed40938d30a7e6a6c63b&scene=1&srcid=0817sL4YElry4EEuyBFb2pCV&pass_ticket=3Q%2Fz25YbaVx9NmwDaGh%2F4swJn1%2BWROo8G7iEhwUp1JmGJDYvv79bpY0TWQqYJKQq#rd)》
+原文：《[为什么Redis内存不宜过大](https://mp.weixin.qq.com/s?__biz=MzA4NDExOTEyOA==&mid=2649779368&idx=4&sn=a8b5f0b6c399ed40938d30a7e6a6c63b&scene=1&srcid=0817sL4YElry4EEuyBFb2pCV&pass_ticket=3Q%2Fz25YbaVx9NmwDaGh%2F4swJn1%2BWROo8G7iEhwUp1JmGJDYvv79bpY0TWQqYJKQq#rd)》
 
 
 ----------
+
+# 节约内存：Instagram的Redis实践
+
+条件：基于 Redis 的 String 结构来做 key-value 存储；
+
+关键点：
+- 数据量预估＋Redis 内存容量计算；
+- Redis 中的 key 不会进行字符串到数字的转换（即使其为纯数字）； 
+
+条件：基于 Redis 的 Hash 结构来做 key-value 存储；
+
+关键点：
+- 通过 hash-zipmap-max-entries 参数控制压缩判定阈值；
+
+> 开发者实验：将 hash-zipmap-max-entries 设置为 1000 时性能比较好，超过 1000 后 HSET 命令就会导致 CPU消耗变得非常大；
+
+
+
+原文：《[节约内存：Instagram的Redis实践](http://mp.weixin.qq.com/s?__biz=MzA5Njg1OTI5Mg==&mid=2651025383&idx=1&sn=4a3786b6b93fa90b2f6409ebb6b3504f&scene=1&srcid=0819DOyloixa4YRZxuA0NKsb#rd)》
+
+----------
+
+
+# 360开源的类Redis存储系统:Pika
+
+
+## 使用场景
+
+Pika 主要解决的是用户使用 Redis 的内存大小超过 50G、80G 等等这样的情况，会遇到启动恢复时间长，一主多从代价大，硬件成本贵，缓冲区容易写满等问题。Pika 就是针对这些场景的一个解决方案。
+
+## 与 Redis 对比
+
+- Pika 的单线程的性能肯定不如 Redis，Pika 是多线程的结构，因此在线程数比较多的情况下，某些数据结构的性能可以优于 Redis ；
+- Pika 肯定不是完全优于 Redis 的方案，只是在某些场景下面更适合。所以目前公司内部 Redis，Pika 是共同存在的方案。DBA 会根据业务的场景挑选合适的方案；
+- Pika 相对于 Redis，最大的不同就是 Pika 是持久化存储，数据存在磁盘上，而 Redis 是内存存储，由此不同也给 Pika 带来了相对于 Redis 的优势和劣势；
+
+
+## 大容量 Redis 遇到的问题
+
+### 恢复时间长
+
+- 线上 Redis 一般同时开启 rdb 和 aof ；
+- 线上的情况 50G Redis 恢复时间需要差不多 70 分钟；
+
+### 一主多从，主从切换代价大
+
+Redis 在主库挂掉以后，从库升级为新的主库。那么切换主库以后，所有的从库都需要跟新主做一次全同步，全量同步一次大容量的 Redis 代价非常大；
+
+### 缓冲区写满问题
+
+- 为了防止同步缓冲区被复写，dba 给 Redis 设置了 2G 的巨大同步缓冲区，这对于内存资源来讲代价很大；
+- 当由于机房之间网络有故障，主从同步出现延迟了大于 2G 以后，就会触发全同步的过程；
+- 如果多个从库同时触发全同步的过程， 那么很容易就将主库给拖死。
+
+### 内存太贵
+
+- 线上使用的 Redis 机器是 64G、96G，但只会使用 80% 的空间；
+- 如果一个 Redis 的实例是 50G，那么基本一台机器只能运行一个 Redis 实例，特别浪费资源；
+
+
+## pika 对上述问题的解决（可以作为改进参考）
+
+### 恢复时间长
+Pika 的存储引擎使用的是 RocksDB，而 Rocksdb 启动不需要加载全部数据的，只需要加载几 M 的 log 文件就可以启动，因此恢复时间非常快；
+
+### 一主多从，主从切换代价大
+在主从切换的时候，新主确定以后，从库会用当前的偏移量尝试与新主做一次部分同步，如果部分同步不成功才做全同步，这样尽可能的减少全同步次数（似乎没有解决问题）；
+
+### 缓冲区写满问题
+Pika 不是基于内存缓冲区（维护同步位置信息）进行数据同步的，Pika 主从同步操作记录是保存在本地 binlog 上的，binlog 会随着操作的增长进行 rotate 操作，因此不存在缓冲区写满问题；
+
+### 内存昂贵问题
+Pika 的存储引擎使用的是 RocksDB，RocksDB 会同时使用内存和磁盘，减少了对内存的依赖。同时我们尽可能使用 SSD 盘来存放数据，尽可能跟上 Redis 的性能；
+
+## FAQ + Q&A
+
+详细内容看原文吧！
+
+
+原文：《[360开源的类Redis存储系统:Pika](http://mp.weixin.qq.com/s?__biz=MzAwMDU1MTE1OQ==&mid=2653547160&idx=1&sn=befd195e2aa788775aaf1cc3b6f6fab3&scene=1&srcid=0819GFbZ6omsqTvfVZ0pKba2#rd)》
+
+----------
+
+
+
