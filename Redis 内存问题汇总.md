@@ -81,6 +81,14 @@ Redis 是单线程内存数据库，在 redis 需要执行耗时操作时，会 
 ### pika
 如果实在不想搞的那么累，那就把业务迁移到 360 新开源的 pika 上面，这样就不用太关注内存了，redis 内存太大引发的问题，那也都不是问题了（存在安利嫌疑）；
 
+> ⚠️ Pika 主要解决的问题是：用户使用 Redis 的内存大小超过 50G、80G 等等这样的情况，此时会遇到
+>> - 启动恢复时间长；
+>> - 主多从代价大；
+>> - 硬件成本贵；
+>> - 缓冲区容易写满
+> 
+> 等问题，Pika 就是针对这些场景的一个解决方案，不能单纯的认为其优于 Redis 方案；
+
 
 参考：《[为什么Redis内存不宜过大](https://mp.weixin.qq.com/s?__biz=MzA4NDExOTEyOA==&mid=2649779368&idx=4&sn=a8b5f0b6c399ed40938d30a7e6a6c63b&scene=1&srcid=0817sL4YElry4EEuyBFb2pCV&pass_ticket=3Q%2Fz25YbaVx9NmwDaGh%2F4swJn1%2BWROo8G7iEhwUp1JmGJDYvv79bpY0TWQqYJKQq#rd)》
 
