@@ -446,16 +446,16 @@ Redis 中 master 节点的每个写命令都会传播到以下三个地方：
 
 #### 关闭 AOF 功能
 
-如果开启 AOF 功能，每个写请求都会 Append 到本地 AOF 文件中，虽然 Linux 中写文件操作会利用到操作系统缓存机制，但是如果关闭 AOF 功能主线程中省去了写 AOF 文件的操作，显然会对吞吐量的增加有帮助。
+如果开启 AOF 功能，每个写请求都会 Append 到本地 AOF 文件中，虽然 Linux 中写文件操作会利用到操作系统缓存机制，但是如果关闭 AOF 功能主线程中省去了写 AOF 文件的操作，显然会对吞吐量的增加有帮助；
 
-AOF 是 Redis 的一种持久化方式，如果关闭了 AOF 功能怎么保证数据的安全性。我们的做法是定时在从节点 BGSAVE。当然具体采用何种策略需要结合具体情况来决定。
+AOF 是 Redis 的一种持久化方式，**如果关闭了 AOF 功能怎么保证数据的安全性？**我们的做法是：定时在从节点上执行 `BGSAVE` ；当然，具体采用何种策略需要结合具体情况来决定；
 
 #### 去掉频繁的 Cluster nodes 命令
 
-在运维过程中发现前端请求的平均 RT 增加不少，大概 50% 左右。通过一番调研，发现是频繁的 cluster nodes 命令导致。
+在运维过程中，发现前端请求的平均 RT 增加了大概 50% 左右；研究发现和频繁调用 `cluster nodes` 命令有关；
 
-当时集群规模为 500+ 节点，cluster nodes 命令返回的结果大小有 103KB。cluster nodes 命令的频率为：每隔 20s 向集群所有节点发送。
-
+- 当时集群规模为 500+ 节点，cluster nodes 命令返回的结果大小有 103KB ；
+- cluster nodes 命令的调用频率为：每隔 20s 向集群所有节点发送；
 
 
 ### 调优 hz 参数
@@ -463,15 +463,22 @@ AOF 是 Redis 的一种持久化方式，如果关闭了 AOF 功能怎么保证�
 Redis 会定时做一些任务，任务频率由 hz 参数规定，定时任务主要包含：
 
 - 主动清除过期数据；
-- 对数据库进行渐式Rehash；
+- 对数据库进行渐式 Rehash；
 - 处理客户端超时；
 - 更新请求统计信息；
 - 发送集群心跳包；
 - 发送主从心跳；
 
-
 我们没有修改 hz 参数的经验，由于其复杂性，并且在 hz 默认值 10 的情况下，理论上不会对 Redis 吞吐量产生太大影响，建议没有经验的情况下不要修改该参数。
 
+### 参考资料
+
+关于 Redis Cluster 可以参考官方的两篇文档：
+- [Redis cluster tutorial](http://www.redis.io/topics/cluster-tutorial) 
+- [Redis Cluster specification](http://www.redis.io/topics/cluster-spec)
+
+
+原文：《[近千节点的Redis Cluster高可用集群案例:优酷蓝鲸优化实战](http://mp.weixin.qq.com/s?__biz=MzAwMDU1MTE1OQ==&mid=2653547585&idx=1&sn=9a664b16f656f757632cd4eb29f9a5dc&scene=21#wechat_redirect)》
 
  
 
