@@ -382,7 +382,7 @@ out = cluster_ports_in + cluster_ports_out
 
 #### Redis Cluster 判定节点为 fail 的机制
 
-⚠️ 并不是 cluster-node-timeout 越大越好，**当 cluster-node-timeout 增大的时候，集群判断节点 fail 的时间会增加，从而 failover 的时间窗口会增加**；
+首先可以确定一点：并不是 `cluster-node-timeout` 越大越好；因为**当 cluster-node-timeout 增大的时候，集群判断节点 fail 的时间会增加，从而 failover 的时间窗口会增加**；
 
 集群判定某个节点为 fail ，所需时间的计算公式如下：
 ```shell
@@ -399,6 +399,7 @@ node-fail-judge-time = cluster-node-timeout + cluster-node-timeout / 2 + 10
 
 > 对于每个节点而言，平均一秒钟会收到一个心跳包，每次心跳都会携带数量为集群节点总数十分之一的、随机选取的节点信息。因此问题可以抽象为：
 >> 经过多长时间，一个节点会（在集群中）积累到一半的 pfail 状态数；
+>
 > 很显然，这是一个概率问题，简单起见，公式里直接取了一个能在较大概率上保证 fail 判定成立的时间值，10 秒；
 
 所以上述公式不是达到这么长时间一定会判定节点为 fail，而是经过这么长时间集群有很大概率会判定节点 fail 。
