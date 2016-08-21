@@ -6,6 +6,7 @@
 2. 节约内存：Instagram的Redis实践
 3. 360开源的类Redis存储系统:Pika
 4. 同程旅游缓存系统设计:如何打造Redis时代的完美体系
+5. 近千节点的Redis Cluster高可用集群案例:优酷蓝鲸优化实战
 
 ----------
 
@@ -235,4 +236,153 @@ Pika 的存储引擎使用的是 RocksDB，RocksDB 会同时使用内存和磁�
 
 ----------
 
+# 近千节点的Redis Cluster高可用集群案例:优酷蓝鲸优化实战
+
+
+## 设计目标
+
+所有的数据都有过期时间，更准确的说是一个全内存的临时存储系统；
+
+- 高效读写；
+- 较强的时效性；
+
+## 集群规模
+
+700+ 节点（Redis 作者建议的最大集群规模为 1000 节点）；
+
+## 面临的问题
+
+随着集群规模的扩大
+
+- 带宽压力不断突出；
+- 响应时间 RT 方面也会略微升高；
+
+> ⚠️ 与**基于一致性哈希**构建的 Redis 集群不一样，**基于 Redis Cluster** 不能做成超大规模的集群，后者比较适合作为中等规模集群的解决方案；
+
+
+## 衡量集群稳定性的重要指标
+
+- 吞吐量；
+- RT ；
+
+## Redis Cluster 工作原理
+
+Redis 采用单进程模型，除去 bgsave 与 aof rewrite 会 fork 新进程处理外，所有的请求与操作都在主进程内完成。其中比较重量级的请求与操作类型有：
+
+- 客户端请求；
+- 集群通讯；
+- 从节同步；
+- AOF 文件；
+- 其它定时任务；
+
+Redis 主线程的主要处理流程（即主要负载点）：
+
+![Redis main process playload overview](http:// "Redis main process playload overview")
+
+
+由此可知，想要增加 Redis 吞吐量，只需要尽量降低其它任务的负载量就行了，所以提高 Redis 集群吞吐量的方式主要有：
+
+### 适当调大 cluster-node-timeout 参数
+
+我们发现，当集群规模达到一定程度时，集群间消息通讯开销的带宽是极其可观的。
+
+#### 集群通信机制
+
+- 无中心方式实现；
+- 通过 Gossip 协议交换消息；
+
+> 基本思想是：为了维护集群状态的统一，节点间互相交换信息，最终所有节点达到一致；
+
+
+集群通信机制的要点：
+
+- 集群中每个节点都参与；
+- 定时发送，默认每隔一秒；
+- 交互消息构成：长度为 16,384 的 Bitmap + 集群中 1/10 节点状态（除自身以外）
+
+由代码可知，每个节点状态（clusterMsgDataGossip 结构）大小为 104 byte，所以对于 700 个节点的集群，这部分消息的大小为 70 * 104 = 7280，大约为 7KB；另外，每个 Gossip 消息还需要携带一个长度为 16,384 的 Bitmap，大小为 2KB，所以每个 Gossip 消息大小大约为 9KB。
+
+随着集群规模的不断扩大，每台主机的流量将不断增长，甚至（怀疑）集群间通信流量已经大于前端（外部）请求产生的流量；
+
+实验环境：
+
+- 节点 704 个，分布在 40 台物理主机上，每台物理主机上大约存在 16 个节点；
+- 集群采用一主一从模式；
+- 集群节点上设置 cluster-node-timeout 为 30 秒；
+
+
+实验思路：
+-  采样时间为 1 分钟；
+- 随机选取一个集群节点；
+- 截取进入方向和出去方向的流量，并统计出消息条数；
+
+最终计算出目标主机（即一台物理机）因为集群间通讯而产生的带宽开销；
+
+
+集群通信端口进入方向流量
+```shell
+tcpflow -cp dst host xx.xx.xx.xx and dst port xxxxx > in.log  // terminate tcpflow after 1 minute
+du in.log                             // node receives xxx KBytes data in 1 minute
+cat in.log | grep ": Rcmb" | wc -l    // there are xxx messages
+```
+
+集群通信端口出去方向流量
+```shell
+tcpflow -cp src host xx.xx.xx.xx and src port xxxxx > out.log  // terminate tcpflow after 1 minute
+du out.log                             // node sends xxx KBytes data in 1 minute
+cat out.log | grep ": Rcmb" | wc -l    // there are xxx messages
+```
+
+通过实验，可以看到进入方向与出去方向，在 60s 内，都收到大约 2,700 多个数据包；因为 Redis 规定每个节点每一秒只向一个节点发送数据包，所以正常情况每个节点平均 60s 会收到 60 个数据包，为什么会有这么大的差距？
+
+原因是 Redis 选取发送对象节点是随机的，所以会存在两个节点很久都没有交换消息的情况；为了保证集群状态能在较短时间内达到一致性，Redis 规定：当两个节点超过 cluster-node-timeout 的一半时间没有交换消息时，下次心跳交换消息；
+
+接下来看**带宽情况**。先看 Redis Cluster 集群通信端口进入方向每台主机的每秒带宽为
+
+```shell
+cluster_ports_in = receive_KBytes * 1024 * 8 * 16 / 60 = xxx bit/s
+```
+> ⚠️ 上面的 16 是因为一台物理机上存在 16 个节点；
+
+再看 Redis Cluster 集群通信端口出去方向每台主机的每秒带宽为：
+```shell
+cluster_ports_out = send_KBytes * 1024 * 8 * 16 / 60 = xxx bit/s
+```
+
+每台主机进入方向的带宽为
+```shell
+in = cluster_ports_in + cluster_ports_out
+```
+
+每台主机出去方向的带宽为
+```shell
+out = cluster_ports_in + cluster_ports_out
+```
+
+> 为什么是上述两者的求和？（以节点 A 主动与节点 B 发生消息交换为例进行说明）
+>> 首先，A 通过一个随机端口向节点 B 的集群通讯端 17380 发送 PING 消息，之后节点 B 通过 17380 端口向节点 A 发送 PONG 消息，PONG 消息的内容与 PING 消息的内容相似，每个消息的大小也一样（9KB）；
+>> 同理，当节点 B 主动与节点 A 发生消息交换时也是同样的过程；
+>> 可以看出，节点 A 进入方向的带宽，不仅包含来自集群通讯端口 17380 的部分，还包含来自随机端口的部分；而对于节点 A 进入方向来自随机端口的带宽，正是其它节点出去方向的带宽；所以每台主机进入方向的带宽即可通过上边的求和公式得到；同理，出去方向的带宽与进入方带宽计算公式相同；
+
+
+#### cluster-node-timeout 对带宽的影响
+
+- 设置 cluster-node-timeout 为 20 秒；
+- 获取每台物理机进出口总带宽；
+- 总带宽 - 集群通信带宽 = 前端（外部）请求带宽
+
+调整 cluster-node-timeout 为 30 秒重新计算；可以看到带宽下降效果非常明显；
+
+两个实验结论：
+- 集群间通信占用大量带宽资源；
+- 调整 cluster-node-timeout 参数能有效降低带宽；
+
+### 控制主节点写命令传播
+
+
+
+
+
+
+ 
 
