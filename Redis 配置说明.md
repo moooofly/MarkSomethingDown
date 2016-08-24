@@ -139,3 +139,11 @@ client-output-buffer-limit pubsub 32mb 8mb 60
 hz 10
 aof-rewrite-incremental-fsync yes
 ```
+
+## 配置说明
+
+### slave-serve-stale-data
+
+当 slave 与 master 连接断开，或正处于 replication 行为进行之中时，slave 会根据配置具有两种不同的行为：
+- slave-serve-stale-data 设置为 `yes`（默认值）；slave 仍将继续应答来自 client 的请求，但可能回应过期数据，或者直接回应空数据集（如果是处于首次同步过程中）；
+- slave-serve-stale-data 设置为 `no`；slave 将直接回复错误消息 "SYNC with master in progress" 给各种命令请求，除留 INFO 和 SLAVEOF 外；
