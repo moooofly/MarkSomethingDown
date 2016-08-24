@@ -35,9 +35,15 @@ slave-serve-stale-data yes
 # 设置 slave 节点为只读（如何确保 slave 不暴露）
 slave-read-only yes
 
+# 主从复制同步策略（disk or socket）
 repl-diskless-sync no
+
+# 当基于 socket 进行 Replication SYNC 时，开始传输 rdb 前的等待时间
 repl-diskless-sync-delay 5
+
 repl-disable-tcp-nodelay no
+
+# 复制缓冲区大小
 repl-backlog-size 32mb
 
 # 用于 Sentinel 机制中将 slave 提升为 master 时的优先级判定
@@ -46,8 +52,10 @@ repl-backlog-size 32mb
 # 问题：该优先级在 cluster 中将 slave 提升为 master 时起作用么？
 slave-priority 100
 
-rename-command KEYS "ele-super-keys"
-rename-command CONFIG "ele-super-config"
+# 命令重命名（防止误用和攻击）
+rename-command KEYS "aaa-bbb-keys"
+rename-command CONFIG "aaa-bbb-config"
+
 maxclients 50000
 maxmemory 2g
 maxmemory-policy allkeys-lru
@@ -181,3 +189,34 @@ aof-rewrite-incremental-fsync yes
 - 特殊优先级 0 标识对应 slave 不允许被提升为 master ；
 - 默认优先级数值为 100 ；
 
+
+### rename-command
+
+```shell
+# Command renaming.
+#
+# It is possible to change the name of dangerous commands in a shared
+# environment. For instance the CONFIG command may be renamed into something
+# hard to guess so that it will still be available for internal-use tools
+# but not available for general clients.
+#
+# Example:
+#
+# rename-command CONFIG b840fc02d524045429941cc15f59e41cb7be6c52
+#
+# It is also possible to completely kill a command by renaming it into
+# an empty string:
+#
+# rename-command CONFIG ""
+#
+# Please note that changing the name of commands that are logged into the
+# AOF file or transmitted to slaves may cause problems.
+```
+
+### repl-backlog-size
+
+- 该函数用于设置 replication backlog 大小；
+- backlog 表示在 slave 断开时间内，master 用于保存 slave 数据同步信息的缓冲区大小；
+- 当发生 slave 重连时，全量重同步可能不是必须的，因为部分重同步可能就足够了；此时只需传输连接断开时 slave 缺失的那部分数据变更；
+- 设置的 replication backlog 越大，允许 slave 在断开后，通过部分重同步进行恢复的时间窗口就越长；
+- 至少有一个 slave 连接上 master 时，才会分配  backlog 对应的空间；
