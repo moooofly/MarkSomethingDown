@@ -35,7 +35,7 @@ This ended the first cycle of the strategy and a new iteration with “measure�
 
 ### Erlang VM with no SMP support
 
-不带 SMP 支持的 Erlang VM 只会在主线程中运行一个 scheduler ；scheduler 从 run queue 中选取可运行的 Erlang 进程和 IO 任务进行执行，并且必须要锁定任何数据结构，因为只有一个线程进行数据访问；
+不带 SMP 支持的 Erlang VM 只会在主线程中运行一个 scheduler ；scheduler 从 run queue 中选取可运行的 Erlang 进程和 IO 任务进行执行，并且不需要锁定任何数据结构，因为只有一个线程进行数据访问；
 
 ![Erlang (non SMP) VM today](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang (non SMP) VM today.png  "Erlang (non SMP) VM today")
 
@@ -77,11 +77,11 @@ Erlang (BEAM) emulator version 5.6.4 [source] [smp:4] .....
 
 > ⚠️ 在一些操作系统上，单个进程可以使用的 CPU 或核心数量可以通过命令进行限制；例如，在Linux 上，命令 "taskset" 就可用于此目的；Erlang VM 当前只能检测到可用 CPU 或核心数量，而不会将 "taskset" 设置的 mask 值考虑在内；
 
-基于上述原因，可能会发生，并且实际已经发生了诸如只有 2 个核心被使用，尽管 Erlang VM 运行了 4 个 scheduler 的情况；这是由于操作系统自身采取的限制导致的，因为其将 "taskset" 设置的 mask 考虑在内了；
+基于上述原因，可能会发生，并且实际已经发生了诸如“尽管 Erlang VM 运行了 4 个 scheduler ，但只有 2 个核心被使用“的情况；这是由于操作系统自身采取的限制导致的，因为其将 "taskset" 设置的 mask 考虑在内了；
 
-在 Erlang VM 中，每一个 scheduler 都运行在一个操作系统线程中，并由操作系统自行决定这些线程是否在不同的核上被执行；通常情况下，操作系统的默认处理方式就很好，会令线程在执行过程中跑在同一个核心上；
+在 Erlang VM 中，每一个 scheduler 都运行在一个操作系统线程中，并由操作系统自行决定这些线程是否在不同的核上被执行；通常情况下，操作系统的默认处理方式就很好，会令线程在执行过程中一直跑在同一个核心上；
 
-Erlang 进程在不同时段内会被不同的 scheduler 所运行，因为只要某个 scheduler 空闲，其就会从同一个 common run-queue 中提取 Erlang 进程或 IO 任务进行调度；
+同一个 Erlang 进程在不同时段会被不同 scheduler 调度运行，因为只要某个 scheduler 空闲，其就会从同一个 common run-queue 中提取 Erlang 进程或 IO 任务进行调度；
 
 
 ## Performance and scalability
