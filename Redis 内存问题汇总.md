@@ -282,7 +282,7 @@ Redis 采用单进程模型，除去 bgsave 与 aof rewrite 会 fork 新进程�
 
 Redis 主线程的主要处理流程（即主要负载点）：
 
-![Redis main process playload overview](http:// "Redis main process playload overview")
+![Redis main process playload overview](https://github.com/moooofly/ImageCache/blob/master/Pictures/Redis%20main%20process%20playload%20overview.png "Redis main process playload overview")
 
 
 由此可知，想要增加 Redis 吞吐量，只需要尽量降低其它任务的负载量就行了，所以提高 Redis 集群吞吐量的方式主要有：
@@ -298,7 +298,7 @@ Redis 主线程的主要处理流程（即主要负载点）：
 
 > 基本思想是：为了维护集群状态的统一，节点间互相交换信息，最终所有节点达到一致；
 
-![Gossip in Redis Cluster](http "Gossip in Redis Cluster")
+![Gossip in Redis Cluster](https://github.com/moooofly/ImageCache/blob/master/Pictures/Gossip%20in%20Redis%20Cluster.png "Gossip in Redis Cluster")
 
 
 集群通信机制的要点：
@@ -366,7 +366,7 @@ in = cluster_ports_in + cluster_ports_out
 out = cluster_ports_in + cluster_ports_out
 ```
 
-![Redis Cluster msg exchange](http "Redis Cluster msg exchange")
+![Redis Cluster msg exchange](https://github.com/moooofly/ImageCache/blob/master/Pictures/Redis%20Cluster%20msg%20exchange.png "Redis Cluster msg exchange")
 
 > ⚠️ **为什么是上述两者的求和？**（以节点 A 主动与节点 B 发生消息交换为例进行说明）
 >> 首先，A 通过一个随机端口向节点 B 的集群通讯端 17380 发送 PING 消息，之后节点 B 通过 17380 端口向节点 A 发送 PONG 消息，PONG 消息的内容与 PING 消息的内容相似，每个消息的大小也一样（9KB）；
