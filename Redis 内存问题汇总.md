@@ -12,6 +12,7 @@
 4. 同程旅游缓存系统设计:如何打造Redis时代的完美体系
 5. 近千节点的Redis Cluster高可用集群案例:优酷蓝鲸优化实战
 6. 用最少的机器支撑万亿级访问，微博6年Redis优化历程
+7. Codis作者黄东旭细说分布式Redis架构设计和踩过的那些坑们
 
 ----------
 
@@ -531,8 +532,118 @@ Redis 会定时做一些任务，任务频率由 hz 参数规定，定时任务�
 
 
 
-原味：《[用最少的机器支撑万亿级访问，微博6年Redis优化历程](http://mp.weixin.qq.com/s?__biz=MzAwMDU1MTE1OQ==&mid=2653547263&idx=1&sn=fe484b24660b7e1dc4beabca71fe1cb1&scene=21#wechat_redirect)》
+原文：《[用最少的机器支撑万亿级访问，微博6年Redis优化历程](http://mp.weixin.qq.com/s?__biz=MzAwMDU1MTE1OQ==&mid=2653547263&idx=1&sn=fe484b24660b7e1dc4beabca71fe1cb1&scene=21#wechat_redirect)》
 
 
+----------
 
+# Codis作者黄东旭细说分布式Redis架构设计和踩过的那些坑们
+
+
+## Redis vs Redis Cluster vs Codis
+
+### Redis
+
+- 单点问题；
+      - 基于 master-slave 模式解决；
+      - 基于 proxy 解决；
+      - 基于 Redis Cluster 解决；
+- 单点内存容量问题；
+      - 基于 proxy 解决；
+      - 基于 Redis Cluster 解决；
+- 水平扩展问题；
+      - 基于 Twemproxy 实现静态分布式：扩容/缩容对运维要求非常高，很难做到平滑的扩缩容；
+      - 基于 Codis 实现数据迁移和扩容/缩容功能，同时兼容 Twemproxy 的功能； 
+
+
+### Redis Cluster
+
+劣势：
+- 数据存储模块和分布式逻辑模块耦合在一起，理论上存在升级上的困难（换句话说，如果不存在升级问题的话……）；
+- 对协议进行了较大的修改，对客户端不太友好（我觉得只有对存在历史包袱的业务才有问题）；
+
+优势：
+- 部署简单；
+- 动态扩容/缩容；
+
+
+### Codis
+
+![Codis Architecture](https://github.com/moooofly/ImageCache/blob/master/Pictures/codis%20architecture.png "Codis Architecture")
+
+结构：
+- 实现了分布式逻辑的、无状态的 proxy 层；
+- 数据分布状态存储于 zookeeper 或 etcd 中；
+- 底层的存储引擎默认为 Redis ，但实现了可插拔；
+
+> ⚠️ proxy 层提供的分布式逻辑应该理解为针对访问请求的 hash 分发；
+
+优势：
+- proxy 层和 Redis 存储层可以动态水平扩展；
+- 可以基于冷热状态对数据分布进行分组，并通过 zk + proxy 的策略将 client 路由到不同的分组进行访问；
+- 基于冷热状态分组的数据可以使用不同存储引擎进行存储；
+- 支持采用 hashtag 的方式将特定 key 分布到指定机器上（这个是 twemproxy 引入的语法）；
+
+劣势：
+- 需要对 Redis 版本做一些小 patch ；
+- 需要依赖 zookeeper 或 etcd ；
+- 增加 proxy 导致多了一次网络交互，性能会有所下降；
+- 不支持读写分离（官方理由：不能容忍数据不一致问题）；
+- 存在数据丢失可能（同 Redis 主从复制情况）；
+- 虽然支持 MGET/MSET ，但无法保证原本单点时的原子语义（因为所参与的 key 可能分不在不同的机器上）；
+- 支持基于 lua 脚本扩展 Redis 功能的方式，但仅提供转发功能，并不保证脚本操作的数据是否在正确的节点上（若 lua 脚本涉及多个 key 访问，需要业务自行保证所有 key 都位于同一台机器上）；
+
+> ⚠️ 在 proxy 可以动态扩展的情况下，整个服务的 QPS 并不由单个 proxy 的性能决定。
+
+
+## Codis 下一步改进
+
+### 在 proxy 内集成 Raft 以代替外部的 Zookeeper
+将用于同步路由信息的、强一致算法放到 proxy 内部，移除外部依赖；
+
+> 吐槽：难道这不会面临和 Redis Cluster 一样的升级困难问题么？
+
+### 抽象存储引擎层
+
+- 通过自动化的 agent 或直接基于 proxy 启动和管理存储引擎的生命周期；
+- 在 proxy 内部集成存储引擎，以便最大程度上的减小 Proxy 转发的损耗；
+
+> 吐槽：proxy 内集成存储引擎？！直接说成重新开发个分布式数据库多直接～～
+
+### replication based migration
+目前 Codis 的数据迁移方式是通过修改底层 Redis（就是前面说的小 patch），带来了以下的问题：
+- 速度比较慢；
+- 对 Redis 有侵入性；
+- 维护 slot 信息给 Redis 带来额外的内存开销；
+
+
+## Codis 在使用中会遇到的问题
+
+### Codis 强依赖的 zookeeper
+
+因此 zk 本身会遇到的问题都会转嫁给 Codis ，容易导致服务不可用；
+
+### 两层 HA
+
+针对 Redis 层 HA 提供了一个能够将 server group 中的 slave 提升为新的 master 的小工具：[这里](ttps://github.com/ngaut/codis-ha)；
+
+###  基于 dashboard 进行集群信息变更
+
+- dashboard 会对外暴露一系列 RESTful API 接口；
+- 请保证 dashboard 和其他各个组件的网络连通性；
+
+### 关于 master-slave 和 bgsave
+
+- codis 本身并不负责维护 Redis 的主从关系；
+- proxy 只会将请求打到 master 上，master 挂了 codis-ha 会将某一个 slave 提升成 master ；
+- 建议 master 不要开 bgsave ，也不要轻易执行 save 命令，数据备份尽量放在 slave 上操作；
+
+
+### 关于跨机房/多活问题
+
+- codis 没有多副本的概念；
+
+### 关于 proxy 的部署位置问题
+
+- 理论上讲，应该将 proxy 部署在离 client 很近的地方，比如同一个物理机上，这样有利于减少延迟；
 
