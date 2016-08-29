@@ -3,13 +3,13 @@
 
 # Lazy Queues
 
-Since RabbitMQ 3.6.0 the broker has the concept of Lazy Queues: these are queues that try to keep as many messages as possible on disk, and only load them in RAM when requested by consumers, therefore the lazy denomination.
+从 RabbitMQ 3.6.0 版本开始，broker 中增加了 **Lazy Queues** 这个东东：这种 queue 基于 disk 保存尽量多的消息，并且尽在 consumers 进行消息请求时才将对应的内容加载到 RAM 中；这也就是 lazy 的真谛；
 
-One of the main goals of lazy queues is to be able to support very long queues (many millions of messages). These queues can arise when consumers are unable to fetch messages from queues for long periods of times. This can happen for various reasons and use cases: because consumers are offline; because they have crashed, or they have been taken down for maintenance; and so on.
+lazy queues 存在的主要目标就是为了支持超长 queues 的存在（100w+ 消息）；这种 queues 通常出现在 consumers 在较长时间内都无法从 queue 中取走消息的场景；问题出现原因是多样的：比如 consumers 处于离线状态；consumers 发生 crash ；或者由于维护的需要将其取消了等等；
 
-By default, queues keep an in-memory cache of messages that's filled up as messages are published into RabbitMQ. The idea of this cache is to be able to deliver messages to consumers as fast as possible (note that persistent messages are written to disk as they enter the broker and kept in this cache at the same time). Whenever the broker considers it needs to free up memory, messages from this cache will be paged out to disk. Paging messages to disk takes time and block the queue process, making it unable to receive new messages while it's paging. Even if on recent RabbitMQ versions we have improved the paging algorithm, the situation is still not ideal for use cases where you have many millions on messages in the queue that might need to be paged out.
+默认情况下，queues 会在内存中对 publish 到 RabbitMQ 的消息进行缓存；该缓存主要用于尽快向 consumers 投递消息（⚠️ 持久化消息会在进入 broker 后被写入磁盘，同时在缓存中保留一份）；无论何时，只要 broker 认为应该释放内存了，缓存中的消息就会被 page out 到 disk 上；将消息 Page 到 disk 到行为需要花费一定的时间，并阻塞 queue 进程本身，即在此过程中无法接收新消息；尽管我们在最新 RabbitMQ 版本中已经改进了 paging 算法，但在某些使用场景下仍旧不是很理想：例如 queue 存在 100w+ 消息需要 page out 到磁盘时；
 
-Lazy queues help here by eliminating this cache and only loading messages in memory when requested by consumers. Lazy queues will send every message that arrives to the queue right away to the file system, completely eliminating the in-memory cache mentioned before. This has the consequence of heavily reducing the amount of RAM consumed by a queue and also eliminates the need for paging. While this will increase I/O usage, it is the same behaviour as when publishing persistent messages.
+Lazy queues 在这种场景下可以发挥作用：移除了缓存的使用，仅在 consumers 请求时加载消息到内存中；Lazy queues 会将每一条发送到当前 queue 的消息立刻写入文件系统，完全消除了前面提到的缓存的使用；好处就是极大的减少了 queue 所需的 RAM 量，同时消除了 paging 问题；尽管 lazy queue 会增加 I/O 使用，但充其量也就等同于处理持久化消息的情况；
 
 
 # Using Lazy Queues
