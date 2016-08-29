@@ -54,29 +54,33 @@ Policies 也可以通过 management 插件进行定义，详情参见 [policy]()
 # Performance Considerations for Lazy Queues
 
 ## Disk Utilization
-As stated above, lazy queues will send every message to disk right as they enter the queue. This will increase I/O opts, but keep in mind that this is the same behaviour as when persistent messages are delivered to queues. Note that even if you publish transient messages, they will still be sent to disk when using lazy queues. With default queues transient messages are only sent to disk if paging requires it.
+
+正如上面所提到的，lazy queues 会将每一条进入该 queue 的消息写入磁盘；这会导致  I/O 操作的增加，但是请记住，此时的行为和具有持久化属性的消息到来时的情况是一样的；注意，即使被 publish 的消息是 transient 消息，在使用 lazy queue 时一样会被写入磁盘；而对于处于 default 模式的 queues 来说，transient 消息只会在需要进行 page out 处理时才被写入磁盘；
 
 ## RAM Utilization
-lazy queues use much less memory than default queues. While it's hard to give numbers that make sense for every use case, here's what we found: we tried publishing 10 million messages into a queue, with no consumers online. The message body size was 1000 bytes. default queues required 1.2GB of RAM, while lazy queues only used 1.5MB of RAM.
 
-For a default queue, it took 801 seconds to send 10MM messages, with an average sending rate of 12469 msg/s. To publish the same amount of messages into a lazy queue, the time required was 421 seconds, with an average sending rate of 23653 msg/s. The difference can be explained by the fact that from time to time, the default queue had to page messages to disk. Once we activated a consumer, the lazy queue had a RAM consumption of approximately 40MB while it was delivering messages. The message receiving rate average was 13938 msg/s for one active consumer.
+lazy queues 使用的内存量远远小于 default queues ；尽管难于针对每一种场景给出具体的数字，但可以给出我们得到的一些结论：我们尝试发送了 10 million 消息到 queue 中，并且该 queue 不存在消费者；消息体大小为 1000 字节；default queues 需要占用 1.2GB 的 RAM，而 lazy queues 仅需要 1.5MB 的 RAM ；
 
-You can reproduce the test with our Java library by running:
+对于 default queue 来说，其需要花费 801 秒来发送 10MM 消息，平均发送速率为 12469 msg/s ；而发送同样数目的消息到 lazy queue 时，时间消耗为 421 秒，平均发送速率为 23653 msg/s ；上述差别可以解释为：对于 default queue 来说，会时不时的发生将消息 page out 到 disk 到情况；一旦我们激活了一个 consumer ，在消息转发时 lazy queue 就会相应的产生大概 40MB 的 RAM 占用；平均消息接收速率变为 13938 msg/s ；
+
+
+可以通过如下的 java 库进行上述测试的重放：
 
 ```shell
 ./runjava.sh com.rabbitmq.examples.PerfTest -e test -u test_queue \
 -f persistent -s 1000 -x1 -y0 -C10000000
 ```
-Note that this was a very simplistic test. Please make sure to run your own benchmarks.
+
+> ⚠️ 上述测试仅为简单测试用例，请确保使用你自己的 benchmark 进行测试；
 
 Don't forget to change the queue mode between benchmarks runs.
 
 
 ## Converting between queue modes
 
-If we need to convert a default queue into a lazy one, then we will suffer the same performance impact as when a queue needs to page messages to disk. When we convert a queue into a lazy one, first it will page messages to disk and then it will start accepting publishes, acks, and other commands.
+如果我们需要将一个 default queue 转变成 lazy queue ；我们将会面临相似的性能冲击：因为 queue 将需要将消息 page 到 disk 上；当我们将某个 queue 转成 lazy 模式时，首先会进行消息 page 到 disk 到操作，之后才会开始处理 publish, ack 和其他命令；
 
-When a queue goes from the lazy mode to the default one, it will perform the same process as when a queue is recovered after a server restart. A batch of 16384 messages will be loaded in the cache mentioned above.
+当某个 queue 从 lazy 模式切回 default 模式，对应的处理过程就如同服务被重启后 queue 的恢复过程；会按照 16384 条消息一组的方式，批量加载到之前提到的缓存中；
 
 
 ----------
