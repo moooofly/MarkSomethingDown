@@ -14,13 +14,13 @@ Lazy queues 在这种场景下可以发挥作用：移除了缓存的使用，�
 
 # Using Lazy Queues
 
-Queues can be made to work in default mode or lazy mode either by specifying the mode via queue.declare arguments, or by applying a policy in the server. In the case where both policy and queue arguments specify a queue mode, then the queue argument has priority over the policy value. This means that if a queue mode is set via a declare argument, it can only be changed by deleting the queue, and re-declaring it later with a different argument.
+通过 `queue.declare` 或 policy 设置，Queues 可以通过在 `default` 模式或 `lazy` 模式下；如果出现同时在 policy 和 queue 声明参数中设置了 queue 模式的情况，则通过 queue 声名参数进行的设置具有更高的优先级；这就意味着，如果 queue 的模式是通过声明参数进行的指定，则只能通过先删除该 queue ，再重新声明的方式进行变更；
 
 ## Configuration using arguments
 
-The queue mode can be set by supplying the x-queue-mode queue declaration argument with a string specifying the desired mode. Valid modes are "default" and "lazy". If no mode is specified during declare, then "default" is assumed. The default mode is the behaviour already present in pre 3.6.0 versions of the broker, so there are no breaking changes in this regard.
+queue 模式可以通过在 queue 声明中国年指定 `x-queue-mode` 参数的方式进行设置；有效模式为 "default" 和  "lazy" ；如果在声明的时候没有指定模式，则使用 "default" 模式；`default` 模式就是在 3.6.0 版本以前一直在使用的模式，因此此变更不会导致兼容问题；
 
-This example in Java declares a queue with the queue mode set to "lazy":
+在下面的例子中，通过 Java 代码声明了模式为 "lazy" 的 queue ：
 
 ```
 Map<String, Object> args = new HashMap<String, Object>();
