@@ -30,20 +30,20 @@ channel.queueDeclare("myqueue", false, false, false, args);
 
 ## Configuration using policy
 
-To specify a queue mode using a policy, add the key queue-length to a policy definition. For example:
+若想通过 policy 方式设置 queue 模式，只需将 queue-length 作为 key 添加到 policy 定义中，例如：
 
 |                  |                              |                  |
  ----------------- | ---------------------------- | ------------------
 | rabbitmqctl | rabbitmqctl set_policy Lazy "^lazy-queue$" '{"queue-mode":"lazy"}' --apply-to queues|
 | rabbitmqctl (Windows) | rabbitmqctl set_policy Lazy "^lazy-queue$" "{""queue-mode"":""lazy""}" --apply-to queues |
 
-This ensures the queue called lazy-queue will work in the lazy mode.
+上述设置会令名为 lazy-queue 的 queue 工作在 lazy 模式下；
 
-Policies can also be defined using the management plugin, see the policy documentation for more details.
+Policies 也可以通过 management 插件进行定义，详情参见 [policy]() 文档；
 
 ## Changing queue modes
 
-If you specified the queue mode via a policy, then you can change it at run time without the need of deleting the queue and re-declaring it with a different mode. If you want the previous lazy-queue to start working like a default queue, then you can do so by issuing the following command:
+如果你是通过 policy 设置的 queue 模式，那么你就能够在无需删除后重建的情况下，直接运行时修改；如果你想要另之前设置的 lazy-queue 变回 default 模式，则你可以通过如下命令进行操作：
 
 |                  |                              |                  |
  ----------------- | ---------------------------- | ------------------
@@ -77,3 +77,9 @@ Don't forget to change the queue mode between benchmarks runs.
 If we need to convert a default queue into a lazy one, then we will suffer the same performance impact as when a queue needs to page messages to disk. When we convert a queue into a lazy one, first it will page messages to disk and then it will start accepting publishes, acks, and other commands.
 
 When a queue goes from the lazy mode to the default one, it will perform the same process as when a queue is recovered after a server restart. A batch of 16384 messages will be loaded in the cache mentioned above.
+
+
+----------
+
+
+官网原文：[这里](http://www.rabbitmq.com/lazy-queues.html)
