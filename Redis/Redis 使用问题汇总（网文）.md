@@ -721,7 +721,7 @@ Redis 提高性能的几个途径：
 
 解决从服务器重同步（resync）问题的其中一个方法，就是减少主服务器需要传送给从服务器的数据数量，这可以通过构建树状复制中间层来完成：
 
-![redis tree replication](http "redis tree replication")
+![Redis Tree Replication](https://github.com/moooofly/ImageCache/blob/master/Pictures/Redis%20Tree%20Replication.png "Redis Tree Replication")
 
 **优点**：在对不同数据中心（data center）进行复制的时候，这种从服务器树甚至是必需的：通过缓慢的广域网（WAN）连接进行重同步是一件相当耗费资源的工作，这种工作应该交给位于中间层的从服务器去做，而不必劳烦最顶层的主服务器；    
 **缺点**：带来复杂的网络拓扑结构（topology），增加了手动和自动处理故障转移的难度；    
