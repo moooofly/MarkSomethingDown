@@ -88,7 +88,12 @@ There are two known libraries which implement a Gossip algorithm to discover nod
 
 略
 
+
+原文：[这里](https://en.wikipedia.org/wiki/Gossip_protocol)
+
+
 ----------
+
 
 # Gossip Protocol
 
@@ -185,3 +190,4 @@ Another advantage of this approach is data could flow directly into your monitor
 In the meat world we are warned against gossiping, it's a sin, it can ruin lives, it can ruin your reputation, etc., but in software, gossiping is a powerful tool in your distributed toolbox. So go forth and gossip.
 
 
+原文：[这里](http://highscalability.com/blog/2011/11/14/using-gossip-protocols-for-failure-detection-monitoring-mess.html)
