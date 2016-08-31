@@ -211,47 +211,50 @@ gossip，顾名思义，类似于流言传播的概念，是一种可以按照�
 假设有 `{p, q, ...}` 为协议参与者。 每个参与者都有一个关于自己信息的表；
 
 用编程语言可以描述为： 
-> 每一个参与者都有一个关于自己信息的表，即要维护一个 `InfoMap` 类型的 `localInfo` ，记 `InfoMap = Map<Key, (Value, Version)>` ；
-> 每一个参与者还要知道所有其他参与者的信息，即要维护一个 `globalMap` 类型的全局表，即 `globalMap = Map<participant, InfoMap>` ；
-> 每一个参与者负责更新自己的 `localInfo`， 并由 `gossip` 协议负责将更新的信息同步到整个网络上；
-> 每个节点和系统中的某些节点成为 peer （如果系统规模比较小，则和系统中所有其他节点成为 peer）；
+> 每一个参与者都有一个关于自己信息的表，即要维护一个 `InfoMap` 类型的 `localInfo` ，记 `InfoMap = Map<Key, (Value, Version)>` ；    
+> 每一个参与者还要知道所有其他参与者的信息，即要维护一个 `globalMap` 类型的全局表，即 `globalMap = Map<participant, InfoMap>` ；    
+> 每一个参与者负责更新自己的 `localInfo`， 并由 `gossip` 协议负责将更新的信息同步到整个网络上；    
+> 每个节点和系统中的某些节点成为 peer （如果系统规模比较小，则和系统中所有其他节点成为 peer）；    
 
  `gossip` 中有三种不同的同步信息方法：
-1. **push-gossip** -> 最简单的情况下， 一个节点 p 向 q 发送整个 `globalMap` ；
-2. **pull-gossip** -> p 向 q 发送 digest ，q 根据 digest 向 p 发送 p 过期的 `(key, (value, version))` 列表；
-3. **push-pull-gossip** -> 与 pull-gossip 类似，只是多了一步，p 再将本地比 q 新的数据推送给 q ，q 更新本地信息；
+1. **push-gossip** -> 最简单的情况下， 一个节点 p 向 q 发送整个 `globalMap` ；    
+2. **pull-gossip** -> p 向 q 发送 digest ，q 根据 digest 向 p 发送 p 过期的 `(key, (value, version))` 列表；    
+3. **push-pull-gossip** -> 与 pull-gossip 类似，只是多了一步，p 再将本地比 q 新的数据推送给 q ，q 更新本地信息；    
 
 ## 特点
 
-- gossip 不要求节点知道所有其他节点，因此具有**去中心化**的特点，节点之间完全对等，不需要任何的中心节点；
-- gossip 算法又被称为**反熵（Anti-Entropy）**；熵是物理学上的一个概念，代表杂乱无章，而反熵就是在杂乱无章中寻求一致，这充分说明了 gossip 的特点；
-- 在一个有界网络中，每个节点都随机地与其他节点通信，经过一番杂乱无章的通信，最终所有节点的状态都会达成一致；每个节点可能知道所有其他节点，也可能仅知道几个邻居节点，只要这些节点可以通过网络连通，最终他们的状态都是一致的；
-- gossip 算法是一个**最终一致性算法**，其无法保证在某个时刻所有节点状态一致，但可以保证”最终“所有节点会一致，”最终“是一个现实中存在、但理论上无法证明的时间点；
+- gossip 不要求节点知道所有其他节点，因此具有**去中心化**的特点，节点之间完全对等，不需要任何的中心节点；    
+- gossip 算法又被称为**反熵（Anti-Entropy）**；熵是物理学上的一个概念，代表杂乱无章，而反熵就是在杂乱无章中寻求一致，这充分说明了 gossip 的特点；     
+- 在一个有界网络中，每个节点都随机地与其他节点通信，经过一番杂乱无章的通信，最终所有节点的状态都会达成一致；每个节点可能知道所有其他节点，也可能仅知道几个邻居节点，只要这些节点可以通过网络连通，最终他们的状态都是一致的；    
+- gossip 算法是一个**最终一致性算法**，其无法保证在某个时刻所有节点状态一致，但可以保证”最终“所有节点会一致，”最终“是一个现实中存在、但理论上无法证明的时间点；    
 
 ## 协调机制
 
-- **协调机制**是针对：在每次 2 个节点通信时，如何交换数据能最快的达到一致性，也即消除两个节点的不一致性；
-- 协调机制所面临的最大问题：因为受限于网络负载，不可能每次都把一个节点上的（全部）数据发送给另外一个节点，也即每个 gossip 的消息大小都有上限；在有限空间上、高效的交换所有消息是协调机制要解决的主要问题；
+- **协调机制**是针对：在每次 2 个节点通信时，如何交换数据能最快的达到一致性，也即消除两个节点的不一致性；    
+- 协调机制所面临的最大问题：因为受限于网络负载，不可能每次都把一个节点上的（全部）数据发送给另外一个节点，也即每个 gossip 的消息大小都有上限；在有限空间上、高效的交换所有消息是协调机制要解决的主要问题；    
 
 在文章 **“Efficient Reconciliation and Flow Control for Anti-Entropy Protocols”** 中描述了两种同步机制：
-1. precise reconciliation
-precise reconciliation 希望在每次通信周期内都非常准确地消除双方的不一致性，具体表现为相互发送对方需要更新的数据，因为每个节点都在并发与多个节点通信，理论上很难做到。precise reconciliation需要给每个数据项独立地维护自己的version，在每次交互是把所有的(key,value,version)发送到目标进行比对，从而找出双方不同之处从而更新。但因为Gossip消息存在大小限制，因此每次选择发送哪些数据就成了问题。当然可以随机选择一部分数据，也可确定性的选择数据。对确定性的选择而言，可以有最老优先（根据版本）和最新优先两种，最老优先会优先更新版本最新的数据，而最新更新正好相反，这样会造成老数据始终得不到机会更新，也即饥饿。
-2. Scuttlebutt Reconciliation
-Scuttlebutt Reconciliation 与precise reconciliation不同之处是，Scuttlebutt Reconciliation不是为每个数据都维护单独的版本号，而是为每个节点上的宿主数据维护统一的version。比如节点P会为(p1,p2,...)维护一个一致的全局version，相当于把所有的宿主数据看作一个整体，当与其他节点进行比较时，只需比较这些宿主数据的最高version，如果最高version相同说明这部分数据全部一致，否则再进行precise reconciliation。
+1. **precise reconciliation**
+precise reconciliation 希望在每次通信周期内都非常准确地消除双方的不一致性，具体表现为相互发送对方需要更新的数据； 然而，因为每个节点都在**并发**与多个节点通信，所以理论上很难做到上述要求。precise reconciliation 需要针对每个数据项独立地维护各自的 version，并在每次交互时，把所有的 `(key,value,version)` 发送到目标节点进行比对，从而找出双方不同之处进而更新。但因为 Gossip 消息存在大小限制，因此每次选择发送哪些数据就成了问题。当然，可以随机选择一部分数据，也可确定性的选择数据。对确定性的选择而言，可以有**最老优先**（根据版本）和**最新优先**两种：最老优先会优先更新版本最新的数据，而最新更新正好相反，这样会造成老数据始终得不到机会更新，也即饥饿。
+2. **Scuttlebutt Reconciliation**
+Scuttlebutt Reconciliation 与 precise reconciliation 不同之处是，Scuttlebutt Reconciliation 不是为每个数据都维护单独的版本号，而是为每个节点上的宿主数据维护统一的 version 。比如节点 P 会为 `(p1,p2,...)` 维护一个一致的全局 version ，相当于把所有的宿主数据看作一个整体，当与其他节点进行比较时，只需比较这些宿主数据的最高 version ；如果最高 version 相同，则说明这部分数据全部一致，否则再进行 precise reconciliation 。
 
-5. Merkle tree
-信息同步无疑是gossip的核心，Merkle tree(MT)是一个非常适合同步的数据结构。
-简单来说 Merkle tree就是一颗hash树，在这棵树中，叶子节点的值是一些hash值、非叶节点的值均是由其子节点值计算hash得来的，这样，一旦某个文件被修改，修改时间的信息就会迅速传播到根目录。需要同步的系统只需要不断查询跟节点的hash，一旦有变化，顺着树状结构就能够在logN级 别的时间找到发生变化的内容，马上同步。
-在Dynamo中，每个节点保存一个范围内的key值，不同节点间存在有相互交迭的key值范围。在去熵操作中，考虑的仅仅是某两个节点间共有的key值范围。MT的叶子节点即是这个共有的key值范围内每个key的hash，通过叶子节点的hash自底向上便可以构建出一颗MT。Dynamo首先比对MT根处的hash，如果一致则表示两者完全一致，否则将其子节点交换并继续比较的过程。
+## Merkle tree
 
-6.总结
-Gossip常见于大规模、无中心的网络系统，可以用于众多能接受“最终一致性”的领域：失败检测、路由同步、Pub/Sub、动态负载均衡。
+信息同步无疑是 gossip 的核心，Merkle tree 是一个非常适合同步的数据结构；
 
-7.参考文献
-paper： Efficient Reconciliation and Flow Control for Anti-Entropy Protocols
-http://tianya23.blog.51cto.com/1081650/530743
-http://ultimatearchitecture.net/index.php/2010/09/12/merkle-tree/
+简单来说，Merkle tree 就是一颗 hash 树；在这棵树中，叶子节点的值是一些 hash 值、非叶节点的值均是由其子节点值计算 hash 得来的；因此，一旦某个文件被修改，修改信息（事件）就会迅速传播到 hash 树的根。需要（在发现差异后进行）同步的系统只需要不断查询根节点的 hash 值是否有变化，一旦发现变化，顺着树状结构就能够在 logN 级别的时间内找到发生变化的内容，马上同步；
 
+在 Dynamo 中，每个节点保存一个范围内的 key 值，不同节点间存在一定范围的重叠 key 值；在去熵操作中，考虑的仅仅是某两个节点间共有 key 值范围；Merkle tree 的叶子节点就是这个共有 key 值范围内每个 key 的 hash 值；通过叶子节点的 hash 值，自底向上便可以构建出一颗 Merkle tree ；Dynamo 首先比对 Merkle tree 根处的hash 值，如果一致，则表示两者完全相同，否则将其子节点交换并继续比较的过程；
+
+## 总结
+
+Gossip 常见于大规模、无中心的网络系统，可以用于众多能接受“**最终一致性**”的领域：失败检测、路由同步、Pub/Sub、动态负载均衡。
+
+## 参考文献
+
+- [Efficient Reconciliation and Flow Control for Anti-Entropy Protocols]()
+- [Gossip 算法](http://tianya23.blog.51cto.com/1081650/530743)
 
 
 原文：[这里](http://blog.csdn.net/yfkiss/article/details/6943682#comments)
