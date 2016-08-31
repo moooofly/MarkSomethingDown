@@ -234,8 +234,10 @@ gossip，顾名思义，类似于流言传播的概念，是一种可以按照�
 - 协调机制所面临的最大问题：因为受限于网络负载，不可能每次都把一个节点上的（全部）数据发送给另外一个节点，也即每个 gossip 的消息大小都有上限；在有限空间上、高效的交换所有消息是协调机制要解决的主要问题；    
 
 在文章 **“Efficient Reconciliation and Flow Control for Anti-Entropy Protocols”** 中描述了两种同步机制：
+
 1. **precise reconciliation**
 > precise reconciliation 希望在每次通信周期内都非常准确地消除双方的不一致性，具体表现为相互发送对方需要更新的数据； 然而，因为每个节点都在**并发**与多个节点通信，所以理论上很难做到上述要求。precise reconciliation 需要针对每个数据项独立地维护各自的 version，并在每次交互时，把所有的 `(key,value,version)` 发送到目标节点进行比对，从而找出双方不同之处进而更新。但因为 Gossip 消息存在大小限制，因此每次选择发送哪些数据就成了问题。当然，可以随机选择一部分数据，也可确定性的选择数据。对确定性的选择而言，可以有**最老优先**（根据版本）和**最新优先**两种：最老优先会优先更新版本最新的数据，而最新更新正好相反，这样会造成老数据始终得不到机会更新，也即饥饿。
+
 2. **Scuttlebutt Reconciliation**
 > Scuttlebutt Reconciliation 与 precise reconciliation 不同之处是，Scuttlebutt Reconciliation 不是为每个数据都维护单独的版本号，而是为每个节点上的宿主数据维护统一的 version 。比如节点 P 会为 `(p1,p2,...)` 维护一个一致的全局 version ，相当于把所有的宿主数据看作一个整体，当与其他节点进行比较时，只需比较这些宿主数据的最高 version ；如果最高 version 相同，则说明这部分数据全部一致，否则再进行 precise reconciliation 。
 
