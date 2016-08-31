@@ -212,7 +212,7 @@ gossip，顾名思义，类似于流言传播的概念，是一种可以按照�
 
 用编程语言可以描述为： 
 - 每一个参与者都有一个关于自己信息的表，即要维护一个 `InfoMap` 类型的 `localInfo` ，记 `InfoMap = Map<Key, (Value, Version)>` ；    
-- 每一个参与者还要知道所有其他参与者的信息，即要维护一个 `globalMap` 类型的全局表，即 `globalMap = Map<participant, InfoMap>` ；    
+- 每一个参与者还要知道所有其他参与者的信息，即要维护一个 `globalMap` 类型的全局表，记 `globalMap = Map<participant, InfoMap>` ；    
 - 每一个参与者负责更新自己的 `localInfo`， 并由 `gossip` 协议负责将更新的信息同步到整个网络上；    
 - 每个节点和系统中的某些节点成为 peer （如果系统规模比较小，则和系统中所有其他节点成为 peer）；    
 
@@ -223,7 +223,7 @@ gossip，顾名思义，类似于流言传播的概念，是一种可以按照�
 
 ## 特点
 
-- gossip 不要求节点知道所有其他节点，因此具有**去中心化**的特点，节点之间完全对等，不需要任何的中心节点；    
+- gossip 不要求一个节点知道所有其他节点，因此具有**去中心化**的特点，节点之间完全对等，不需要任何的中心节点；    
 - gossip 算法又被称为**反熵（Anti-Entropy）**；熵是物理学上的一个概念，代表杂乱无章，而反熵就是在杂乱无章中寻求一致，这充分说明了 gossip 的特点；     
 - 在一个有界网络中，每个节点都随机地与其他节点通信，经过一番杂乱无章的通信，最终所有节点的状态都会达成一致；每个节点可能知道所有其他节点，也可能仅知道几个邻居节点，只要这些节点可以通过网络连通，最终他们的状态都是一致的；    
 - gossip 算法是一个**最终一致性算法**，其无法保证在某个时刻所有节点状态一致，但可以保证”最终“所有节点会一致，”最终“是一个现实中存在、但理论上无法证明的时间点；    
@@ -235,9 +235,9 @@ gossip，顾名思义，类似于流言传播的概念，是一种可以按照�
 
 在文章 **“Efficient Reconciliation and Flow Control for Anti-Entropy Protocols”** 中描述了两种同步机制：
 1. **precise reconciliation**
-precise reconciliation 希望在每次通信周期内都非常准确地消除双方的不一致性，具体表现为相互发送对方需要更新的数据； 然而，因为每个节点都在**并发**与多个节点通信，所以理论上很难做到上述要求。precise reconciliation 需要针对每个数据项独立地维护各自的 version，并在每次交互时，把所有的 `(key,value,version)` 发送到目标节点进行比对，从而找出双方不同之处进而更新。但因为 Gossip 消息存在大小限制，因此每次选择发送哪些数据就成了问题。当然，可以随机选择一部分数据，也可确定性的选择数据。对确定性的选择而言，可以有**最老优先**（根据版本）和**最新优先**两种：最老优先会优先更新版本最新的数据，而最新更新正好相反，这样会造成老数据始终得不到机会更新，也即饥饿。
+> precise reconciliation 希望在每次通信周期内都非常准确地消除双方的不一致性，具体表现为相互发送对方需要更新的数据； 然而，因为每个节点都在**并发**与多个节点通信，所以理论上很难做到上述要求。precise reconciliation 需要针对每个数据项独立地维护各自的 version，并在每次交互时，把所有的 `(key,value,version)` 发送到目标节点进行比对，从而找出双方不同之处进而更新。但因为 Gossip 消息存在大小限制，因此每次选择发送哪些数据就成了问题。当然，可以随机选择一部分数据，也可确定性的选择数据。对确定性的选择而言，可以有**最老优先**（根据版本）和**最新优先**两种：最老优先会优先更新版本最新的数据，而最新更新正好相反，这样会造成老数据始终得不到机会更新，也即饥饿。
 2. **Scuttlebutt Reconciliation**
-Scuttlebutt Reconciliation 与 precise reconciliation 不同之处是，Scuttlebutt Reconciliation 不是为每个数据都维护单独的版本号，而是为每个节点上的宿主数据维护统一的 version 。比如节点 P 会为 `(p1,p2,...)` 维护一个一致的全局 version ，相当于把所有的宿主数据看作一个整体，当与其他节点进行比较时，只需比较这些宿主数据的最高 version ；如果最高 version 相同，则说明这部分数据全部一致，否则再进行 precise reconciliation 。
+> Scuttlebutt Reconciliation 与 precise reconciliation 不同之处是，Scuttlebutt Reconciliation 不是为每个数据都维护单独的版本号，而是为每个节点上的宿主数据维护统一的 version 。比如节点 P 会为 `(p1,p2,...)` 维护一个一致的全局 version ，相当于把所有的宿主数据看作一个整体，当与其他节点进行比较时，只需比较这些宿主数据的最高 version ；如果最高 version 相同，则说明这部分数据全部一致，否则再进行 precise reconciliation 。
 
 ## Merkle tree
 
