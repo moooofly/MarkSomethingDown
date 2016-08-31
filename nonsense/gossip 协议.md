@@ -211,15 +211,15 @@ gossip，顾名思义，类似于流言传播的概念，是一种可以按照�
 假设有 `{p, q, ...}` 为协议参与者。 每个参与者都有一个关于自己信息的表；
 
 用编程语言可以描述为： 
-> 每一个参与者都有一个关于自己信息的表，即要维护一个 `InfoMap` 类型的 `localInfo` ，记 `InfoMap = Map<Key, (Value, Version)>` ；    
-> 每一个参与者还要知道所有其他参与者的信息，即要维护一个 `globalMap` 类型的全局表，即 `globalMap = Map<participant, InfoMap>` ；    
-> 每一个参与者负责更新自己的 `localInfo`， 并由 `gossip` 协议负责将更新的信息同步到整个网络上；    
-> 每个节点和系统中的某些节点成为 peer （如果系统规模比较小，则和系统中所有其他节点成为 peer）；    
+- 每一个参与者都有一个关于自己信息的表，即要维护一个 `InfoMap` 类型的 `localInfo` ，记 `InfoMap = Map<Key, (Value, Version)>` ；    
+- 每一个参与者还要知道所有其他参与者的信息，即要维护一个 `globalMap` 类型的全局表，即 `globalMap = Map<participant, InfoMap>` ；    
+- 每一个参与者负责更新自己的 `localInfo`， 并由 `gossip` 协议负责将更新的信息同步到整个网络上；    
+- 每个节点和系统中的某些节点成为 peer （如果系统规模比较小，则和系统中所有其他节点成为 peer）；    
 
  `gossip` 中有三种不同的同步信息方法：
-1. **push-gossip** -> 最简单的情况下， 一个节点 p 向 q 发送整个 `globalMap` ；    
-2. **pull-gossip** -> p 向 q 发送 digest ，q 根据 digest 向 p 发送 p 过期的 `(key, (value, version))` 列表；    
-3. **push-pull-gossip** -> 与 pull-gossip 类似，只是多了一步，p 再将本地比 q 新的数据推送给 q ，q 更新本地信息；    
+- **push-gossip** -> 最简单的情况下， 一个节点 p 向 q 发送整个 `globalMap` ；    
+- **pull-gossip** -> p 向 q 发送 digest ，q 根据 digest 向 p 发送 p 过期的 `(key, (value, version))` 列表；    
+- **push-pull-gossip** -> 与 pull-gossip 类似，只是多了一步，p 再将本地比 q 新的数据推送给 q ，q 更新本地信息；    
 
 ## 特点
 
