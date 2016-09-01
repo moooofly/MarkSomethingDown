@@ -37,11 +37,12 @@ Redis Cluster设计要点：
 
 ## 写操作
 
-Redis Cluster 使用异步复制：
+Redis Cluster 使用异步复制方式进行主从同步；
+
 一个完整的写操作步骤：
-1. client 写数据到 master 节点；
-2. master 告诉 client "ok" ；
-3. master 传播更新到 slave ；
+- client 写数据到 master 节点；
+- master 告诉 client "ok" ；
+- master 传播更新到 slave ；
 
 存在数据丢失的风险：
 - 上述写步骤 1 和 2 成功后，master crash，而此时数据还没有传播到 slave ；
@@ -59,8 +60,8 @@ Redis Cluster 使用异步复制：
 ## 多 key 操作
 
 当系统从单节点向多节点扩展时，多 key 操作总是一个非常难解决的问题；Redis Cluster 方案如下：
-1. 不支持多 key 操作；
-2. 如果一定要使用多 key 操作，请确保所有的 key 都在一个 slot 上，具体方法是使用“hash tag”方案
+- 不支持多 key 操作；
+- 如果一定要使用多 key 操作，请确保所有的 key 都在一个 slot 上，具体方法是使用“hash tag”方案
 
 > hash tag 方案是一种数据分布的例外情况
 
