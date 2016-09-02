@@ -12,7 +12,11 @@
 daemonize no
 port 7000
 tcp-backlog 65535
+
+# 若客户端空闲超过 600 秒则关闭对应连接
+# 设置为 0 表示去使能
 timeout 600
+
 tcp-keepalive 60
 
 # 日志直接走 syslog
@@ -341,7 +345,7 @@ MAXMEMORY POLICY: 在达到 maxmemory 设定的值时，决定了 Redis 移除�
 
 ### cluster-node-timeout
 
-- 该值指定的是判定集群节点处于失效状态的、最长不可达时间；以毫秒为单位；
+- 定义判定集群节点处于失效状态（`PFAIL`）的前，允许的最长不可达时间；以毫秒为单位；
 - 大部分内部时间限定值都是该值的倍数；
 
 
@@ -414,3 +418,6 @@ MAXMEMORY POLICY: 在达到 maxmemory 设定的值时，决定了 Redis 移除�
 hard limit 或 soft limit 都可以通过设置成 0 以去使能；
 
 
+### repl-ping-slave-period
+
+Slave 以预定义的时间间隔发送 PING 到主服务器； 默认值为 10 秒；
