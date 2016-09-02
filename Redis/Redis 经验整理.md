@@ -109,8 +109,20 @@ Redis 中实现的事务可以让一个客户端在**不被其他客户端打断
 
 - 从服务器在进行同步时，会清空自己的所有数据；
 - Redis 不支持主主复制；
-- 一主多从可能会产生的问题；
-- 可以构建树型复制结构解决某些问题；
+
+
+### 异步复制问题
+
+完整的写操作步骤：
+- client 写数据到 master ；
+- master 告诉 client "ok" ；
+- master 传播更新到 slave ；
+
+存在数据丢失风险的点：
+- 写步骤 1 和 2 成功后，master crash，而此时数据还没有传播到 slave ；
+- 由于分区导致同时存在两个 master ，client 向旧的 master 写入了数据；
+
+> 由于 Redis Cluster 中存在超时判定及故障恢复机制，因此第 2 个风险基本上不可能发生；
 
 ### 带宽不足问题
 
@@ -152,37 +164,36 @@ redis 主库的写入操作都会在该缓冲区中存放一份然后发送给�
 ----------
 
 
-# repl-disable-tcp-nodelay
+# 调优
+
+## repl-disable-tcp-nodelay
+
+在 slave 和 master 同步后（psync 或 sync），后续同步是否设置成 `TCP_NODELAY` ；
+- 若设置成 yes ，则 redis 的 master 会合并小的 TCP 包以节省带宽，但会增加同步延迟（40ms），增加造成 master 与 slave 数据不一致的概率；
+- 若设置成 no ，则 redis 的 master 会立即发送同步数据，没有延迟；
+
+> 前者关注**性能**，后者关注**一致性**；    
+> 40ms 是 Nagle 和 TCP 确认延迟机制共同作用的结果；    
 
 
-在slave和master同步后（发送psync/sync），后续的同步是否设置成TCP_NODELAY
-假如设置成yes，则redis会合并小的TCP包从而节省带宽，但会增加同步延迟（40ms），造成master与slave数据不一致
-假如设置成no，则redis master会立即发送同步数据，没有延迟
-前者关注性能，后者关注一致性
+## repl-backlog-size
 
-40ms是Nagle和TCP确认延迟机制共同作用的结果
+- 该选项用于设置复制（同步）缓冲区大小；
+- backlog 表示在 slave 断开时间内，master 用于保存 slave 数据同步信息的缓冲区大小；
+- 当发生 slave 重连时，全量重同步可能不是必须的，因为部分重同步可能就足够了；此时只需传输连接断开时 slave 缺失的那部分数据变更；
+- 设置的复制缓冲区越大，允许 slave 在断开后，通过部分重同步进行恢复的时间窗口就越长；
+- 至少有一个 slave 连接上 master 时，才会分配 backlog 对应的空间；
 
-
-# gossip 
+## gossip 
 
 
 无中心架构的网络通信对带宽的影响；
 
-# cluster 中的 master-slave 问题
-
-一个Redis  Node包含一定量的桶，当这些桶对应的Master和Slave都挂掉时，这部分桶对应的数据不可用；进而根据配置可能导致整个集群的不可用；
 
 
-# cluster 中 master-slave 异步复制数据丢失问题
 
-一个完整的写操作步骤：
-1.client写数据到master
-2.master告诉client "ok"
-3.master传播更新到slave
-存在数据丢失的风险：
-1. 上述写步骤1）和2）成功后，master crash，而此时数据还没有传播到slave
-2. 由于分区导致同时存在两个master，client向旧的master写入了数据。
-当然，由于Redis Cluster存在超时及故障恢复机制，第2个风险基本上不可能发生
+
+
 
 
 
