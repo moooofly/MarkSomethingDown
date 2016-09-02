@@ -291,10 +291,10 @@ aof-rewrite-incremental-fsync yes
 
 ### repl-backlog-size
 
-- 该函数用于设置复制缓冲区大小；
+- 该配置项用于设置复制（同步）缓冲区大小；
 - backlog 表示在 slave 断开时间内，master 用于保存 slave 数据同步信息的缓冲区大小；
 - 当发生 slave 重连时，全量重同步可能不是必须的，因为部分重同步可能就足够了；此时只需传输连接断开时 slave 缺失的那部分数据变更；
-- 设置的 replication backlog 越大，允许 slave 在断开后，通过部分重同步进行恢复的时间窗口就越长；
+- 设置的复制缓冲区越大，允许 slave 在断开后，通过部分重同步进行恢复的时间窗口就越长；
 - 至少有一个 slave 连接上 master 时，才会分配  backlog 对应的空间；
 
 
@@ -351,13 +351,11 @@ MAXMEMORY POLICY: 在达到 maxmemory 设定的值时，决定了 Redis 移除�
 
 ### cluster-slave-validity-factor
 
-从属于失效 master 的 slave ，在发现自身数据过于老旧的情况下会避免进行 failover 处理；
+从属于失效 master 的 slave ，在发现自身数据过于老旧的情况下，将不会进行 failover 处理；
 
-不存在这样一种简单的方式，以便 slave 准确的测量出“数据的年龄“，因此实际中会执行如下两种检测：
-
-1) 如果存在多个 slave 能够进行 failover ，那么它们之间会通过信息交换的方式，确定具有最佳复制偏移位置的 slave（即持有更多来自 master 的数据）；全部 slave 将会根据偏移量进行排名，并在 failover 启动前增加一个正比于排名顺序的延时值；
-
-2) 每个 slave 都需要计算自身与 master 上次交互的时间点；该时间点可能为最后一次 ping 发生的时刻，或者接收到其他集群消息到时刻（如果 master 仍旧处于 "connected" 状态），或者自从和 master 断开连接后，到目前为止流逝的时间（如果用于进行复制的链路当前是 down 状态）；如果最后一次交互发生的时间过于久远，对应的 slave 将不再进行 failover 行为；
+无法通过一种简单的方式准确测量出 slave 中“数据的年龄“，因此实际中会执行如下两种检测：
+- 如果存在多个 slave 能够进行 failover ，那么它们之间会通过信息交换的方式，确定具有最佳复制偏移位置的 slave（即持有更多来自 master 的数据）；全部 slave 将会根据偏移量进行排名，并在 failover 启动前增加一个正比于排名顺序的延时值；
+- 每个 slave 都需要计算自身与 master 上次交互的时间点；该时间点可能为最后一次 ping 发生的时刻，或者接收到其他集群消息到时刻（如果 master 仍旧处于 "connected" 状态），或者自从和 master 断开连接后，到目前为止流逝的时间（如果用于进行复制的链路当前是 down 状态）；如果最后一次交互发生的时间过于久远，对应的 slave 将不再进行 failover 行为；
 
 上述第 2 点可以由用户进行调节；特别是，如果一个 slave 自上次与 master 交互后，已流逝的时间超过了如下公式对应的数值时，将会不再执行 failover 操作：
 
