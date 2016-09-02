@@ -346,53 +346,26 @@ MAXMEMORY POLICY: 在达到 maxmemory 设定的值时，决定了 Redis 移除�
 
 ### cluster-slave-validity-factor
 
+从属于失效 master 的 slave ，在发现自身数据过于老旧的情况下会避免进行 failover 处理；
 
-```
-# A slave of a failing master will avoid to start a failover if its data
-# looks too old.
-#
-# There is no simple way for a slave to actually have a exact measure of
-# its "data age", so the following two checks are performed:
-#
-# 1) If there are multiple slaves able to failover, they exchange messages
-#    in order to try to give an advantage to the slave with the best
-#    replication offset (more data from the master processed).
-#    Slaves will try to get their rank by offset, and apply to the start
-#    of the failover a delay proportional to their rank.
-#
-# 2) Every single slave computes the time of the last interaction with
-#    its master. This can be the last ping or command received (if the master
-#    is still in the "connected" state), or the time that elapsed since the
-#    disconnection with the master (if the replication link is currently down).
-#    If the last interaction is too old, the slave will not try to failover
-#    at all.
-#
-# The point "2" can be tuned by user. Specifically a slave will not perform
-# the failover if, since the last interaction with the master, the time
-# elapsed is greater than:
-#
-#   (node-timeout * slave-validity-factor) + repl-ping-slave-period
-#
-# So for example if node-timeout is 30 seconds, and the slave-validity-factor
-# is 10, and assuming a default repl-ping-slave-period of 10 seconds, the
-# slave will not try to failover if it was not able to talk with the master
-# for longer than 310 seconds.
-#
-# A large slave-validity-factor may allow slaves with too old data to failover
-# a master, while a too small value may prevent the cluster from being able to
-# elect a slave at all.
-#
-# For maximum availability, it is possible to set the slave-validity-factor
-# to a value of 0, which means, that slaves will always try to failover the
-# master regardless of the last time they interacted with the master.
-# (However they'll always try to apply a delay proportional to their
-# offset rank).
-#
-# Zero is the only value able to guarantee that when all the partitions heal
-# the cluster will always be able to continue.
-#
-# cluster-slave-validity-factor 10
-```
+不存在这样一种简单的方式，以便 slave 准确的测量出“数据的年龄“，因此实际中会执行如下两种检测：
+
+1) 如果存在多个 slave 能够进行 failover ，那么它们之间会通过信息交换的方式，确定具有最佳复制偏移位置的 slave（即持有更多来自 master 的数据）；全部 slave 将会根据偏移量进行排名，并在 failover 启动前增加一个正比于排名顺序的延时值；
+
+2) 每个 slave 都需要计算自身与 master 上次交互的时间点；该时间点可能为最后一次 ping 发生的时刻，或者接收到其他集群消息到时刻（如果 master 仍旧处于 "connected" 状态），或者自从和 master 断开连接后，到目前为止流逝的时间（如果用于进行复制的链路当前是 down 状态）；如果最后一次交互发生的时间过于久远，对应的 slave 将不再进行 failover 行为；
+
+上述第 2 点可以由用户进行调节；特别是，如果一个 slave 自上次与 master 交互后，已流逝的时间超过了如下公式对应的数值时，将会不再执行 failover 操作：
+
+    (node-timeout * slave-validity-factor) + repl-ping-slave-period
+
+例如，如果 node-timeout 设置为 30 秒，并且 slave-validity-factor 设置为 10 ，并假定 repl-ping-slave-period 采用默认值 10 秒，那么当 slave 与 master 无法通信的时间超过 310 秒时，将不会执行 failover 操作；
+
+设置更大的 slave-validity-factor 值等价于允许 slaves 使用更加老旧的数据通过 failover 方式成为 master ，而设置更小的值，则可能造成 cluster 无法在规定时间内成功选出合适的 slave 进行提升；
+
+从最大可用性角度考虑，将 slave-validity-factor 设置为 0 也是一种可能情况，意味着对应的 slaves 将总是会尝试通过 failover 接管 master ，而不管其最后一次与 master 的交互时间；（然而，即使设置为 0 ，也还是会添加正比与偏移量排名的延时值）
+
+只有设置成 0 值，才能确保当全部分区被治愈后 cluster 总是能继续工作；
+
 
 
 ### cluster-require-full-coverage
