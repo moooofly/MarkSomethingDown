@@ -391,39 +391,27 @@ MAXMEMORY POLICY: 在达到 maxmemory 设定的值时，决定了 Redis 移除�
 # client-output-buffer-limit
 
 
-```
-# 定义客户端输出缓冲区（buffer）限制值，用于强制断开客户端连接；
-# that are not reading data from the server fast enough for some reason (a
-# common reason is that a Pub/Sub client can't consume messages as fast as the
-# publisher can produce them).
-#
-# The limit can be set differently for the three different classes of clients:
-#
-# normal -> normal clients including MONITOR clients
-# slave  -> slave clients
-# pubsub -> clients subscribed to at least one pubsub channel or pattern
-#
-# The syntax of every client-output-buffer-limit directive is the following:
-#
-# client-output-buffer-limit <class> <hard limit> <soft limit> <soft seconds>
-#
-# A client is immediately disconnected once the hard limit is reached, or if
-# the soft limit is reached and remains reached for the specified number of
-# seconds (continuously).
-# So for instance if the hard limit is 32 megabytes and the soft limit is
-# 16 megabytes / 10 seconds, the client will get disconnected immediately
-# if the size of the output buffers reach 32 megabytes, but will also get
-# disconnected if the client reaches 16 megabytes and continuously overcomes
-# the limit for 10 seconds.
-#
-# By default normal clients are not limited because they don't receive data
-# without asking (in a push way), but just after a request, so only
-# asynchronous clients may create a scenario where data is requested faster
-# than it can read.
-#
-# Instead there is a default limit for pubsub and slave clients, since
-# subscribers and slaves receive data in a push fashion.
-#
-# Both the hard or the soft limit can be disabled by setting them to zero.
-```
+
+定义客户端输出缓冲区（buffer）限制值，用于强制断开由于某种原因无法快读从服务器上读取数据的客户端连接（一种常见的原因为：Pub/Sub 客户端消费消息的速度无法跟上生产者产生消息的速度）；
+
+可以针对三种不同类型的客户端设置不同的限制方式：
+normal -> 包括 MONITOR 在内的所有普通客户端；
+slave  -> 作为 slave 的客户端；
+pubsub -> 订阅到至少一个 pubsub channel 或 pattern 的客户端；
+
+配置指令如下：
+
+    client-output-buffer-limit <class> <hard limit> <soft limit> <soft seconds>
+
+当 hard limit 被达到时，客户端会被立即断开连接；
+当 soft limit 被达到时，并保持在此达到状态特定时间长度后（连续），客户端被断开连接；
+
+举例来说，如果 hard limit 为 32 MB ，而 soft limit 为 16 MB 和 10 秒持续时间，则一旦客户端输出缓冲区大小达到 32 MB ，则会被立即断开连接；另外，若客户端输出缓冲区达到 16 MB ，并且持续达到此限制长达 10 秒，则会被断开连接；
+
+默认情况下，普通客户端不受限制，因为在未做要求的情况下，其不会进行数据接收（基于 push 方式），但是即使进行发起了请求，也只有异步客户端才可能创造出数据请求快于其读取速度的场景；
+
+作为对比，对于 pubsub 和 slave 客户端是存在默认限制的，因为订阅者和 slaves 都是以一种 push 方式接收数据的；
+
+hard limit 或 soft limit 都可以通过设置成 0 以去使能；
+
 
