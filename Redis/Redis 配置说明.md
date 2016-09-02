@@ -388,9 +388,7 @@ MAXMEMORY POLICY: 在达到 maxmemory 设定的值时，决定了 Redis 移除�
 如果你需要解决延迟问题，就设置该选项为 "yes" ，否则设置为 "no" （从持久性的角度最安全的选择）；
 
 
-# client-output-buffer-limit
-
-
+### client-output-buffer-limit
 
 定义客户端输出缓冲区（buffer）限制值，用于强制断开由于某种原因无法快读从服务器上读取数据的客户端连接（一种常见的原因为：Pub/Sub 客户端消费消息的速度无法跟上生产者产生消息的速度）；
 
