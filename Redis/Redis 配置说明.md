@@ -120,6 +120,7 @@ zset-max-ziplist-value 64
 hll-sparse-max-bytes 3000
 activerehashing yes
 
+# 设置针对不同角色客户端的输出缓冲区控制
 client-output-buffer-limit normal 0 0 0
 client-output-buffer-limit slave 2gb 0 0
 client-output-buffer-limit pubsub 32mb 8mb 60
@@ -392,17 +393,17 @@ MAXMEMORY POLICY: 在达到 maxmemory 设定的值时，决定了 Redis 移除�
 
 定义客户端输出缓冲区（buffer）限制值，用于强制断开由于某种原因无法快读从服务器上读取数据的客户端连接（一种常见的原因为：Pub/Sub 客户端消费消息的速度无法跟上生产者产生消息的速度）；
 
-可以针对三种不同类型的客户端设置不同的限制方式：
-normal -> 包括 MONITOR 在内的所有普通客户端；
-slave  -> 作为 slave 的客户端；
-pubsub -> 订阅到至少一个 pubsub channel 或 pattern 的客户端；
+可以针对三种不同类型（class）的客户端设置不同的限制方式：
+- **normal** -> 包括 MONITOR 在内的所有普通客户端；
+- **slave**  -> 作为 slave 的客户端；
+- **pubsub** -> 订阅到至少一个 pubsub channel 或 pattern 的客户端；
 
 配置指令如下：
 
     client-output-buffer-limit <class> <hard limit> <soft limit> <soft seconds>
 
-当 hard limit 被达到时，客户端会被立即断开连接；
-当 soft limit 被达到时，并保持在此达到状态特定时间长度后（连续），客户端被断开连接；
+当 hard limit 被达到时，客户端会被立即断开连接；    
+当 soft limit 被达到时，并保持在此达到状态特定时间长度后（连续），客户端被断开连接；    
 
 举例来说，如果 hard limit 为 32 MB ，而 soft limit 为 16 MB 和 10 秒持续时间，则一旦客户端输出缓冲区大小达到 32 MB ，则会被立即断开连接；另外，若客户端输出缓冲区达到 16 MB ，并且持续达到此限制长达 10 秒，则会被断开连接；
 
