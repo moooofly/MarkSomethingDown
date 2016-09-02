@@ -297,7 +297,9 @@ aof-rewrite-incremental-fsync yes
 - 设置的复制缓冲区越大，允许 slave 在断开后，通过部分重同步进行恢复的时间窗口就越长；
 - 至少有一个 slave 连接上 master 时，才会分配  backlog 对应的空间；
 
+### repl-ping-slave-period
 
+Slave 以预定义的时间间隔发送 PING 到主服务器； 默认值为 10 秒；
 
 ### maxmemory
 
@@ -416,6 +418,4 @@ MAXMEMORY POLICY: 在达到 maxmemory 设定的值时，决定了 Redis 移除�
 hard limit 或 soft limit 都可以通过设置成 0 以去使能；
 
 
-### repl-ping-slave-period
 
-Slave 以预定义的时间间隔发送 PING 到主服务器； 默认值为 10 秒；
