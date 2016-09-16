@@ -158,7 +158,7 @@ sunfeideMacBook-Pro.local
 
 ### 源码分析
 
-在 `rabbit.erl` 中可以看到，在 boot 序列中会启动 rabbit_epmd_monitor 进程；而 epmd 进程是 RabbitMQ  cluster 通信和 rabbitmqctl 命令行工具所依赖的进程；因此 RabbitMQ 通过启动rabbit_epmd_monitor 进程，建立与 epmd 的 TCP 连接，进而确保其正常运行；
+在 `rabbit.erl` 中可以看到，在 boot 序列中会启动 rabbit_epmd_monitor 进程；而 epmd 进程是 RabbitMQ  cluster 通信和 rabbitmqctl 命令行工具所依赖的进程；因此 RabbitMQ 通过启动 rabbit_epmd_monitor 进程，建立与 epmd 的 TCP 连接，进而确保其正常运行；
 ```erlang
 -rabbit_boot_step({rabbit_epmd_monitor,
                    [{description, "epmd monitor"},
@@ -240,8 +240,8 @@ open() -> open({127,0,0,1}).  % The localhost IP address.
 open({A,B,C,D}=EpmdAddr) when ?ip(A,B,C,D) ->
     gen_tcp:connect(EpmdAddr, get_epmd_port(), [inet]);
 ...
-%% 注意：即使 Timeout 为 infinity 也不会无限等待，会在底层
-%% connect 系统调用超时后返回（70+秒）
+%% 注意：即使 Timeout 为 infinity 也不会无限等待
+%% 会在底层 connect 系统调用超时后返回（70+秒）
 open({A,B,C,D}=EpmdAddr, Timeout) when ?ip(A,B,C,D) ->
     gen_tcp:connect(EpmdAddr, get_epmd_port(), [inet], Timeout);
 ...
@@ -316,11 +316,76 @@ ping: cannot resolve aaaaaaa: Unknown host
 
 在家测试时，可以看到如下输出
 ```erlang
-(回家补充)
+7>
+7> inet_db:gethostname().
+"sunfeideMacBook-Pro"
+8>
+8>
+8> inet:gethostbyname("sunfeideMacBook").
+{ok,{hostent,"sunfeidemacbook",[],inet,4,
+             [{180,168,41,175}]}}
+9>
+9>
+9> inet:gethostbyname("sunfeideMacBook-Pro").
+{ok,{hostent,"sunfeidemacbook-pro",[],inet,4,
+             [{180,168,41,175}]}}
+10>
+10>
+10> inet:gethostbyname("sunfeideMacBook-Pro.local").
+{ok,{hostent,"sunfeidemacbook-pro.local",[],inet,4,
+             [{127,0,0,1}]}}
+11>
+11>
+11> inet:gethostbyname("aaaaaaa").
+{ok,{hostent,"aaaaaaa",[],inet,4,[{180,168,41,175}]}}
+12>
 ```
 
 ```shell
-(回家补充)
+➜  ~ hostname
+sunfeideMacBook-Pro.local
+➜  ~
+➜  ~
+➜  ~ ping sunfeideMacBook
+PING sunfeidemacbook (180.168.41.175): 56 data bytes
+Request timeout for icmp_seq 0
+Request timeout for icmp_seq 1
+^C
+--- sunfeidemacbook ping statistics ---
+3 packets transmitted, 0 packets received, 100.0% packet loss
+➜  ~
+➜  ~
+➜  ~ ping sunfeideMacBook-Pro
+PING sunfeidemacbook-pro (180.168.41.175): 56 data bytes
+Request timeout for icmp_seq 0
+Request timeout for icmp_seq 1
+Request timeout for icmp_seq 2
+^C
+--- sunfeidemacbook-pro ping statistics ---
+4 packets transmitted, 0 packets received, 100.0% packet loss
+➜  ~
+➜  ~
+➜  ~ ping sunfeideMacBook-Pro.local
+PING sunfeidemacbook-pro.local (127.0.0.1): 56 data bytes
+64 bytes from 127.0.0.1: icmp_seq=0 ttl=64 time=0.052 ms
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.077 ms
+64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.069 ms
+64 bytes from 127.0.0.1: icmp_seq=3 ttl=64 time=0.084 ms
+^C
+--- sunfeidemacbook-pro.local ping statistics ---
+4 packets transmitted, 4 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 0.052/0.071/0.084/0.012 ms
+➜  ~
+➜  ~
+➜  ~ ping aaaaaaa
+PING aaaaaaa (180.168.41.175): 56 data bytes
+Request timeout for icmp_seq 0
+Request timeout for icmp_seq 1
+Request timeout for icmp_seq 2
+^C
+--- aaaaaaa ping statistics ---
+4 packets transmitted, 0 packets received, 100.0% packet loss
+➜  ~
 ```
 
 
