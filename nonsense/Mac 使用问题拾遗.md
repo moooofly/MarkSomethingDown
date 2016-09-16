@@ -5,6 +5,28 @@
 
 ----------
 
+# pip 安装问题
+
+```shell
+➜  ~ brew install pip
+Error: No available formula with the name "pip"
+Homebrew provides pip via: `brew install python`. However you will then
+have two Pythons installed on your Mac, so alternatively you can install
+pip via the instructions at:
+  https://pip.readthedocs.io/en/stable/installing/
+➜  ~
+```
+
+通过 brew 安装 pip 提示说，只要安装 python 就会附带 pip ；同时告知系统中已经存在 python 了，如果通过 brew 安装 python 会导致同时存在两个版本；
+
+按照上面链接中的方式，执行如下操作
+```shell
+wget https://bootstrap.pypa.io/get-pip.py
+sudo python get-pip.py
+```
+
+之后就可以正常使用 pip 命令安装各种功能 python 包了；
+
 
 # Mac 快速锁屏
 
@@ -77,6 +99,37 @@ sudo find / -name ".DS_Store" -depth -exec rm {} \;
 ```
 
 参考：[这里](http://www.zhihu.com/question/20345704)；
+
+
+# Homebrew 使用姿势
+
+
+## 简介
+
+以下内容取自：[这里](http://brew.sh/index_zh-cn.html)
+
+- OS X 不可或缺的套件管理器；
+- Homebrew 将套件安装到独立目录，并将文件软链接至 /usr/local ；
+- 与 Homebrew 相关的所有文件均会被安装到预定义目录下，无需操心 Homebrew 的安装位置问题；
+- Homebrew 以 git, ruby 为其筋骨；因此，可以借助您的相关知识进行自由修改；可以方便地撤回您的修改或者合并上游更新；
+- Homebrew 的程式都是简单的 Ruby 脚本；
+
+## 安装
+
+（安装过程中需要用到 root 权限）
+
+```shell
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+
+## 卸载
+
+（卸载过程中会提示有些内容需要手动清理）
+
+```shell
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall)"
+```
+
 
 
 # 执行 brew update 时报错如何解决
