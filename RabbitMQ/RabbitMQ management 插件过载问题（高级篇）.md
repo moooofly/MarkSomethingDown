@@ -16,6 +16,10 @@
 - rabbit_2 (ram node)
 - rabbit_3 (ram node)
 
+
+----------
+
+
 # 常用信息获取
 
 ## 查看 rabbit_mgmt_db 进程 pid
@@ -67,7 +71,6 @@
 - {**last_queue_length**,0} 保存在进程字典中的、当前优先级队列中留存的消息数量；
 - {**priority**,high} 表明了进程运行优先级；
 - {**reductions**,381020191} 表明了进程在系统中运行所耗费的时间度量；
-
 
 
 ## 查看与 rabbit_mgmt_db 相关进程的信息
@@ -594,13 +597,16 @@ get_status(SysState, Parent, Mod, Debug, Misc) ->
 ```
 
 
+----------
+
+
 # 信息获取方法
 
 由于本文的目标是获取 rabbit_mgmt_db 进程的状态信息，因此可以采用两种方式进行操作：
 - 先确定 rabbit_mgmt_db 进程（即统计数据库的位置）运行于哪个 RabbitMQ 节点上，再调用访问本地节点的接口进行信息获取；
 - 通过全局可用接口从 cluster 中任意节点上进行信息获取；
 
-使用的命令来自 sys.erl 模块（可以在 erlang console 上直接使用，可以使用如下两种形式：
+使用的命令来自 `sys.erl` 模块（可以在 erlang console 上直接使用），可以使用如下两种全局调用形式：
 
 ```erlang
 sys:get_state(global:whereis_name(rabbit_mgmt_db)).   %% 基于 pid
