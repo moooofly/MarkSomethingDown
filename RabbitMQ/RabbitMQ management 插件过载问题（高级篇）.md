@@ -551,6 +551,48 @@ format_message_queue(_Opt, MQ) ->
      end}.
 ```
 
+## status 信息
+
+需要知道的是，status 信息不是以 record 的形式定义的，而是在 sys:get_status/5 接口中直接指定的
+
+```erlang
+get_status(SysState, Parent, Mod, Debug, Misc) ->
+	...
+    {status, self(), {module, Mod}, [PDict, SysState, Parent, Debug, FmtMisc]}
+```
+
+这里再次给出实际调用结果作为对比
+
+```erlang
+(rabbit_1@sunfeideMacBook-Pro)8> sys:get_status(whereis(rabbit_mgmt_db)).
+{status,<0.434.0>,
+        {module,gen_server2},
+        [[{'$initial_call',{rabbit_mgmt_db,init,1}},
+          {'$ancestors',[<0.429.0>,rabbit_mgmt_sup,
+                         rabbit_mgmt_sup_sup,<0.407.0>]},
+          {last_queue_length,0}],
+         running,<0.429.0>,[],
+         [{header,"Status for generic server rabbit_mgmt_db"},
+          {data,[{"Status",running},
+                 {"Parent",<0.429.0>},
+                 {"Logged events",[]},
+                 {"Queued messages",{0,[]}}]},
+          {data,[{"State",
+                  {state,[{channel_stats,598109},
+                          {connection_stats,594010},
+                          {consumers_by_channel,606303},
+                          {consumers_by_queue,602206},
+                          {node_node_stats,614497},
+                          {node_stats,610400},
+                          {queue_stats,589915}],
+                         618594,622691,626788,#Ref<0.0.1.63852>,
+                         {{queue_stats,{resource,<<...>>,...}},
+                          messages_unacknowledged},
+                         [{exchange,#Fun<rabbit_exchange.lookup.1>},
+                          {queue,#Fun<rabbit_amqqueue.lookup.1>}],
+                         10000,#Ref<0.0.2.1293>,detailed}}]}]]}
+```
+
 
 # 信息获取方法
 
