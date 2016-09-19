@@ -163,6 +163,8 @@ rabbit_mgmt_db        erlang:hibernate/3                       0
 
 # 源码分析
 
+## sys:get_state/1
+
 当在 erlang console 中执行 `sys:get_state(rabbit_mgmt_db).` 命令时，对应的命令执行过程如下：
 
 在 `sys.erl` 模块中实现了高层次的系统状态获取接口；
@@ -384,7 +386,7 @@ reply({To, Tag}, Reply) ->
     try To ! Msg catch _:_ -> Msg end.
 ```
 
-之后，消息 {Mref, GS2State} 被发回给发出 system 消息的进程，即之前的
+之后，消息 *{Mref, GS2State}* 被发回给发出 system 消息的进程，即之前的
 
 ```erlang
     ...
