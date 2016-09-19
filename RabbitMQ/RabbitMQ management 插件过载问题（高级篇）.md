@@ -767,6 +767,12 @@ ok
 (rabbit_2@sunfeideMacBook-Pro)7>
 ```
 
+![初始状态 entop](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%88%9D%E5%A7%8B%E7%8A%B6%E6%80%81%20entop.png "初始状态 entop")
+
+![初始状态 web](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%88%9D%E5%A7%8B%E7%8A%B6%E6%80%81%20web.png "初始状态 web")
+
+
+
 ### 压入 1w 条消息时的状态
 
 在另一个 erlang console 中，向 rabbit_mgmt_db 进程压入 10,000 条消息；
