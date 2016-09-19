@@ -90,7 +90,7 @@ rabbit_mgmt_sup       gen_server:loop/6                        9
 rabbit_mgmt_db        erlang:hibernate/3                       0
 ```
 
-## 通过 sys:get_state/1 获取 rabbit_mgmt_db 进程（即 gen_server2 进程）的 state 信息
+## 通过 `sys:get_state/1` 获取 rabbit_mgmt_db 进程（即 gen_server2 进程）的 state 信息
 
 ```erlang
 (rabbit_2@sunfeideMacBook-Pro)1> sys:get_state(rabbit_mgmt_db).
@@ -122,6 +122,40 @@ rabbit_mgmt_db        erlang:hibernate/3                       0
 - {**queue**,[],[],0} 给出了 gen_server2 自行实现的、优先级队列中尚未处理的内容；
 
 
+## 通过 `sys:get_status/1` 获取 rabbit_mgmt_db 进程信息
+
+```erlang
+(rabbit_2@sunfeideMacBook-Pro)5> sys:get_status(rabbit_mgmt_db).
+{status,<0.794.0>,
+        {module,gen_server2},
+        [[{'$initial_call',{rabbit_mgmt_db,init,1}},
+          {'$ancestors',[<0.401.0>,rabbit_mgmt_sup,
+                         rabbit_mgmt_sup_sup,<0.379.0>]},
+          {last_queue_length,0}],
+         running,<0.401.0>,[],
+         [{header,"Status for generic server rabbit_mgmt_db"},
+          {data,[{"Status",running},
+                 {"Parent",<0.401.0>},
+                 {"Logged events",[]},
+                 {"Queued messages",{0,[]}}]},
+          {data,[{"State",
+                  {state,[{channel_stats,458774},
+                          {connection_stats,454677},
+                          {consumers_by_channel,467037},
+                          {consumers_by_queue,462940},
+                          {node_node_stats,475231},
+                          {node_stats,471134},
+                          {queue_stats,450580}],
+                         479328,483425,487522,#Ref<0.0.1.3805>,
+                         {{node_stats,'rabbit_3@sunfeideMacBook-Pro'},disk_free},
+                         [{exchange,#Fun<rabbit_exchange.lookup.1>},
+                          {queue,#Fun<rabbit_amqqueue.lookup.1>}],
+                         10000,#Ref<0.0.1.1448>,detailed}}]}]]}
+(rabbit_2@sunfeideMacBook-Pro)6>
+```
+
+有价值的内容：
+- {**queue**,[],[],0} 给出了 gen_server2 自行实现的、优先级队列中尚未处理的内容；
 
 ----------
 
