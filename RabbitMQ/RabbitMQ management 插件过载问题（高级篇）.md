@@ -1,13 +1,13 @@
 
 
 
-本文主要研究针对 RabbitMQ 中 rabbit_mgmt_db 进程的状态信息获取，源码分析 sys:get_state/1,2 使用；
+本文主要针对“RabbitMQ 中 rabbit_mgmt_db 进程状态信息获取“进行研究，并源码分析了 `sys:get_state/1,2` 的使用；
 
 ----------
 
 # 环境信息
 
-- 开发机：MacBook Pro OS X EI Captitan 版本 10.11.6 (15G31)
+- 测试环境：MacBook Pro OS X EI Captitan 版本 10.11.6 (15G31)
 - RabbitMQ 版本：rabbitmq_server-3.6.1
 - Erang 版本：Erlang/OTP 19
 
