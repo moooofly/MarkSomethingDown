@@ -403,7 +403,7 @@ reply({To, Tag}, Reply) ->
 至此，我们已经清楚的知道，通过 `sys:get_state/1` 获取 rabbit_mgmt_db 进程（即 gen_server2 进程）的 state 信息全部过程；
 
 
-# 详解 gen_server2 的 state 信息
+## 详解 gen_server2 的 state 信息
 
 对比 gen_server2.erl 的 state 定义，可以更好的理解获取信息的含义；
 
@@ -449,6 +449,106 @@ reply({To, Tag}, Reply) ->
             #Fun<gen_server2.10.133231575>,
             #Fun<gen_server2.8.133231575>}}
 (rabbit_2@sunfeideMacBook-Pro)2>
+```
+
+
+## sys:get_status/1
+
+由于相关代码几乎与 `sys:get_state/1` 相同，故只给出差异部分的代码；
+
+在 `sys.erl` 中
+
+```erlang
+%% 获取 Mod 模块的状态信息
+do_cmd(SysState, get_status, Parent, Mod, Debug, Misc) ->
+    Res = get_status(SysState, Parent, Mod, Debug, Misc),
+    {SysState, Res, Debug, Misc};
+...
+%% 针对 rabbit_mgmt_db.erl 模块的情况
+%% Mod => gen_server2
+%% Misc => GS2State
+get_status(SysState, Parent, Mod, Debug, Misc) ->
+    PDict = get(),
+    FmtMisc =
+        %% gen_server2 中定义了 format_status 函数
+        case erlang:function_exported(Mod, format_status, 2) of
+            true ->
+                FmtArgs = [PDict, SysState, Parent, Debug, Misc],
+                Mod:format_status(normal, FmtArgs);
+            _ ->
+                Misc
+        end,
+    {status, self(), {module, Mod}, [PDict, SysState, Parent, Debug, FmtMisc]}.
+```
+
+在 `gen_server2.erl` 中
+
+```erlang
+format_status(Opt, StatusData) ->
+    [PDict, SysState, Parent, Debug,
+     #gs2_state{name = Name, state = State, mod = Mod, queue = Queue}] =
+        StatusData,
+    NameTag = if is_pid(Name) ->
+                      pid_to_list(Name);
+                 is_atom(Name) ->
+                      Name
+              end,
+    Header = lists:concat(["Status for generic server ", NameTag]),
+    Log = sys:get_debug(log, Debug, []),
+    %% 此处的 Mod 为基于 gen_server2 行为模式运行的进程名，如 rabbit_mgmt_db ，下同
+    %%
+    %% 由于 rabbit_mgmt_db 没有导出 format_status 函数，因此这里输出的是
+    %% rabbit_mgmt_db 模块中的 state 记录内容
+    Specfic = callback(Mod, format_status, [Opt, [PDict, State]],
+                       fun () -> [{data, [{"State", State}]}] end),
+    %% 输出优先级队列相关内容
+    %% rabbit_mgmt_db 中导出了 format_message_queue 函数
+    Messages = callback(Mod, format_message_queue, [Opt, Queue],
+                        fun () -> priority_queue:to_list(Queue) end),
+    [{header, Header},
+     {data, [{"Status", SysState},
+             {"Parent", Parent},
+             {"Logged events", Log},
+             {"Queued messages", Messages}]} |
+     Specfic].
+
+%% 调用指定 Mod 中的 FunName/Args
+callback(Mod, FunName, Args, DefaultThunk) ->
+    case erlang:function_exported(Mod, FunName, length(Args)) of
+		%% 函数调用实际发生的地方
+        true  -> case catch apply(Mod, FunName, Args) of
+                     {'EXIT', _} -> DefaultThunk();
+                     Success     -> Success
+                 end;
+        false -> DefaultThunk()
+    end.
+```
+
+在 `rabbit_mgmt_db.erl` 中
+
+```erlang
+format_message_queue(Opt, MQ) -> rabbit_misc:format_message_queue(Opt, MQ).
+```
+
+在 `rabbit_misc.erl` 中
+
+```erlang
+format_message_queue(_Opt, MQ) ->
+	%% 获取优先级队列中消息的总数
+    Len = priority_queue:len(MQ),
+    {Len,
+     case Len > 100 of
+         %% 100 条之内，直接完整输出消息内容
+         false -> priority_queue:to_list(MQ);
+         %% 超过 100 条，则以统计数据形式输出消息内容
+         true  -> {summary,
+                   orddict:to_list(
+                     lists:foldl(
+                       fun ({P, V}, Counts) ->
+                               orddict:update_counter(
+                                 {P, format_message_queue_entry(V)}, 1, Counts)
+                       end, orddict:new(), priority_queue:to_list(MQ)))}
+     end}.
 ```
 
 
