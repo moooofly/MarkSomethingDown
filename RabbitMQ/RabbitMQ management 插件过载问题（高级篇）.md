@@ -5,19 +5,18 @@
 
 ----------
 
-# 环境信息
+# 开发环境
 
 - 测试环境：MacBook Pro OS X EI Captitan 版本 10.11.6 (15G31)
 - RabbitMQ 版本：rabbitmq_server-3.6.1
 - Erang 版本：Erlang/OTP 19
 
-
-# 常用信息获取
-
 启动 3 节点构成的 RabbitMQ cluster ，节点名分别为
 - rabbit_1 (disk node)
 - rabbit_2 (ram node)
 - rabbit_3 (ram node)
+
+# 常用信息获取
 
 ## 查看 rabbit_mgmt_db 进程 pid
 
