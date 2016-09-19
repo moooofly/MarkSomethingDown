@@ -767,9 +767,13 @@ ok
 (rabbit_2@sunfeideMacBook-Pro)7>
 ```
 
-![初始状态 entop](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%88%9D%E5%A7%8B%E7%8A%B6%E6%80%81%20entop.png "初始状态 entop")
+RabbitMQ Web 控制台状态信息
 
 ![初始状态 web](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%88%9D%E5%A7%8B%E7%8A%B6%E6%80%81%20web.png "初始状态 web")
+
+通过 entop 查看的状态信息（基于 reduction 数值进行排序）
+
+![初始状态 entop](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%88%9D%E5%A7%8B%E7%8A%B6%E6%80%81%20entop.png "初始状态 entop")
 
 
 
@@ -850,6 +854,11 @@ ok
                          10000,#Ref<0.0.3.14>,detailed}}]}]]}
 (rabbit_2@sunfeideMacBook-Pro)14>
 ```
+
+![压入 10000 消息后 web](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%2010000%20%E6%B6%88%E6%81%AF%E5%90%8E%20web.png, "压入 10000 消息后 web")
+
+![压入 10000 消息后 entop](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%2010000%20%E6%B6%88%E6%81%AF%E5%90%8E%20entop.png, "压入 10000 消息后 entop")
+
 
 ### 压入 100w 条消息时的状态
 
@@ -953,6 +962,11 @@ ok
                          10000,#Ref<0.0.3.14>,detailed}}]}]]}
 (rabbit_2@sunfeideMacBook-Pro)18>
 ```
+
+![压入 100w 消息后 web](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%20100w%20%E6%B6%88%E6%81%AF%E5%90%8E%20web.png, "压入 100w 消息后 web")
+
+![压入 100w 消息后 entop](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%20100w%20%E6%B6%88%E6%81%AF%E5%90%8E%20entop.png, "压入 100w 消息后 entop")
+
 
 ### 压入 1000w 条消息时的状态
 
@@ -1155,6 +1169,10 @@ ok
 (rabbit_2@sunfeideMacBook-Pro)35>
 ```
 
+![压入 1000w 消息后 web](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%201000w%20%E6%B6%88%E6%81%AF%E5%90%8E%20web.png, "压入 1000w 消息后 web")
+
+![压入 1000w 消息后 entop](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%201000w%20%E6%B6%88%E6%81%AF%E5%90%8E%20entop.png, "压入 1000w 消息后 entop")
+
 ### 压入 10000w 条消息时的状态
 
 再向 rabbit_mgmt_db 进程压入 100,000,000 条消息；
@@ -1334,6 +1352,10 @@ ok
 (rabbit_2@sunfeideMacBook-Pro)98>
 
 ```
+
+![压入 10000w 消息后 web](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%2010000w%20%E6%B6%88%E6%81%AF%E5%90%8E%20web.png, "压入 10000w 消息后 web")
+
+![压入 10000w 消息后 entop](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%2010000w%20%E6%B6%88%E6%81%AF%E5%90%8E%20entop.png, "压入 10000w 消息后 entop")
 
 此时我的 MacPro 已经发热的不要不要的了～～
 
