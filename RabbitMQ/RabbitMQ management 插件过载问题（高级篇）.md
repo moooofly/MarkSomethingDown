@@ -64,6 +64,7 @@
 - {**current_function**,{gen_server2,process_next_msg,1}} 表明当前指定的函数；
 - {**message_queue_len**,0} 和 {messages,[]} 提供了进程邮箱状态信息；
 - {**dictionary**, [...]} 提供当前进程的进程字典中保存的内容；
+- {**last_queue_length**,0} 保存在进程字典中的、当前优先级队列中留存的消息数量；
 - {**priority**,high} 表明了进程运行优先级；
 - {**reductions**,381020191} 表明了进程在系统中运行所耗费的时间度量；
 
@@ -90,7 +91,7 @@ rabbit_mgmt_sup       gen_server:loop/6                        9
 rabbit_mgmt_db        erlang:hibernate/3                       0
 ```
 
-## 通过 `sys:get_state/1` 获取 rabbit_mgmt_db 进程（即 gen_server2 进程）的 state 信息
+## 通过 `sys:get_state/1` 获取 rabbit_mgmt_db 进程信息
 
 ```erlang
 (rabbit_2@sunfeideMacBook-Pro)1> sys:get_state(rabbit_mgmt_db).
@@ -155,7 +156,8 @@ rabbit_mgmt_db        erlang:hibernate/3                       0
 ```
 
 有价值的内容：
-- {**queue**,[],[],0} 给出了 gen_server2 自行实现的、优先级队列中尚未处理的内容；
+- {**last_queue_length**,0} 保存在进程字典中的、当前优先级队列中留存的消息数量；
+- {"**Queued messages**",{0,[]}} 给出了 gen_server2 自行实现的、优先级队列中尚未处理的内容；
 
 ----------
 
