@@ -60,6 +60,15 @@
 (rabbit_2@sunfeideMacBook-Pro)4>
 ```
 
+有价值的内容：
+- {**current_function**,{gen_server2,process_next_msg,1}} 表明当前指定的函数；
+- {**message_queue_len**,0} 和 {messages,[]} 提供了进程邮箱状态信息；
+- {**dictionary**, [...]} 提供当前进程的进程字典中保存的内容；
+- {**priority**,high} 表明了进程运行优先级；
+- {**reductions**,381020191} 表明了进程在系统中运行所耗费的时间度量；
+
+
+
 ## 查看与 rabbit_mgmt_db 相关进程的信息
 
 ```erlang
@@ -109,12 +118,7 @@ rabbit_mgmt_db        erlang:hibernate/3                       0
 (rabbit_2@sunfeideMacBook-Pro)2>
 ```
 
-上述信息提供了大量有价值的内容：
-- {**message_queue_len**,0} 和 {messages,[]} 提供了进程邮箱状态信息；
-- {**'$ancestors'**,[<0.390.0>,rabbit_mgmt_sup,rabbit_mgmt_sup_sup,<0.360.0>]} 提供了进程父子关系链；
-- {**last_queue_length**,0} 提供了 gen_server2 自行实现的、优先级队列的长度；
-- {**priority**,high} 表明了进程运行优先级；
-- {**reductions**,381020191} 表明了进程在系统中运行所耗费的时间度量；
+有价值的内容：
 - {**queue**,[],[],0} 给出了 gen_server2 自行实现的、优先级队列中尚未处理的内容；
 
 
