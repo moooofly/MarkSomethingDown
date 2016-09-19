@@ -728,7 +728,7 @@ Eshell V8.0.2  (abort with ^G)
 (rabbit_2@sunfeideMacBook-Pro)5>
 ```
 
-放开 statistics 开关，便于观察 event 的 in 和 out 情况；
+放开 statistics 开关，便于观察 messages 的 in 和 out 情况；
 
 ```erlang
 (rabbit_2@sunfeideMacBook-Pro)5> sys:statistics({global, rabbit_mgmt_db},true).
@@ -769,7 +769,7 @@ ok
 
 ### 压入 1w 条消息时的状态
 
-在另一个 erlang console 中向 rabbit_mgmt_db 进程压入 10,000 条消息；
+在另一个 erlang console 中，向 rabbit_mgmt_db 进程压入 10,000 条消息；
 
 ```erlang
 (rabbit_2@sunfeideMacBook-Pro)1> P=whereis(rabbit_mgmt_db).
@@ -809,7 +809,7 @@ ok
 (rabbit_2@sunfeideMacBook-Pro)3>
 ```
 
-可以看到 messages_in 对应的数值增加了 10,000（由于 RabbitMQ 系统默认会定时上报统计信息，所以该值正常情况下也会缓慢增长）；
+可以看到 messages_in 对应的数值增加了 10,000（由于在默认配置下，RabbitMQ 同样会定时上报统计信息，所以该值在正常情况下也会缓慢增长）；
 
 ```erlang
 (rabbit_2@sunfeideMacBook-Pro)13> sys:get_status({global, rabbit_mgmt_db}).
@@ -822,7 +822,7 @@ ok
          running,<0.389.0>,
          [{statistics,{{{2016,9,19},{16,25,17}},
                        {reductions,9513561},
-                       11114,0}}],   %% 增加 10,000
+                       11114,0}}],        %% 已压入 1w+ 消息
          [{header,"Status for generic server rabbit_mgmt_db"},
           {data,[{"Status",running},
                  {"Parent",<0.389.0>},
@@ -847,10 +847,7 @@ ok
 
 ### 压入 100w 条消息时的状态
 
-在另一个 erlang console 中再向 rabbit_mgmt_db 进程压入 1,000,000 条消息；
-
-
-精彩瞬间如下
+在另一个 erlang console 中，再向 rabbit_mgmt_db 进程压入 1,000,000 条消息；
 
 ```erlang
 (rabbit_2@sunfeideMacBook-Pro)15> sys:get_status({global, rabbit_mgmt_db}).
@@ -859,7 +856,7 @@ ok
         [[{'$initial_call',{rabbit_mgmt_db,init,1}},
           {'$ancestors',[<0.389.0>,rabbit_mgmt_sup,
                          rabbit_mgmt_sup_sup,<0.367.0>]},
-          {last_queue_length,18}],              %% 调用该命令的瞬间，进程邮箱中shang
+          {last_queue_length,18}],          %% 调用该命令的瞬间，进程邮箱中尚仍在的消息数量
          running,<0.389.0>,
          [{statistics,{{{2016,9,19},{16,25,17}},
                        {reductions,9513561},
@@ -928,7 +925,7 @@ ok
          running,<0.389.0>,
          [{statistics,{{{2016,9,19},{16,25,17}},
                        {reductions,9513561},
-                       1012948,0}}],              %% 已压入 100w 消息
+                       1012948,0}}],              %% 已压入 100w+ 消息
          [{header,"Status for generic server rabbit_mgmt_db"},
           {data,[{"Status",running},
                  {"Parent",<0.389.0>},
@@ -967,7 +964,7 @@ ok
          running,<0.389.0>,
          [{statistics,{{{2016,9,19},{16,25,17}},
                        {reductions,9513561},
-                       1646573,0}}],     %% 160w+ 消息
+                       1646573,0}}],         %% 已压入 160w+ 消息
          [{header,"Status for generic server rabbit_mgmt_db"},
           {data,[{"Status",running},
                  {"Parent",<0.389.0>},
@@ -1000,7 +997,7 @@ ok
          running,<0.389.0>,
          [{statistics,{{{2016,9,19},{16,25,17}},
                        {reductions,9513561},
-                       2741179,0}}],        %% 270w+ 消息
+                       2741179,0}}],        %% 已压入 270w+ 消息
          [{header,"Status for generic server rabbit_mgmt_db"},
           {data,[{"Status",running},
                  {"Parent",<0.389.0>},
@@ -1042,7 +1039,7 @@ ok
          running,<0.389.0>,
          [{statistics,{{{2016,9,19},{16,25,17}},
                        {reductions,9513561},
-                       3993400,0}}],          %% 390w+ 消息
+                       3993400,0}}],          %% 已压入 390w+ 消息
          [{header,"Status for generic server rabbit_mgmt_db"},
           {data,[{"Status",running},
                  {"Parent",<0.389.0>},
@@ -1085,7 +1082,7 @@ ok
          running,<0.389.0>,
          [{statistics,{{{2016,9,19},{16,25,17}},
                        {reductions,9513561},
-                       9178618,0}}],         %% 910w+ 消息
+                       9178618,0}}],         %% 已压入 910w+ 消息
          [{header,"Status for generic server rabbit_mgmt_db"},
           {data,[{"Status",running},
                  {"Parent",<0.389.0>},
@@ -1129,7 +1126,7 @@ ok
          running,<0.389.0>,
          [{statistics,{{{2016,9,19},{16,25,17}},
                        {reductions,9513561},
-                       11017212,0}}],       %% 1100w+ 消息
+                       11017212,0}}],       %% 已压入 1100w+ 消息
          [{header,"Status for generic server rabbit_mgmt_db"},
           {data,[{"Status",running},
                  {"Parent",<0.389.0>},
@@ -1168,7 +1165,7 @@ ok
          running,<0.389.0>,
          [{statistics,{{{2016,9,19},{16,25,17}},
                        {reductions,9513561},
-                       29528363,0}}],     %% 2900w+ 消息
+                       29528363,0}}],     %% 已压入 2900w+ 消息
          [{header,"Status for generic server rabbit_mgmt_db"},
           {data,[{"Status",running},
                  {"Parent",<0.389.0>},
@@ -1209,7 +1206,7 @@ ok
          running,<0.389.0>,
          [{statistics,{{{2016,9,19},{16,25,17}},
                        {reductions,9513561},
-                       33249279,0}}],       %% 3300w+ 消息
+                       33249279,0}}],       %% 已压入 3300w+ 消息
          [{header,"Status for generic server rabbit_mgmt_db"},
           {data,[{"Status",running},
                  {"Parent",<0.389.0>},
@@ -1275,7 +1272,7 @@ ok
          running,<0.389.0>,
          [{statistics,{{{2016,9,19},{16,25,17}},
                        {reductions,9513561},
-                       43568879,0}}],          %% 4300w+ 消息
+                       43568879,0}}],          %% 已压入 4300w+ 消息
          [{header,"Status for generic server rabbit_mgmt_db"},
           {data,[{"Status",running},
                  {"Parent",<0.389.0>},
@@ -1308,7 +1305,7 @@ ok
          running,<0.389.0>,
          [{statistics,{{{2016,9,19},{16,25,17}},
                        {reductions,9513561},
-                       111022237,0}}],       %% 11100w+ 消息
+                       111022237,0}}],       %% 已压入 11100w+ 消息
          [{header,"Status for generic server rabbit_mgmt_db"},
           {data,[{"Status",running},
                  {"Parent",<0.389.0>},
