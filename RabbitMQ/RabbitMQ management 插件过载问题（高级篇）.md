@@ -1388,6 +1388,9 @@ RabbitMQ Web 控制台状态信息
 
 ## 线上环境实际数据
 
+信息获取
+- last_queue_length : 44
+- "Queued messages" : 0
 
 ```shell
 [fei.sun@xg-napos-rmq-3 ~]$ sudo rabbitmqctl eval "sys:get_status(global:whereis_name(rabbit_mgmt_db))."
@@ -1418,6 +1421,23 @@ RabbitMQ Web 控制台状态信息
                           {queue,#Fun<rabbit_amqqueue.lookup.1>}],
                          5000,#Ref<5548.0.1401.4079>,basic}}]}]]}
 [fei.sun@xg-napos-rmq-3 ~]$
+```
+
+
+信息获取
+- last_queue_length: 1031
+- "Queued messages": 1107
+    - channel_closed: 371
+    - channel_created: 369
+    - channel_stats: 307
+    - connection_closed: 3
+    - connection_created: 3
+    - connection_stats: 49
+    - queue_stats: 1
+    - user_authentication_success: 3
+    - augment_nodes: 1
+
+```shell
 [fei.sun@xg-napos-rmq-3 ~]$
 [fei.sun@xg-napos-rmq-3 ~]$ sudo rabbitmqctl eval "sys:get_status(global:whereis_name(rabbit_mgmt_db))."
 {status,<5548.2968.1472>,
@@ -1488,6 +1508,18 @@ RabbitMQ Web 控制台状态信息
                  {queue,#Fun<rabbit_amqqueue.lookup.1>}],
                 5000,#Ref<5548.0.1401.4079>,basic}}]}]]}
 [fei.sun@xg-napos-rmq-3 ~]$
+```
+
+信息获取
+- last_queue_length: 79
+- "Queued messages": 9
+    - channel_closed: 3
+    - channel_created: 1
+    - channel_stats: 4
+    - connection_stats: 1
+
+
+```shell
 [fei.sun@xg-napos-rmq-3 ~]$ sudo rabbitmqctl eval "sys:get_status(global:whereis_name(rabbit_mgmt_db))."
 {status,<5548.2968.1472>,
     {module,gen_server2},
@@ -1655,6 +1687,19 @@ RabbitMQ Web 控制台状态信息
                  {queue,#Fun<rabbit_amqqueue.lookup.1>}],
                 5000,#Ref<5548.0.1401.4079>,basic}}]}]]}
 [fei.sun@xg-napos-rmq-3 ~]$
+```
+
+信息获取
+- last_queue_length: 67
+- "Queued messages": 501
+    - channel_closed: 98
+    - channel_created: 96
+    - channel_stats: 291
+    - connection_stats: 15
+    - queue_stats: 1
+
+
+```shell
 [fei.sun@xg-napos-rmq-3 ~]$
 [fei.sun@xg-napos-rmq-3 ~]$ sudo rabbitmqctl eval "sys:get_status(global:whereis_name(rabbit_mgmt_db))."
 {status,<5548.2968.1472>,
@@ -1705,6 +1750,24 @@ RabbitMQ Web 控制台状态信息
                  {queue,#Fun<rabbit_amqqueue.lookup.1>}],
                 5000,#Ref<5548.0.1401.4079>,basic}}]}]]}
 [fei.sun@xg-napos-rmq-3 ~]$
+```
+
+
+信息获取
+- last_queue_length: 1224
+- "Queued messages": 1264
+    - channel_closed: 314
+    - channel_created: 311
+    - channel_stats: 583
+    - connection_closed: 3
+    - connection_created: 3
+    - connection_stats: 43
+    - queue_stats: 1
+    - user_authentication_success: 3
+    - augment_nodes: 2
+    - augment_queues: 1
+
+```shell
 [fei.sun@xg-napos-rmq-3 ~]$ sudo rabbitmqctl eval "sys:get_status(global:whereis_name(rabbit_mgmt_db))."
 {status,<5548.2968.1472>,
     {module,gen_server2},
