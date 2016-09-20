@@ -1382,10 +1382,8 @@ RabbitMQ Web 控制台状态信息
 从上面的实验中可以得出以下几个结论：
 - 只有统计数据库所在的 RabbitMQ 节点的内存占用随着压入消息量的增加而增大（从 56M 开始，最终达到 16G）；
 - rabbit_mgmt_db 进程的 reductions 值从初始状态时的、同数量级值（3606267）增长到最终状态时的、高出其他所有进程两个数量级的值（3156198688）；注意：请忽略 <0.7856.0> 这个进程，因为这个是测试 shell 引入的，非 RabbitMQ 内部原生进程；
-- 3
-- 4
-- 5
-- 
+- 调用 sys:status/1 的瞬间 last_queue_length 的值并不一定与 "Queued messages" 中展示的值完全对应上，因为存在获取时差问题；web 页面上的黄色告警判定是基于 last_queue_length 的值（大于 1000  告警），从上面的信息中可以看到，存在 last_queue_length 为 0 ，而 "Queued messages" 积压上万消息的情况；同样，也存在 last_queue_length 值不为 0 ，而 "Queued messages" 为 0 的情况；（具体原因详见 `gen_server2.erl` 中 `drain/1` 消息搬移实现）
+
 
 
 ## 线上环境实际数据
