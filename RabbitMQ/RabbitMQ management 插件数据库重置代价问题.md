@@ -110,10 +110,10 @@ Statistics database started.
 
 发信号前
 
-![停止 rabbit_mgmt_db 进程前](https://raw.githubusercontent.com/moooofly/ImageCache/master/%E4%BB%85%E5%81%9C%E6%AD%A2rabbit_mgmt_db%E7%9A%84%E6%96%B9%E5%BC%8F_1.png "停止 rabbit_mgmt_db 进程前")
+![停止 rabbit_mgmt_db 进程前](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E4%BB%85%E5%81%9C%E6%AD%A2rabbit_mgmt_db%E7%9A%84%E6%96%B9%E5%BC%8F_1.png "停止 rabbit_mgmt_db 进程前")
 
 发信号后
-![停止 rabbit_mgmt_db 进程后](https://raw.githubusercontent.com/moooofly/ImageCache/master/%E4%BB%85%E5%81%9C%E6%AD%A2rabbit_mgmt_db%E7%9A%84%E6%96%B9%E5%BC%8F_2.png "停止 rabbit_mgmt_db 进程后")
+![停止 rabbit_mgmt_db 进程后](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E4%BB%85%E5%81%9C%E6%AD%A2rabbit_mgmt_db%E7%9A%84%E6%96%B9%E5%BC%8F_2.png "停止 rabbit_mgmt_db 进程后")
 
 对比发现，只有 `rabbit_mgmt_db` 进程 pid 发生了变化；
 
@@ -125,20 +125,20 @@ Statistics database started.
 
 重启 management 插件前的**进程**信息
 
-![重启 management 插件前的进程信息](https://raw.githubusercontent.com/moooofly/ImageCache/master/%E9%87%8D%E5%90%AFmanagement%E6%8F%92%E4%BB%B6%E5%89%8D%E7%9A%84%E8%BF%9B%E7%A8%8B%E4%BF%A1%E6%81%AF.png "重启 management 插件前的进程信息")
+![重启 management 插件前的进程信息](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E9%87%8D%E5%90%AFmanagement%E6%8F%92%E4%BB%B6%E5%89%8D%E7%9A%84%E8%BF%9B%E7%A8%8B%E4%BF%A1%E6%81%AF.png "重启 management 插件前的进程信息")
 
 重启 management 插件前的**树**信息
 
-![重启 management 插件前的树信息](https://raw.githubusercontent.com/moooofly/ImageCache/master/%E9%87%8D%E5%90%AFmanagement%E6%8F%92%E4%BB%B6%E5%89%8D%E7%9A%84%E6%A0%91%E4%BF%A1%E6%81%AF.png "重启 management 插件前的树信息")
+![重启 management 插件前的树信息](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E9%87%8D%E5%90%AFmanagement%E6%8F%92%E4%BB%B6%E5%89%8D%E7%9A%84%E6%A0%91%E4%BF%A1%E6%81%AF.png "重启 management 插件前的树信息")
 
 
 重启 management 插件后的**进程**信息
 
-![重启 management 插件后的进程信息](https://raw.githubusercontent.com/moooofly/ImageCache/master/%E9%87%8D%E5%90%AFmanagement%E6%8F%92%E4%BB%B6%E5%90%8E%E7%9A%84%E8%BF%9B%E7%A8%8B%E4%BF%A1%E6%81%AF.png "重启 management 插件后的进程信息")
+![重启 management 插件后的进程信息](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E9%87%8D%E5%90%AFmanagement%E6%8F%92%E4%BB%B6%E5%90%8E%E7%9A%84%E8%BF%9B%E7%A8%8B%E4%BF%A1%E6%81%AF.png "重启 management 插件后的进程信息")
 
 重启 management 插件后的**树**信息
 
-![重启 management 插件后的树信息](https://raw.githubusercontent.com/moooofly/ImageCache/master/%E9%87%8D%E5%90%AFmanagement%E6%8F%92%E4%BB%B6%E5%90%8E%E7%9A%84%E6%A0%91%E4%BF%A1%E6%81%AF.png "重启 management 插件后的树信息")
+![重启 management 插件后的树信息](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E9%87%8D%E5%90%AFmanagement%E6%8F%92%E4%BB%B6%E5%90%8E%E7%9A%84%E6%A0%91%E4%BF%A1%E6%81%AF.png "重启 management 插件后的树信息")
 
 
 # 结论
