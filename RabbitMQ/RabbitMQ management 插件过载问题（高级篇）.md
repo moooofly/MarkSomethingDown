@@ -620,7 +620,7 @@ gen:call(global:whereis_name(rabbit_mgmt_db),system,get_state).
 gen:call({global,rabbit_mgmt_db},system,get_state).
 ```
 
-对应到 RabbitMQ 上的命令如下
+对应到 RabbitMQ 上可用的 shell 命令如下
 
 ```shell
 sudo rabbitmqctl eval "sys:get_state(global:whereis_name(rabbit_mgmt_db))."
@@ -651,13 +651,13 @@ Eshell V8.0.2  (abort with ^G)
  {current_function,{erlang,hibernate,3}},
  {initial_call,{proc_lib,init_p,5}},
  {status,waiting},
- {message_queue_len,0},
- {messages,[]},
+ {message_queue_len,0},            %% 观察点
+ {messages,[]},                    %% 观察点
  {links,[<0.389.0>]},
  {dictionary,[{'$initial_call',{rabbit_mgmt_db,init,1}},
               {'$ancestors',[<0.389.0>,rabbit_mgmt_sup,
                              rabbit_mgmt_sup_sup,<0.367.0>]},
-              {last_queue_length,0}]},
+              {last_queue_length,0}]},      %% 观察点
  {trap_exit,false},
  {error_handler,error_handler},
  {priority,high},
@@ -665,7 +665,7 @@ Eshell V8.0.2  (abort with ^G)
  {total_heap_size,172},
  {heap_size,172},
  {stack_size,0},
- {reductions,2340944},
+ {reductions,2340944},                     %% 观察点
  {garbage_collection,[{max_heap_size,#{error_logger => true,
                                        kill => true,
                                        size => 0}},
@@ -692,7 +692,7 @@ Eshell V8.0.2  (abort with ^G)
                   10000,#Ref<0.0.3.14>,detailed},
            rabbit_mgmt_db,hibernate,
            {backoff,11,1000,10000,{26480,-6868,-4853}},
-           {queue,[],[],0},
+           {queue,[],[],0},                %% 观察点
            [],
            {#Fun<gen_server2.9.133231575>,
             #Fun<gen_server2.10.133231575>,
@@ -705,13 +705,13 @@ Eshell V8.0.2  (abort with ^G)
         [[{'$initial_call',{rabbit_mgmt_db,init,1}},
           {'$ancestors',[<0.389.0>,rabbit_mgmt_sup,
                          rabbit_mgmt_sup_sup,<0.367.0>]},
-          {last_queue_length,0}],
+          {last_queue_length,0}],            %% 观察点
          running,<0.389.0>,[],
          [{header,"Status for generic server rabbit_mgmt_db"},
           {data,[{"Status",running},
                  {"Parent",<0.389.0>},
                  {"Logged events",[]},
-                 {"Queued messages",{0,[]}}]},
+                 {"Queued messages",{0,[]}}]},           %% 观察点
           {data,[{"State",
                   {state,[{channel_stats,471133},
                           {connection_stats,467036},
