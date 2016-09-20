@@ -1359,6 +1359,35 @@ RabbitMQ Web 控制台状态信息
 
 此时我的 MacPro 已经发热的不要不要的了～～
 
+下面给出压测过程中的一些精彩瞬间
+
+![2.9G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/2.9G%208187.png "2.9G时")
+
+![4.2G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/4.2G%2011182.png "4.2G时")
+
+![4.9G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/4.9G%2022010.png "4.9G时")
+
+![6G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/6G%2011556.png "6G时")
+
+![7.3G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/7.3G%202411.png "7.3G时")
+
+![10G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/10G%205847.png "10G时")
+
+![16G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/16G%20%E6%9C%80%E5%90%8E%E7%8A%B6%E6%80%81.png "16G时")
+
+
+
+### 实验结果说明
+
+从上面的实验中可以得出以下几个结论：
+- 只有统计数据库所在的 RabbitMQ 节点的内存占用随着压入消息量的增加而增大（从 56M 开始，最终达到 16G）；
+- rabbit_mgmt_db 进程的 reductions 值从初始状态时的、同数量级值（3606267）增长到最终状态时的、高出其他所有进程两个数量级的值（3156198688）；注意：请忽略 <0.7856.0> 这个进程，因为这个是测试 shell 引入的，非 RabbitMQ 内部原生进程；
+- 3
+- 4
+- 5
+- 
+
+
 ## 线上环境实际数据
 
 
