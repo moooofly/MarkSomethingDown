@@ -9,7 +9,7 @@
 
 > 从上述内容中，可以得到如下几点信息：
 > - management 插件在内存中通过统计数据库维护了大量 web 页面展示所需的相关数据；
-> - management 插件基于内部实现（实际上时基于 gen_server2 行为模式，通过内部的 buffer 和 message queue 组合进行处理）对收到的消息进行缓存和有序处理；但随着消息的增多，势必造成内存消耗的增加，响应外部请求的即时性变差；
+> - management 插件基于内部实现（实际上是基于 gen_server2 行为模式，通过内部的 buffer 和 message queue 组合进行处理）对收到的消息进行缓存和有序处理；但随着消息的增多，势必造成内存消耗的增加，响应外部请求的即时性变差；
 > - 设置 `rates_mode` 选项参数的值为 node 应该会有所改善；
 
 
@@ -31,7 +31,7 @@
 
 最初还怀疑过，是否由于统计事件过多消耗了大量内存，并导致内存水位（`vm_memory_high_watermark`）或磁盘空闲空间（`disk_free_limit`）达到阈值限制，进而触发 RabbitMQ 自身的保护机制（流控），即阻塞 Producer 继续投递消息；但经过后续证实，发生问题时，内存、磁盘、fd 资源等均有大量剩余；
 
-> 关于内存和磁盘告警问题，详见《[RabbitMQ 中的内存告警问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ%20%E4%B8%AD%E7%9A%84%E5%86%85%E5%AD%98%E5%91%8A%E8%AD%A6%E9%97%AE%E9%A2%98.md)》和《[RabbitMQ 中的磁盘告警问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ%20%E4%B8%AD%E7%9A%84%E7%A3%81%E7%9B%98%E5%91%8A%E8%AD%A6%E9%97%AE%E9%A2%98.md)》
+> 关于内存和磁盘告警问题，详见《[RabbitMQ 中的内存告警问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20%E4%B8%AD%E7%9A%84%E5%86%85%E5%AD%98%E5%91%8A%E8%AD%A6%E9%97%AE%E9%A2%98.md)》和《[RabbitMQ 中的磁盘告警问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20%E4%B8%AD%E7%9A%84%E7%A3%81%E7%9B%98%E5%91%8A%E8%AD%A6%E9%97%AE%E9%A2%98.md)》
 
 ## 深入研究后的结论
 
@@ -278,7 +278,7 @@ rabbitmqctl eval 'supervisor2:terminate_child(rabbit_mgmt_sup_sup, rabbit_mgmt_s
 
 无论如何，上述命令必须在统计数据库所在节点上执行才能生效；
 
-针对该问题的详细说明，可以移步另外一篇总结：《[RabbitMQ management 插件数据库重置代价问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ%20management%20%E6%8F%92%E4%BB%B6%E6%95%B0%E6%8D%AE%E5%BA%93%E9%87%8D%E7%BD%AE%E4%BB%A3%E4%BB%B7%E9%97%AE%E9%A2%98.md)》
+针对该问题的详细说明，可以移步另外一篇总结：《[RabbitMQ management 插件数据库重置代价问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20management%20%E6%8F%92%E4%BB%B6%E6%95%B0%E6%8D%AE%E5%BA%93%E9%87%8D%E7%BD%AE%E4%BB%A3%E4%BB%B7%E9%97%AE%E9%A2%98.md)》
 
 
 ## 内存管理问题
