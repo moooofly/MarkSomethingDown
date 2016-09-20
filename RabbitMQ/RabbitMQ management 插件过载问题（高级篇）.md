@@ -1,7 +1,7 @@
 
 
 
-本文主要针对“RabbitMQ 中 rabbit_mgmt_db 进程状态信息获取“进行研究，并源码分析了 `sys:get_state/1,2` 的使用；
+本文主要针对“RabbitMQ 中 rabbit_mgmt_db 进程状态信息获取“进行研究，并源码分析了 `sys:get_state/1,2` 的使用；并总结了在 channel 反复创建和销毁的情况下，对 management 插件统计事件数据库、对业务造成的影响～
 
 ----------
 
