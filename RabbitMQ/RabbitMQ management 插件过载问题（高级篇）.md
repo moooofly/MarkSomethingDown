@@ -12,6 +12,7 @@
 - Erang 版本：Erlang/OTP 19
 
 启动 3 节点构成的 RabbitMQ cluster ，节点名分别为
+
 - rabbit_1 (disk node)
 - rabbit_2 (ram node)
 - rabbit_3 (ram node)
@@ -769,11 +770,11 @@ ok
 
 RabbitMQ Web 控制台状态信息
 
-![初始状态 web](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%88%9D%E5%A7%8B%E7%8A%B6%E6%80%81%20web.png "初始状态 web")
+![初始状态 web](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E5%88%9D%E5%A7%8B%E7%8A%B6%E6%80%81%20web.png "初始状态 web")
 
 通过 entop 查看的状态信息（基于 reduction 数值进行排序）
 
-![初始状态 entop](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%88%9D%E5%A7%8B%E7%8A%B6%E6%80%81%20entop.png "初始状态 entop")
+![初始状态 entop](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E5%88%9D%E5%A7%8B%E7%8A%B6%E6%80%81%20entop.png "初始状态 entop")
 
 
 
@@ -855,9 +856,9 @@ RabbitMQ Web 控制台状态信息
 (rabbit_2@sunfeideMacBook-Pro)14>
 ```
 
-![压入 10000 消息后 web](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%2010000%20%E6%B6%88%E6%81%AF%E5%90%8E%20web.png "压入 10000 消息后 web")
+![压入 10000 消息后 web](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E5%8E%8B%E5%85%A5%2010000%20%E6%B6%88%E6%81%AF%E5%90%8E%20web.png "压入 10000 消息后 web")
 
-![压入 10000 消息后 entop](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%2010000%20%E6%B6%88%E6%81%AF%E5%90%8E%20entop.png "压入 10000 消息后 entop")
+![压入 10000 消息后 entop](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E5%8E%8B%E5%85%A5%2010000%20%E6%B6%88%E6%81%AF%E5%90%8E%20entop.png "压入 10000 消息后 entop")
 
 
 ### 压入 100w 条消息时的状态
@@ -963,9 +964,9 @@ RabbitMQ Web 控制台状态信息
 (rabbit_2@sunfeideMacBook-Pro)18>
 ```
 
-![压入 100w 消息后 web](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%20100w%20%E6%B6%88%E6%81%AF%E5%90%8E%20web.png "压入 100w 消息后 web")
+![压入 100w 消息后 web](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E5%8E%8B%E5%85%A5%20100w%20%E6%B6%88%E6%81%AF%E5%90%8E%20web.png "压入 100w 消息后 web")
 
-![压入 100w 消息后 entop](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%20100w%20%E6%B6%88%E6%81%AF%E5%90%8E%20entop.png "压入 100w 消息后 entop")
+![压入 100w 消息后 entop](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E5%8E%8B%E5%85%A5%20100w%20%E6%B6%88%E6%81%AF%E5%90%8E%20entop.png "压入 100w 消息后 entop")
 
 
 ### 压入 1000w 条消息时的状态
@@ -1169,9 +1170,9 @@ RabbitMQ Web 控制台状态信息
 (rabbit_2@sunfeideMacBook-Pro)35>
 ```
 
-![压入 1000w 消息后 web](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%201000w%20%E6%B6%88%E6%81%AF%E5%90%8E%20web.png "压入 1000w 消息后 web")
+![压入 1000w 消息后 web](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E5%8E%8B%E5%85%A5%201000w%20%E6%B6%88%E6%81%AF%E5%90%8E%20web.png "压入 1000w 消息后 web")
 
-![压入 1000w 消息后 entop](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%201000w%20%E6%B6%88%E6%81%AF%E5%90%8E%20entop.png "压入 1000w 消息后 entop")
+![压入 1000w 消息后 entop](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E5%8E%8B%E5%85%A5%201000w%20%E6%B6%88%E6%81%AF%E5%90%8E%20entop.png "压入 1000w 消息后 entop")
 
 ### 压入 10000w 条消息时的状态
 
@@ -1353,27 +1354,27 @@ RabbitMQ Web 控制台状态信息
 
 ```
 
-![压入 10000w 消息后 web](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%2010000w%20%E6%B6%88%E6%81%AF%E5%90%8E%20web.png "压入 10000w 消息后 web")
+![压入 10000w 消息后 web](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E5%8E%8B%E5%85%A5%2010000w%20%E6%B6%88%E6%81%AF%E5%90%8E%20web.png "压入 10000w 消息后 web")
 
-![压入 10000w 消息后 entop](https://github.com/moooofly/ImageCache/blob/master/Pictures/%E5%8E%8B%E5%85%A5%2010000w%20%E6%B6%88%E6%81%AF%E5%90%8E%20entop.png "压入 10000w 消息后 entop")
+![压入 10000w 消息后 entop](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E5%8E%8B%E5%85%A5%2010000w%20%E6%B6%88%E6%81%AF%E5%90%8E%20entop.png "压入 10000w 消息后 entop")
 
 此时我的 MacPro 已经发热的不要不要的了～～
 
 下面给出压测过程中的一些精彩瞬间
 
-![2.9G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/2.9G%208187.png "2.9G时")
+![2.9G时](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/2.9G%208187.png "2.9G时")
 
-![4.2G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/4.2G%2011182.png "4.2G时")
+![4.2G时](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/4.2G%2011182.png "4.2G时")
 
-![4.9G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/4.9G%2022010.png "4.9G时")
+![4.9G时](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/4.9G%2022010.png "4.9G时")
 
-![6G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/6G%2011556.png "6G时")
+![6G时](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/6G%2011556.png "6G时")
 
-![7.3G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/7.3G%202411.png "7.3G时")
+![7.3G时](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/7.3G%202411.png "7.3G时")
 
-![10G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/10G%205847.png "10G时")
+![10G时](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/10G%205847.png "10G时")
 
-![16G时](https://github.com/moooofly/ImageCache/blob/master/Pictures/16G%20%E6%9C%80%E5%90%8E%E7%8A%B6%E6%80%81.png "16G时")
+![16G时](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/16G%20%E6%9C%80%E5%90%8E%E7%8A%B6%E6%80%81.png "16G时")
 
 
 
