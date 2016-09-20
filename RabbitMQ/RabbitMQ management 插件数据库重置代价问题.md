@@ -151,7 +151,7 @@ $ rabbitmqctl eval 'exit(erlang:whereis(rabbit_mgmt_db), please_terminate).'
 
 仅重置 management 插件中的 rabbit_mgmt_db 进程，即维护统计数据库的进程，对 RabbitMQ 的影响较小；但该方式会在 SASL 日志中输出 `SUPERVISOR REPORT` 错误报告信息；
 
-> ⚠️ 在 cluster 环境下，仅执行一次该命令，不会导致 management 插件统计数据库发生节点迁移；但在连续执行 N 次该命后，概率性导致迁移的发生（应该是由于 RabbitMQ 内部判定统计数据库长时间不可用才发生的迁移）；
+> ⚠️ 在 cluster 环境下，仅执行一次该命令，不会导致 management 插件统计数据库发生节点迁移；但在连续执行 N 次该命令后（达到 supervisor 中指定的子进程规范里规定的次数时），会（概率性？）导致 rabbit_mgmt_db 进程在 cluster 节点上的迁移；
 
 同时会输出如下信息表明重启成功
 ```shell
