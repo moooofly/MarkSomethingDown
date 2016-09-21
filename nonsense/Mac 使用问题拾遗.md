@@ -145,3 +145,24 @@ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/
 > ref: https://github.com/Homebrew/brew/issues/55799    
 
 另外，在有些时候，如果第一次 `brew update` 失败了，再执行一次可能就会成功（原因未知）；
+
+
+
+# Bash Completion on OS X With Brew
+
+I live and breath OS X on a daily basis, with a large portion of my work revolving around the command line using mostly tools which I’ve installed with brew. Bash completion has likely saved me days worth of time over the past decade or so. Little did I know, up until recently, however, that there is an official tap with completion scripts (in addition to the ones which come with individual recipes such as git) which can be installed for tools like docker, vagrant and grunt. Using it is dog simple. To start with you’ll want to go ahead and install bash-completion (if you haven’t already) and then tap homebrew/completion to gain access to these additional formulae:
+
+```shell
+$ brew install bash-completion
+$ brew tap homebrew/completions
+```
+
+After you run that first command, in typical brew fashion, it will request that you add the following tidbit to your ~/.bash_profile. Don’t forget this part. It’s critical!
+
+```shell
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+    . $(brew --prefix)/etc/bash_completion
+fi
+```
+
+Once you’ve done this, you’ll be able to install the additional completion scripts. You can find a complete list of these [over here](https://github.com/Homebrew/homebrew-completions) on GitHub. Happy tabbing!
