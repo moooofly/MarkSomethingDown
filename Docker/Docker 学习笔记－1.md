@@ -249,7 +249,7 @@ Docker Machine 在如下两种场景下被广泛使用：
 Docker Engine 属于 client-server 应用模型，主要由以下组件构成：
 - A **server** which is a type of long-running program called a daemon process.
 - A **REST API** which specifies interfaces that programs can use to talk to the daemon and instruct it what to do.
-- A command line interface (CLI) **client**.
+- A command line interface (CLI) **client**  that talks to the daemon (through the REST API wrapper).
 
 CLI 使用 Docker 提供的 REST API 来控制 Docker daemon 或与 Docker daemon 进行交互（通过脚本或直接 CLI 命令调用）     
 许多其他 Docker 应用同样使用底层 API 和 CLI ；    
@@ -259,11 +259,11 @@ daemon 负责创建和管理各种 Docker 对象，如 **images**, **containers*
 
 ## [Docker Engine v.s. Docker Machine](https://docs.docker.com/machine/overview/#/what-s-the-difference-between-docker-engine-and-docker-machine)
 
-When people say “Docker” they typically mean Docker Engine, the client-server application made up of the Docker daemon, a REST API that specifies interfaces for interacting with the daemon, and a command line interface (CLI) client that talks to the daemon (through the REST API wrapper). Docker Engine accepts docker commands from the CLI, such as docker run <image>, docker ps to list running containers, docker images to list images, and so on.
+当人们谈起 “Docker” 时，他们通常指的是 Docker Engine， 即由 Docker daemon, REST API 和 CLI 构成 client-server 应用；Docker Engine 接受来自 CLI 的 docker 命令，例如 `docker run <image>`, `docker ps` 和 `docker images` 等；
 
 ![Docker Engine](https://docs.docker.com/machine/img/engine.png)
 
-Docker Machine is a tool for provisioning and managing your Dockerized hosts (hosts with Docker Engine on them). Typically, you install Docker Machine on your local system. Docker Machine has its own command line client docker-machine and the Docker Engine client, docker. You can use Machine to install Docker Engine on one or more virtual systems. These virtual systems can be local (as when you use Machine to install and run Docker Engine in VirtualBox on Mac or Windows) or remote (as when you use Machine to provision Dockerized hosts on cloud providers). The Dockerized hosts themselves can be thought of, and are sometimes referred to as, managed “machines”.
+Docker Machine 是一种可以 provisioning 和 managing 你的 Dockerized hosts（运行了 Docker Engine 的 hosts）的工具；典型情况下，你会安装 Docker Machine 在你的本地系统上；Docker Machine 具有其自己的命令行客户端 `docker-machine` 和 Docker Engine 客户端 `docker` ；你可以使用 Machine 来安装 Docker Engine 到一个或多个虚拟系统中；这些虚拟系统可能是本地的（例如当你在 Mac 或 Windows 上的 VirtualBox 中基于 Machine 安装并运行 Docker Engine 时）或者是远端的（例如当你使用 Machine 在云提供商中对 Dockerized hosts 进行 provision 时）；在有些场景中，Dockerized hosts 会被看作受管理的 “machines” ；
 
 
 ![Docker Machine](https://docs.docker.com/machine/img/machine.png)
