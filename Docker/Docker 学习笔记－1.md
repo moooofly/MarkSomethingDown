@@ -257,11 +257,12 @@ daemon 负责创建和管理各种 Docker 对象，如 **images**, **containers*
 ## [docker/hyperkit](https://github.com/docker/HyperKit/)
 
 
-HyperKit is a toolkit for embedding hypervisor capabilities in your application. It includes a complete hypervisor, based on [xhyve](https://github.com/mist64/xhyve)/[bhyve](http://bhyve.org/), which is optimized for lightweight virtual machines and container deployment. It is designed to be interfaced with higher-level components such as the [VPNKit](https://github.com/docker/vpnkit) and [DataKit](https://github.com/docker/datakit).
+HyperKit 是用于嵌入 hypervisor 能力到你的应用中的一种 toolkit ；其内部包含了基于 [xhyve](https://github.com/mist64/xhyve)/[bhyve](http://bhyve.org/) 提供的完整 hypervisor 功能，而这两者被专门优化用于提供轻量级 VM 和 container 部署；     
+HyperKit 被设计成可以同更高层组件进行交互，例如 [VPNKit](https://github.com/docker/vpnkit) 和 [DataKit](https://github.com/docker/datakit) ；
 
-HyperKit currently only supports Mac OS X using the Hypervisor.framework. It is a core component of Docker For Mac.
+HyperKit 当前仅支持采用了 Hypervisor.framework 框架的 Mac OS X ；HyperKit 是 Docker For Mac 的核心组件；
 
 
 ### 系统要求
-OS X 10.10.3 Yosemite or later
-a 2010 or later Mac (i.e. a CPU that supports EPT)
+- OS X 10.10.3 Yosemite or later
+- a 2010 or later Mac (i.e. a CPU that supports EPT)
