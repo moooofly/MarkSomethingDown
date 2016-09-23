@@ -217,15 +217,31 @@ Docker Machine 的用处：
 - 可以 Provision 和 manage 多个远端 Docker hosts
 - 可以 Provision Swarm clusters
 
-Docker Machine is a tool that lets you install Docker Engine on virtual hosts, and manage the hosts with docker-machine commands. You can use Machine to create Docker hosts on your local Mac or Windows box, on your company network, in your data center, or on cloud providers like AWS or Digital Ocean.
+Docker Machine 是一种工具，允许你在 virtual hosts 上安装 Docker Engine，允许你通过  `docker-machine` 命令管理这些 hosts ；可以使用 Machine 在你本地 Mac 或 Windows box 中，在你的公司网络中，在你的数据中心中，以及在类似 AWS 或 Digital Ocean 的云提供商中创建 Docker hosts ；
 
-Using docker-machine commands, you can start, inspect, stop, and restart a managed host, upgrade the Docker client and daemon, and configure a Docker client to talk to your host.
+通过 `docker-machine` 命令你可以 start, inspect, stop 以及 restart 一个受管控的 host ，升级指定的 Docker client 和 daemon ，以及配置指定的 Docker client 与你的 host 进行通信；
 
-Machine 是 Docker v1.12 出现之前，在 Mac 或 Windows 上运行 Docker 的唯一方式；从 beta program 和 Docker v1.12 开始，Docker for Mac 和 Docker for Windows 已经作为 native apps 可用了，并作为更好的使用方式被推荐；
+将 Machine 的 CLI 指向一处于运行状态的，受管控的 host 后，你就可以直接在那个 host 上运行 docker 命令了；例如，运行 `docker-machine env default` 以指向一个名为 default 的 host ，并按照屏幕上提示的信息完成 env 的设置，之后就可以运行 `docker ps` ，`docker run hello-world` 等指令了；
 
-Docker Machine 具有如下两种广泛使用的用例：
+Machine 是 **Docker v1.12** 出现之前，在 Mac 或 Windows 上运行 Docker 的唯一方式；从 beta program 和 Docker v1.12 开始，Docker for Mac 和 Docker for Windows 已经作为 native apps 可用了，并作为更好的使用方式被推荐；
+
+
+### 为什么要使用 Docker Machine
+
+Docker Machine 令你能够对运行不同 Linux 版本的众多远端 Docker hosts 进行 provision ；     
+Docker Machine 允许你将 Docker 运行在 older Mac 或 Windows 系统上；     
+
+Docker Machine 在如下两种场景下被广泛使用：
 - I have an older desktop system and want to run Docker on Mac or Windows
+
+> If you work primarily on an older Mac or Windows laptop or desktop that doesn’t meet the requirements for the new Docker for Mac and Docker for Windows apps, then you need Docker Machine in order to “run Docker” (that is, Docker Engine) locally. Installing Docker Machine on a Mac or Windows box with the Docker Toolbox installer provisions a local virtual machine with Docker Engine, gives you the ability to connect it, and run docker commands.
+
 - I want to provision Docker hosts on remote systems
+
+> Docker Engine runs natively on Linux systems. If you have a Linux box as your primary system, and want to run docker commands, all you need to do is download and install Docker Engine. However, if you want an efficient way to provision multiple Docker hosts on a network, in the cloud or even locally, you need Docker Machine.
+
+Whether your primary system is Mac, Windows, or Linux, you can install Docker Machine on it and use docker-machine commands to provision and manage large numbers of Docker hosts. It automatically creates hosts, installs Docker Engine on them, then configures the docker clients. Each managed host (”machine”) is the combination of a Docker host and a configured client.
+
 
 
 ## [Docker Engine](https://docs.docker.com/engine/understanding-docker/#/what-is-docker-engine)
@@ -244,7 +260,7 @@ daemon 负责创建和管理各种 Docker 对象，如 **images**, **containers*
 ## [Docker Engine v.s. Docker Machine](https://docs.docker.com/machine/overview/#/what-s-the-difference-between-docker-engine-and-docker-machine)
 
 
-## [Docker for Mac]()
+## [Docker for Mac](https://docs.docker.com/docker-for-mac/)
 
 使用 HyperKit ；
 
