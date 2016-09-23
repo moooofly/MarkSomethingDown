@@ -213,9 +213,9 @@ Toolbox 中包含如下 Docker 工具：
 ## [Docker Machine](https://docs.docker.com/machine/overview/)
 
 Docker Machine 的用处：
-- 在 Mac 或 Windows 上安装和运行
-- Provision 和 manage 多个远端 Docker hosts
-- Provision Swarm clusters
+- 可以用于在 Mac 或 Windows 上安装和运行 Docker
+- 可以 Provision 和 manage 多个远端 Docker hosts
+- 可以 Provision Swarm clusters
 
 Docker Machine is a tool that lets you install Docker Engine on virtual hosts, and manage the hosts with docker-machine commands. You can use Machine to create Docker hosts on your local Mac or Windows box, on your company network, in your data center, or on cloud providers like AWS or Digital Ocean.
 
@@ -254,13 +254,12 @@ daemon 负责创建和管理各种 Docker 对象，如 **images**, **containers*
 
 
 
-## [docker/hyperkit](https://github.com/docker/HyperKit/)
-
+## [HyperKit](https://github.com/docker/HyperKit/)
 
 HyperKit 是用于嵌入 hypervisor 能力到你的应用中的一种 toolkit ；其内部包含了基于 [xhyve](https://github.com/mist64/xhyve)/[bhyve](http://bhyve.org/) 提供的完整 hypervisor 功能，而这两者被专门优化用于提供轻量级 VM 和 container 部署；     
-HyperKit 被设计成可以同更高层组件进行交互，例如 [VPNKit](https://github.com/docker/vpnkit) 和 [DataKit](https://github.com/docker/datakit) ；
-
-HyperKit 当前仅支持采用了 Hypervisor.framework 框架的 Mac OS X ；HyperKit 是 Docker For Mac 的核心组件；
+HyperKit 被设计成可以同更高层组件进行交互，例如 [VPNKit](https://github.com/docker/vpnkit) 和 [DataKit](https://github.com/docker/datakit) ；     
+HyperKit 当前仅支持采用了 Hypervisor.framework 框架的 Mac OS X ；     
+HyperKit 是 Docker For Mac 的核心组件；
 
 
 ### 系统要求
