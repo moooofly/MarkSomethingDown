@@ -207,14 +207,14 @@ Toolbox 中包含如下 Docker 工具：
 - a **shell** preconfigured for a Docker command-line environment
 - Oracle **VirtualBox**
 
-uses Oracle Virtual Box instead of HyperKit. 允许不满足上面的系统要求；
+> Docker Toolbox 使用的是 Oracle **Virtual Box**，而不是 **HyperKit**；因此允许不满足上面的系统要求；
 
 
 ## [Docker Machine](https://docs.docker.com/machine/overview/)
 
 Docker Machine 的用处：
 - 在 Mac 或 Windows 上安装和运行
-- Provision 和 manage 多远端 Docker hosts
+- Provision 和 manage 多个远端 Docker hosts
 - Provision Swarm clusters
 
 Docker Machine is a tool that lets you install Docker Engine on virtual hosts, and manage the hosts with docker-machine commands. You can use Machine to create Docker hosts on your local Mac or Windows box, on your company network, in your data center, or on cloud providers like AWS or Digital Ocean.
@@ -223,24 +223,22 @@ Using docker-machine commands, you can start, inspect, stop, and restart a manag
 
 Machine 是 Docker v1.12 出现之前，在 Mac 或 Windows 上运行 Docker 的唯一方式；从 beta program 和 Docker v1.12 开始，Docker for Mac 和 Docker for Windows 已经作为 native apps 可用了，并作为更好的使用方式被推荐；
 
-
 Docker Machine 具有如下两种广泛使用的用例：
 - I have an older desktop system and want to run Docker on Mac or Windows
 - I want to provision Docker hosts on remote systems
 
 
-
 ## [Docker Engine](https://docs.docker.com/engine/understanding-docker/#/what-is-docker-engine)
 
-Docker Engine 是一种 client-server 应用 ，主要由以下组件构成：
+Docker Engine 属于 client-server 应用模型，主要由以下组件构成：
 - A **server** which is a type of long-running program called a daemon process.
 - A **REST API** which specifies interfaces that programs can use to talk to the daemon and instruct it what to do.
 - A command line interface (CLI) **client**.
 
-The CLI uses the Docker REST API to control or interact with the Docker daemon through scripting or direct CLI commands. 
-Many other Docker applications use the underlying API and CLI.
+CLI 使用 Docker 提供的 REST API 来控制 Docker daemon 或与 Docker daemon 进行交互（通过脚本或直接 CLI 命令调用）     
+许多其他 Docker 应用同样使用底层 API 和 CLI ；    
 
-daemon 负责创建和管理 Docker 对象，例如 images, containers, networks 和 data volumes ；
+daemon 负责创建和管理各种 Docker 对象，如 **images**, **containers**, **networks** 和 **data volumes** ；
 
 
 ## [Docker Engine v.s. Docker Machine](https://docs.docker.com/machine/overview/#/what-s-the-difference-between-docker-engine-and-docker-machine)
@@ -248,7 +246,7 @@ daemon 负责创建和管理 Docker 对象，例如 images, containers, networks
 
 ## [Docker for Mac]()
 
-uses HyperKit.
+使用 HyperKit ；
 
 
 ## [Docker for Mac v.s. Docker Toolbox](https://docs.docker.com/docker-for-mac/docker-toolbox/)
