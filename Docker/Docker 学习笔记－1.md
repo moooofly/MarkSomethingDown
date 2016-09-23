@@ -239,8 +239,8 @@ Docker Machine 在如下两种场景下被广泛使用：
 - I want to provision Docker hosts on remote systems
 
 > Docker Engine runs natively on Linux systems. If you have a Linux box as your primary system, and want to run docker commands, all you need to do is download and install Docker Engine. However, if you want an efficient way to provision multiple Docker hosts on a network, in the cloud or even locally, you need Docker Machine.
-
-Whether your primary system is Mac, Windows, or Linux, you can install Docker Machine on it and use docker-machine commands to provision and manage large numbers of Docker hosts. It automatically creates hosts, installs Docker Engine on them, then configures the docker clients. Each managed host (”machine”) is the combination of a Docker host and a configured client.
+> 
+> Whether your primary system is Mac, Windows, or Linux, you can install Docker Machine on it and use docker-machine commands to provision and manage large numbers of Docker hosts. It automatically creates hosts, installs Docker Engine on them, then configures the docker clients. Each managed host (”machine”) is the combination of a Docker host and a configured client.
 
 
 
@@ -258,6 +258,17 @@ daemon 负责创建和管理各种 Docker 对象，如 **images**, **containers*
 
 
 ## [Docker Engine v.s. Docker Machine](https://docs.docker.com/machine/overview/#/what-s-the-difference-between-docker-engine-and-docker-machine)
+
+When people say “Docker” they typically mean Docker Engine, the client-server application made up of the Docker daemon, a REST API that specifies interfaces for interacting with the daemon, and a command line interface (CLI) client that talks to the daemon (through the REST API wrapper). Docker Engine accepts docker commands from the CLI, such as docker run <image>, docker ps to list running containers, docker images to list images, and so on.
+
+[Docker Engine](https://docs.docker.com/machine/img/engine.png)
+
+Docker Machine is a tool for provisioning and managing your Dockerized hosts (hosts with Docker Engine on them). Typically, you install Docker Machine on your local system. Docker Machine has its own command line client docker-machine and the Docker Engine client, docker. You can use Machine to install Docker Engine on one or more virtual systems. These virtual systems can be local (as when you use Machine to install and run Docker Engine in VirtualBox on Mac or Windows) or remote (as when you use Machine to provision Dockerized hosts on cloud providers). The Dockerized hosts themselves can be thought of, and are sometimes referred to as, managed “machines”.
+
+
+[Docker Machine](https://docs.docker.com/machine/img/machine.png)
+
+
 
 
 ## [Docker for Mac](https://docs.docker.com/docker-for-mac/)
