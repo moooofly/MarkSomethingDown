@@ -7,7 +7,7 @@
 
 - [2016-07-20 线上 RabbitMQ 问题排查](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/2016-07-20%20%E7%BA%BF%E4%B8%8A%20RabbitMQ%20%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5.md)
 - [2016-08-17 腾讯云网路故障+RabbitMQ 节点异常](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/2016-08-17%20%E8%85%BE%E8%AE%AF%E4%BA%91%E7%BD%91%E8%B7%AF%E6%95%85%E9%9A%9C%2BRabbitMQ%20%E8%8A%82%E7%82%B9%E5%BC%82%E5%B8%B8.md)
-
+- [2016-09-03 双节点 RabbitMQ 集群故障](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/2016-09-03%20%E5%8F%8C%E8%8A%82%E7%82%B9%20RabbitMQ%20%E9%9B%86%E7%BE%A4%E6%95%85%E9%9A%9C.md)
 
 ----------
 
@@ -19,6 +19,8 @@
 - [RabbitMQ management 插件数据库重置代价问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20management%20%E6%8F%92%E4%BB%B6%E6%95%B0%E6%8D%AE%E5%BA%93%E9%87%8D%E7%BD%AE%E4%BB%A3%E4%BB%B7%E9%97%AE%E9%A2%98.md)
 - [RabbitMQ management 插件相关配置解析](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20management%20%E6%8F%92%E4%BB%B6%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE%E8%A7%A3%E6%9E%90.md)
 - [RabbitMQ management 插件过载问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20management%20%E6%8F%92%E4%BB%B6%E8%BF%87%E8%BD%BD%E9%97%AE%E9%A2%98.md)
+- [RabbitMQ management 插件过载问题（高级篇）](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20management%20%E6%8F%92%E4%BB%B6%E8%BF%87%E8%BD%BD%E9%97%AE%E9%A2%98%EF%BC%88%E9%AB%98%E7%BA%A7%E7%AF%87%EF%BC%89.md)
+
 
 ## shovel 插件
 
@@ -38,6 +40,13 @@
 
 ----------
 
+# 功能特性
+
+- [RabbitMQ 之延迟队列](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20%E4%B9%8B%E5%BB%B6%E8%BF%9F%E9%98%9F%E5%88%97.md)
+
+
+----------
+
 
 # 系统状态
 
@@ -52,7 +61,6 @@
 
 - [HAProxy 使用姿势](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/HAProxy%20%E4%BD%BF%E7%94%A8%E5%A7%BF%E5%8A%BF.md)
 - [RabbitMQ 集群启动相关问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20%E9%9B%86%E7%BE%A4%E5%90%AF%E5%8A%A8%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98.md)
-
 
 
 ----------
