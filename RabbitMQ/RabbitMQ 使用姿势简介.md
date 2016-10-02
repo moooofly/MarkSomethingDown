@@ -213,3 +213,13 @@ Eshell V8.0.2  (abort with ^G)
 ```erlang
 calendar:datetime_to_gregorian_seconds(erlang:universaltime()).
 ```
+
+# remsh 使用问题
+
+It's worth to note that `remsh' should be used with extra care, especially when it comes to connecting live production systems.
+
+Time by time, it happens (at least to me) that someone accidentally issues `q()`. instead of ^G-q. The result is remote node shutdown what is usually not what we wanted to do, although `q().` is good habit  otherwise :)
+
+That's why I would recommend you to use extra VM options to restrict the shell and block at least `q()` and friends (well, I've never seen anybody who accidentally typed `init:stop()` yet :-) ).
+
+In production, we do it like this: `+Bi -stdlib restricted_shell  shell_restriction_policy_mod`
