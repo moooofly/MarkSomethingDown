@@ -33,6 +33,17 @@ Refer to the [Quick start guide](https://github.com/Netflix/SimianArmy/wiki/Quic
 
 # [Netflix新放出来的开源工具Chaos Monkey](http://www.infoq.com/cn/news/2012/08/chaos-monkey)
 
+- Chaos Monkey是一套用来故意把服务器搞下线的软件，可以测试云环境的恢复能力。
+- Netflix专门开发的一系列捣乱工具，已经有不少被拿出来和技术社区自由分享，现在Chaos Monkey也加入了这个行列。
+- Netflix团队让Chaos Monkey亮相的时间，最早是在2010年12月的一篇[官博文章](http://techblog.netflix.com/2010/12/5-lessons-weve-learned-using-aws.html)，文章内容是他们在AWS云上托管其热门视频流服务所得到的经验教训。文中总结了一点，叫做“避免失败的最好办法是经常失败”,反映Netflix通过主动破坏自身环境来发现弱点的做法。
+- 我们的工程师在AWS上最早建立的系统之一叫Chaos Monkey。这猴子的工作是随机杀掉架构中的运行实例和服务。
+- Netflix技术团队在2012年7月20日的[官博文章](http://techblog.netflix.com/2012/07/chaos-monkey-released-into-wild.html)上宣布，Chaos Monkey作为开源项目公开。文中解释了Chaos Monkey的设计意图和运营中的注意事项。
+- Netflix声称软件可以成功运行在AWS以外的云上，主要给用户检测自身环境中的失败条件。
+- Chaos Monkey可以被设定为只在支持人员现场待命，准备救灾的时候才运行。
+- 服务具有可配置的执行计划，默认只在非假日的周一到周五上午9点至下午3点执行。我们设计只有在预料警报会被工程师发现并作出响应的有限时间段，才把Chaos Monkey放出来。
+- 用户可以决定Chaos Monkey对新应用的攻击强度。
+- 对于禁不起下线的应用，Chaos Monkey允许自主退出。Chaos Monkey中止实例的几率也是可调的。
+
 ----------
 
 #[放到野外的Chaos Monkey](http://techblog.netflix.com/2012/07/chaos-monkey-released-into-wild.html)
