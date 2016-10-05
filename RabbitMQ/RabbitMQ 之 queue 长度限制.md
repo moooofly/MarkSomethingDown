@@ -4,23 +4,24 @@
 
 # [Queue Length Limit](http://www.rabbitmq.com/maxlength.html)
 
-The maximum length of a queue can be limited to a set number of messages, or a set number of bytes (the total of all message body lengths, ignoring message properties and any overheads), or both.
 
-For any given queue, the maximum length (of either type) can be defined by clients using the queue's arguments, or in the server using [policies](http://www.rabbitmq.com/parameters.html#policies). In the case where both policy and arguments specify a maximum length, the minimum of the two values is applied.
+queue 的最大长度可以基于**消息数量**进行限制，也可以基于**总字节数**进行限制（由所有消息 body 的长度之和决定，忽略消息属性占用的长度和任何其他额外开销），或者基于两种方式一起进行限制；
 
-In all cases the number of ready messages is used; unacknowledged messages do not count towards the limit. The fields messages_ready and message_bytes_ready from rabbitmqctl list_queues and the management API show the values that would be limited.
+对于任何给定的 queue ，其最大长度（无论任何类型）都可以由 client 使用 queue 参数进行定义，或者在 server 侧通过 [policies](http://www.rabbitmq.com/parameters.html#policies) 进行定义；当通过两种方式同时设置了最大长度时时，取其中的最小值；
 
-Messages will be dropped or dead-lettered from the front of the queue to make room for new messages once the limit is reached.
+在任何情况下，ready 消息数总是被计算在内的；unacknowledged 消息不会被计算到限制值内；`rabbitmqctl list_queues` 输出项中的 messages_ready 和 message_bytes_ready ，以及相应的 management API 可以展示的限制值；
+
+当限制值被达到时，消息会被从 queue 的前端被丢弃或者 dead-lettered，以便为新消息留出空间；
 
 ## Configuration using arguments
 
-Maximum number of messages can be set by supplying the x-max-length queue declaration argument with a non-negative integer value.
+最大消息数目（非负整数）可以通过  `x-max-length` 参数在 queue 声明中进行设置；
 
-Maximum length in bytes can be set by supplying the x-max-length-bytes queue declaration argument with a non-negative integer value.
+最大消息字节数目（非负整数）可以通过  `x-max-length-bytes` 参数在 queue 声明中进行设置；
 
-If both arguments are set then both will apply; whichever limit is hit first will be enforced.
+如果两种参数都设置了，则同时生效；先达到限定值的限制先起作用；
 
-This example in Java declares a queue with a maximum length of 10 messages:
+下面示例中的 Java 代码声明了最多允许保存 10 条消息的 queue ：
 
 ```java
 Map<String, Object> args = new HashMap<String, Object>();
@@ -30,16 +31,14 @@ channel.queueDeclare("myqueue", false, false, false, args);
 
 ## Configuration using policy
 
-To specify a maximum length using policy, add the key max-length and / or max-length-bytes to a policy definition. For example:
+若想通过 policy 指定最大长度，可以将 key `max-length` 和/或 `max-length-bytes` 添加到 policy 定义中，例如：
 
 | | |
 -------- | ---
 | rabbitmqctl | rabbitmqctl set_policy Ten "^one-meg$" '{"max-length-bytes":1000000}' --apply-to queues|
 | rabbitmqctl (Windows) | rabbitmqctl set_policy Ten "^one-meg$" "{""max-length-bytes"":1000000}" --apply-to queues |
 
-	
+上述命令确保了名为 one-meg 的 queue 能够保存不超过 1MB 的消息 body 大小；
 
-This ensures the queue called one-meg can contain no more than 1MB of message bodies.
-
-Policies can also be defined using the management plugin, see the [policy documentation](http://www.rabbitmq.com/parameters.html#policies) for more details.
+Policies 的设置还可以使用 management plugin 进行，详见 [policy documentation](http://www.rabbitmq.com/parameters.html#policies) ；
 
