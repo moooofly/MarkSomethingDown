@@ -46,14 +46,6 @@ Refer to the [Quick start guide](https://github.com/Netflix/SimianArmy/wiki/Quic
 
 ----------
 
-#[放到野外的Chaos Monkey](http://techblog.netflix.com/2012/07/chaos-monkey-released-into-wild.html)
-
-----------
-
-# [我们使用AWS得到的5个教训](http://techblog.netflix.com/2010/12/5-lessons-weve-learned-using-aws.html)
-
-----------
-
 
 # [Netflix继续开源，更多猴子进入视野](http://www.infoq.com/cn/news/2013/02/netflix-opensource)
 
@@ -106,4 +98,13 @@ Chaos Gorilla ，Simian Army 中的成员之一，可以模拟整个区域的断
 Netflix engineers plan to add more monkeys to the army, some based on community suggestions.
 
 
+----------
 
+
+#[放到野外的Chaos Monkey](http://techblog.netflix.com/2012/07/chaos-monkey-released-into-wild.html)
+
+----------
+
+# [我们使用AWS得到的5个教训](http://techblog.netflix.com/2010/12/5-lessons-weve-learned-using-aws.html)
+
+----------
