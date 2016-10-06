@@ -5,8 +5,7 @@
 
 该插件为 RabbitMQ 引入了 sharded queues 概念；Sharding 机制通过 exchanges 实现，也就是说，消息通过一个定义为 sharded 的 exchange 被分区保存到 "shard" queues 中；
 
-场景背后的基础就是定义一个用于跨 queues 分区或 shard 消息的 exchange ；
-而分区操作会为你自动完成，也就是说，一旦你定义了用于 _sharded_ 的 exchange，相应的 queues 就会被自动创建到 cluster 中的每一个节点上，之后消息会在这些 queue 中被 sharded ；
+幕后使用的机制表明：我们会定义一个用于跨 queues 分区或 shard 消息的 exchange ；而分区操作会为你自动完成，也就是说，一旦你定义了用于 _sharded_ 功能的 exchange，相应的 queues 就会被自动创建到 cluster 中的每一个节点上，之后消息会在这些 queue 中被 sharded ；
 
 下图描述了从 publisher 和 consumer 的角度该插件是如何工作的：
 
@@ -34,26 +33,18 @@ RabbitMQ 中默认提供的 exchanges 以 "all or nothing" 的模式工作；也
 
 尽管该插件会创建一组 "shard" queues ，但背后的想法是那些 queues 共同表现为一个大的、逻辑 queue ，供你进行消息的 consume ；跨 shard 时的消息整体顺序未进行定义；
 
-An example should illustrate this better: let's say you declared the
-exchange _images_ to be a sharded exchange. Then RabbitMQ creates
-several "shard" queues behind the scenes:
+一例胜千言：我们假设你声明来 exchange _images_ 作为 sharded exchange ；之后 RabbitMQ 会在幕后创建出多个 "shard" queues ：
 
  * _shard: - nodename images 1_
  * _shard: - nodename images 2_
  * _shard: - nodename images 3_
  * _shard: - nodename images 4_.
 
-To consume from a sharded queue, register a consumer on the `"images"` pseudo-queue
-using the `basic.consume` method. RabbitMQ will attach the consumer to a shard
-behind the scenes. Note that **consumers must not declare a queue with the same
-name as the sharded pseudo-queue prior to consuming**.
+为了从 sharded queue 上进行 consume，需要使用 `basic.consume` 方法注册一个 consumer 到 `"images"` pseudo-queue 上；RabbitMQ 会在幕后“偷偷的“将 consumer 附着到 shard 上；需要注意的是，在进行消费行为之前，**consumers 不可以声明一个与 sharded pseudo-queue 同名的 queue **；
 
-TL;DR: if you have a shard called _images_, then you can directly
-consume from a queue called _images_.
+TL;DR: 如果你拥有一个 shard 叫做 _images_，那么你就可以直接从名为 _images_ 的 queue 上进行消费；
 
-How does it work? The plugin will chose the queue from the shard with
-the _least amount of consumers_, provided the queue contents are local
-to the broker you are connected to.
+How does it work? The plugin will chose the queue from the shard with the _least amount of consumers_, provided the queue contents are local to the broker you are connected to.
 
 **NOTE: there's a small race condition between RabbitMQ updating the
 queue's internal stats about consumers and when clients issue
