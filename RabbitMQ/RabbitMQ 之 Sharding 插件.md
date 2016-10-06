@@ -30,11 +30,9 @@ RabbitMQ 中默认提供的 exchanges 以 "all or nothing" 的模式工作；也
 
 如果 _只是需要进行消息分区功能_，而不需要此插件提供的自动 queue 创建功能，那么你可以仅使用 [一致性 hash Exchange](https://github.com/rabbitmq/rabbitmq-consistent-hash-exchange)；
 
-## Consuming From a Sharded [Pseudo-]Queue ##
+## Consuming From a Sharded [Pseudo-]Queue
 
-While the plugin creates a bunch of "shard" queues behind the scenes, the idea
-is that those queues act like a big logical queue where you consume
-messages from it. Total ordering of messages between shards is not defined.
+尽管该插件会创建一组 "shard" queues ，但背后的想法是那些 queues 共同表现为一个大的、逻辑 queue ，供你进行消息的 consume ；跨 shard 时的消息整体顺序未进行定义；
 
 An example should illustrate this better: let's say you declared the
 exchange _images_ to be a sharded exchange. Then RabbitMQ creates
@@ -64,36 +62,34 @@ client issue many `basic.consume` commands without too much time in
 between, it might happen that the plugin assigns the consumers to
 queues in an uneven way.
 
-## Installing ##
+## 安装 ##
 
-### RabbitMQ 3.6.0 or later
+### RabbitMQ 3.6.0 或之后的版本
 
-As of RabbitMQ `3.6.0` this plugin is included into the RabbitMQ distribution.
+从 RabbitMQ `3.6.0` 版本开始，该插件已经被包含到 RabbitMQ 发布包中来；
 
-Enable it with the following command:
-
-```bash
-rabbitmq-plugins enable rabbitmq_sharding
-```
-
-You'd probably want to also enable the Consistent Hash Exchange
-plugin, too.
-
-### With Earlier Versions
-
-Install the corresponding .ez files from our
-[Community Plugins archive](http://www.rabbitmq.com/community-plugins/).
-
-Then run the following command:
+可以使用如下命令使能该插件：
 
 ```bash
 rabbitmq-plugins enable rabbitmq_sharding
 ```
 
-You'd probably want to also enable the Consistent Hash Exchange
-plugin, too.
+你可能还想要使能一致性 hash Exchange 插件；
 
-## Usage ##
+### 针对早期的 RabbitMQ 版本
+
+安装相应的 .ez 文件，下载地址为：[Community Plugins archive](http://www.rabbitmq.com/community-plugins/)；
+
+然后运行如下命令：
+
+```bash
+rabbitmq-plugins enable rabbitmq_sharding
+```
+
+你可能还想要使能一致性 hash Exchange 插件；
+
+
+## 用法
 
 Once the plugin is installed you can define an exchange as sharded by
 setting up a policy that matches the exchange name. For example if we
@@ -121,15 +117,13 @@ exchange, then the routing key will be ignored as well. So depending
 on the exchange you use, will be the effect the `routing-key` policy
 definition has while routing messages.
 
-The `routing-key` policy definition is optional.
+针对 `routing-key` 的 policy 定义是可选的；
 
-## Building the plugin ##
+## 插件构建方式
 
-Get the RabbitMQ Public Umbrella ready as explained in the
-[RabbitMQ Plugin Development Guide](http://www.rabbitmq.com/plugin-development.html).
+参考 [RabbitMQ Plugin Development Guide](http://www.rabbitmq.com/plugin-development.html) 中的说明获取RabbitMQ Public Umbrella ；
 
-Move to the umbrella folder an then run the following commands, to
-fetch dependencies:
+切换到 umbrella 文件夹，之后运行如下命令：
 
 ```bash
 make up
@@ -137,25 +131,20 @@ cd ../rabbitmq-sharding
 make
 ```
 
-## Plugin Status ##
+## Plugin Status
 
-At the moment the plugin is __experimental__ in order to receive
-feedback from the community.
+此时此刻，应该认为该插件仍旧处于 __experimental__ 状态，以便更好的从社区获取反馈；
 
-## LICENSE ##
-
-See the LICENSE file.
 
 ## Extra information ##
 
-Some information about how the plugin affects message ordering and
-some other details can be found in the file README.extra.md
+关于该插件如何影响消息顺序，以及一些其他细节内容可以查看 [README.extra.md](https://github.com/rabbitmq/rabbitmq-sharding/blob/master/README.extra.md) ；
 
 
 ----------
 
 
-# Additional information #
+# [Additional information](https://github.com/rabbitmq/rabbitmq-sharding/blob/master/README.extra.md)
 
 Here you can find some extra information about how the plugin works
 and the reasons for it.
