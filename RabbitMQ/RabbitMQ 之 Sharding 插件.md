@@ -18,27 +18,17 @@
 
 该插件的其中一项有趣的特性为，如果你添加更多节点到 RabbitMQ cluster 中，那么该插件将会在新节点上自动创建出更多的 shards；假如你有一个由 4 个 queue 构成的 shard 位于 `node a` 中，同时 `node b` 刚刚加入了 cluster ；那么该插件将自动创建出 4 个 queue 在 `node b` 中，并将这些 queue 加入到 shard 分区中；已经投递到消息 _将不会_ 被 rebalanced ，但是新到达的消息将会分区到新 queues 中；
 
-## Partitioning Messages ##
+## Partitioning Messages
 
-RabbitMQ 中默认提供的 exchanges 以 "all or nothing" 的模式工作；也就是说，一个 routing key 会匹配上绑定到 exchange 上的一组 queues ，而 RabbitMQ 会路由消息 message 到相应的所有 queue 中；因此，对于该插件的工作方式来说，我们需要路由消息到能够分区消息的特定 exchange 上，以便消息_至多_被路由到一个 queue 中；
+RabbitMQ 中默认提供的 exchanges 以 "all or nothing" 的模式工作；也就是说，一个 routing key 会匹配上绑定到 exchange 上的一组 queues ，而 RabbitMQ 会路由消息到相应的所有 queue 中；因此，对于该插件的工作方式来说，我们需要路由消息到负责分区消息的特定 exchange 上，以便消息_至多_被路由到一个 queue 中；
 
-该插件提供了一种新 exchange 类型 `"x-modulus-hash"`， that will use
-the traditional hashing technique applying to partition messages
-across queues.
+该插件提供了一种新 exchange 类型 `"x-modulus-hash"`，其基于传统的 hash 技术跨 queue 进行消息分区；
 
-The `"x-modulus-hash"` exchange will hash the routing key used to
-publish the message and then it will apply a `Hash mod N` to pick the
-queue where to route the message, where N is the number of queues
-bound to the exchange. **This exchange will completely ignore the
-binding key used to bind the queue to the exchange**.
+类型为 `"x-modulus-hash"` 的 exchange 将会对 routing key 进行 hash 运算，之后再通过 `Hash mod N` 来选择消息被路由到的目标 queue ，其中 N 为绑定到该 exchange 上的 queue 的数目；**该 exchange 将会完全忽略掉用于绑定 queue 到 exchange 上的  binding key  的作用**；
 
-You could also use other exchanges that have similar behaviour like
-the _Consistent Hash Exchange_ or the _Random Exchange_.  The first
-one has the advantage of shipping directly with RabbitMQ.
+你也可以使用其他的具有类似行为模式的 exchanges ，例如 _一致性 hash Exchange_ 或者 _随机 Exchange_；前者具有伴随 RabbitMQ 一起发布的优势；
 
-If _just need message partitioning_ but not the automatic queue
-creation provided by this plugin, then you can just use the
-[Consistent Hash Exchange](https://github.com/rabbitmq/rabbitmq-consistent-hash-exchange).
+如果 _只是需要进行消息分区功能_，而不需要此插件提供的自动 queue 创建功能，那么你可以仅使用 [一致性 hash Exchange](https://github.com/rabbitmq/rabbitmq-consistent-hash-exchange)；
 
 ## Consuming From a Sharded [Pseudo-]Queue ##
 
