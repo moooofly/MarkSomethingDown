@@ -44,14 +44,9 @@ RabbitMQ 中默认提供的 exchanges 以 "all or nothing" 的模式工作；也
 
 TL;DR: 如果你拥有一个 shard 叫做 _images_，那么你就可以直接从名为 _images_ 的 queue 上进行消费；
 
-How does it work? The plugin will chose the queue from the shard with the _least amount of consumers_, provided the queue contents are local to the broker you are connected to.
+How does it work? 该插件将会在 shard 上关闭持有_最少 consumers 数量的_queue ，前提是 queue 中的内容对于你所连接的 broker 来说是属于本地的；
 
-**NOTE: there's a small race condition between RabbitMQ updating the
-queue's internal stats about consumers and when clients issue
-`basic.consume` commands.** The problem with this is that if your
-client issue many `basic.consume` commands without too much time in
-between, it might happen that the plugin assigns the consumers to
-queues in an uneven way.
+**注意：在 RabbitMQ 更新 queue 内部关于 consumers 的统计信息和 clients 发送 `basic.consume` 命令之间，存在一个小的 race condition ；**问题的根源在于，如果你的 client 发出了许多间隔很短的 `basic.consume` 命令的话，可能发生插件以非均匀的方式将 consumers 分配到 queues 的情况；
 
 ## 安装 ##
 
@@ -82,19 +77,15 @@ rabbitmq-plugins enable rabbitmq_sharding
 
 ## 用法
 
-Once the plugin is installed you can define an exchange as sharded by
-setting up a policy that matches the exchange name. For example if we
-have the exchange called `shard.images`, we could define the following
-policy to shard it:
+一旦该插件安装成功，你就可以定义 exchange 为 sharded 了，只要建立一套 policy 用于匹配 exchange 的名字；例如，如果我们有一个名为 `shard.images` 的 exchange ，我们就可以定义如下 policy 来对其 shard ：
 
 ```bash
 $CTL set_policy images-shard "^shard.images$" '{"shards-per-node": 2, "routing-key": "1234"}'
 ```
 
-This will create `2` sharded queues per node in the cluster, and will
-bind those queues using the `"1234"` routing key.
+这将在 cluster 中的每个 node 上创建出 `2` 个 sharded queues ，并将那些 queues 通过 `"1234"` 这个 routing key 进行绑定；
 
-### About the routing-key policy definition ###
+### About the routing-key policy definition
 
 In the example above we use the routing key `1234` when defining the
 policy. This means that the underlying exchanges used for sharding
@@ -137,16 +128,11 @@ make
 
 # [Additional information](https://github.com/rabbitmq/rabbitmq-sharding/blob/master/README.extra.md)
 
-Here you can find some extra information about how the plugin works
-and the reasons for it.
+在这里你可以找到一些额外信息：关于该插件如何工作，以及如此工作的理由；
 
-## Why do we need this plugin? ##
+## 我们为何需要这个插件？
 
-RabbitMQ queues are bound to the node where they were first
-declared. This means that even if you create a cluster of RabbitMQ
-brokers, at some point all message traffic will go to the node where
-the queue lives. What this plugin does is to give you a centralized
-place where to send your messages, plus __load balancing__ across many
+RabbitMQ queues are bound to the node where they were first declared. This means that even if you create a cluster of RabbitMQ brokers, at some point all message traffic will go to the node where the queue lives. What this plugin does is to give you a centralized place where to send your messages, plus __load balancing__ across many
 nodes, by adding queues to the other nodes in the cluster.
 
 The advantage of this setup is that the queues from where your
@@ -154,9 +140,7 @@ consumers will get messages will be local to the node where they are
 connected.  On the other hand, the producers don't need to care about
 what's behind the exchange.
 
-All the plumbing to __automatically maintain__ the shard queues is
-done by the plugin. If you add more nodes to the cluster, then the
-plugin will __automatically create queues in those nodes__.
+All the plumbing to __automatically maintain__ the shard queues is done by the plugin. If you add more nodes to the cluster, then the plugin will __automatically create queues in those nodes__.
 
 If you remove nodes from the cluster then RabbitMQ will take care of
 taking them out of the list of bound queues. Message loss can happen
@@ -184,11 +168,7 @@ will be part of the set of queues that belong to the chosen shard.
 
 ## Intercepted Channel Behaviour ##
 
-This plugin works with the new `channel interceptors`. An interceptor
-basically allows a plugin to modify parts of an AMQP method. For
-example in this plugin case, whenever a user sends a `basic.consume`,
-the plugin will map the queue name sent by the user to one of the
-sharded queues.
+This plugin works with the new `channel interceptors`. An interceptor basically allows a plugin to modify parts of an AMQP method. For example in this plugin case, whenever a user sends a `basic.consume`, the plugin will map the queue name sent by the user to one of the sharded queues.
 
 Also a plugin can decide that a certain AMQP method can't be performed
 on a queue that's managed by the plugin. In this case declaring a queue
@@ -196,21 +176,12 @@ called `my_shard` doesn't make much sense when there's actually a
 sharded queue by that name. In this case the plugin will return a
 channel error to the user.
 
-These are the AMQP methods intercepted by the plugin, and the
-respective behaviour:
+下面给出的是该插件能够理解的 AMQP 方法，以及相应的处理行为：
 
-- `'basic.consume', QueueName`: The plugin will pick the sharded queue
-  with the least amount of consumers from the `QueueName` shard.
-- `'basic.get', QueueName`: The plugin will pick the sharded queue
-  with the least amount of consumers from the `QueueName` shard.
-- `'queue.declare', QueueName`: The plugin rewrites `QueueName` to be
-  the first queue in the shard, so `queue.declare_ok` returns the stats
-  for that queue.
-- `'queue.bind', QueueName`: since there isn't an actual `QueueName`
-  queue, this method returns a channel error.
-- `'queue.unbind', QueueName`: since there isn't an actual `QueueName`
-  queue, this method returns a channel error.
-- `'queue.purge', QueueName`: since there isn't an actual `QueueName`
-  queue, this method returns a channel error.
-- `'queue.delete', QueueName`: since there isn't an actual `QueueName`
-  queue, this method returns a channel error.
+- `'basic.consume', QueueName`: The plugin will pick the sharded queue with the least amount of consumers from the `QueueName` shard.
+- `'basic.get', QueueName`: The plugin will pick the sharded queue with the least amount of consumers from the `QueueName` shard.
+- `'queue.declare', QueueName`: The plugin rewrites `QueueName` to be the first queue in the shard, so `queue.declare_ok` returns the stats for that queue.
+- `'queue.bind', QueueName`: since there isn't an actual `QueueName` queue, this method returns a channel error.
+- `'queue.unbind', QueueName`: since there isn't an actual `QueueName` queue, this method returns a channel error.
+- `'queue.purge', QueueName`: since there isn't an actual `QueueName` queue, this method returns a channel error.
+- `'queue.delete', QueueName`: since there isn't an actual `QueueName` queue, this method returns a channel error.
