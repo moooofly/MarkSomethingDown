@@ -103,8 +103,107 @@ Netflix engineers plan to add more monkeys to the army, some based on community 
 
 #[放到野外的Chaos Monkey](http://techblog.netflix.com/2012/07/chaos-monkey-released-into-wild.html)
 
+We have found that the best defense against major unexpected failures is to fail often. By frequently causing failures, we force our services to be built in a way that is more resilient. We are excited to make a long-awaited announcement today that will help others who embrace this approach.
+
+We have written about our [Simian Army](http://techblog.netflix.com/2011/07/netflix-simian-army.html) in the past and we are now proud to announce that the source code for the founding member of the Simian Army, Chaos Monkey, [is available to the community](https://github.com/Netflix/SimianArmy).
+
+Do you think your applications can handle a troop of mischievous monkeys loose in your infrastructure? Now you can find out.
+
+## What is Chaos Monkey?
+
+Chaos Monkey is a service which runs in the Amazon Web Services (AWS) that seeks out Auto Scaling Groups (ASGs) and terminates instances (virtual machines) per group. The software design is flexible enough to work with other cloud providers or instance groupings and can be enhanced to add that support. The service has a configurable schedule that, by default, runs on non-holiday weekdays between 9am and 3pm. In most cases, we have designed our applications to continue working when an instance goes offline, but in those special cases that they don't, we want to make sure there are people around to resolve and learn from any problems. With this in mind, Chaos Monkey only runs within a limited set of hours with the intent that engineers will be alert and able to respond.
+
+## Why Run Chaos Monkey?
+
+Failures happen and they inevitably happen when least desired or expected. If your application can't tolerate an instance failure would you rather find out by being paged at 3am or when you're in the office and have had your morning coffee? Even if you are confident that your architecture can tolerate an instance failure, are you sure it will still be able to next week? How about next month? Software is complex and dynamic and that "simple fix" you put in place last week could have undesired consequences. Do your traffic load balancers correctly detect and route requests around instances that go offline? Can you reliably rebuild your instances? Perhaps an engineer "quick patched" an instance last week and forgot to commit the changes to your source repository?
+There are many failure scenarios that Chaos Monkey helps us detect. Over the last year Chaos Monkey has terminated over 65,000 instances running in our production and testing environments. Most of the time nobody notices, but we continue to find surprises caused by Chaos Monkey which allows us to isolate and resolve them so they don't happen again.
+
+## Auto Scaling Groups
+
+The default instance groupings that Chaos uses for selection is Amazon's Auto Scaling Group (ASG). Within an ASG, Chaos Monkey will select an instance at random and terminate it. The ASG should detect the instance termination and automatically bring up a new, identically configured, instance. If you are not using Auto Scaling Groups that should be the first step to making your application handle these isolated instance failure scenarios. Check out [Asgard](http://techblog.netflix.com/2012/06/asgard-web-based-cloud-management-and.html) to make deploying and managing ASGs easy. There are many [great features for ASGs](http://techblog.netflix.com/2012/01/auto-scaling-in-amazon-cloud.html) beyond replacing terminated instances, like enabling the use of Amazon's Elastic Load Balancers (ELBs) to distribute traffic to all instances in your application. Netflix has a best-practice where all instances should be run within an ASG and we have Janitor Monkey to remind us by terminating all instances not following this best-practice.
+
+## Configuration
+
+Chaos Monkey allows for an Opt-In or an Opt-Out model. At Netflix, we use the Opt-Out model, so if an application owner does nothing, Chaos Monkey will be acting on their application. For your organization, you have the option to choose what is right for you. This allows you to "test the water" and try out Chaos Monkey on a specific application to see how it reacts. Not every application can trivially handle an instance going offline.  Sometimes it takes a human to manually recover instances, perhaps exercising backups to bring them back. Ideally, engineers work towards making that process easier and faster and eventually automatic. For those applications, there is the ability to Opt-Out of Chaos Monkey. There is also a tunable "probability" that Chaos Monkey uses to control the chance of a termination.  A probability of 1 (or 100%) will terminate one instance per day per ASG.  If instance recovery is difficult and you only want a termination weekly, you can reduce the probability to 0.2 or 20% (daily is 100%, it runs 5 work days per week, so weekly is 20%). Note that this is still a probability and only meaningful when sampled multiple times. With a 20% probability, Chaos Monkey would terminate one instance a week on average. In practice, it might be 2 days in a row followed by 2 weeks of no terminations, but given a large enough sample it will terminate weekly on average. For an environment as large as Netflix, the configuration can get a bit tricky to manage and for this we have developed a dashboard to help that we hope to open source soon. You can read more about how to configure Chaos Monkey on the [documentation wiki](https://github.com/Netflix/SimianArmy/wiki/Configuration).
+
+## REST
+
+Currently, there is a simple [REST interface](https://github.com/Netflix/SimianArmy/wiki/REST) that allows you to query Chaos Monkey termination events. We keep records of what was terminated and when, so if something disappears, you can see if Chaos Monkey was responsible. You could use this API to get notifications of terminations, but we encourage you to use a more general application monitoring solution like servo to discover what is happening to your applications at runtime.
+
+## Costs
+
+The termination events are stored in an Amazon SimpleDB table by default. There could be associated costs with Amazon SimpleDB but the activity of Chaos Monkey should be small enough to fall within Amazon's Free Usage Tier. Ultimately the costs associated with running Chaos Monkey are your responsibility.
+Cost references: http://aws.amazon.com/simpledb/pricing/
+
+## More Monkey Business
+
+We have a long line of simians waiting to be released.  The next likely candidate will be Janitor Monkey which helps keep your environment tidy and your costs down.  Stay tuned for more announcements.
+If building tools to automate the operations and improve the reliability of the cloud sounds exciting, we're always looking for new members to join the team.  Take a look at jobs.netflix.com for current openings or contact [@atseitlin](https://twitter.com/atseitlin).
+
+### Chaos Monkey
+- [Home Page](https://github.com/Netflix/SimianArmy/wiki)
+- [Quick Start Guide](https://github.com/Netflix/SimianArmy/wiki/Quick-Start-Guide)
+- [REST API](https://github.com/Netflix/SimianArmy/wiki/REST)
+- [Source Code](https://github.com/Netflix/SimianArmy)
+
+### Netflix Cloud Platform
+- The Netflix Simian Army
+- Asgard Web Based Cloud Management
+- 5 Lessons We’ve Learned Using AWS
+- Netflix Open Source Projects
+- Auto Scaling in the Amazon Cloud
+- Servo (Publish application metrics for auto scaling)
+- @NetflixOSS Twitter Feed
+
+### Amazon Web Services
+- Auto Scaling
+- Elastic Load Balancing (ELB)
+- SimpleDB Costs
+
 ----------
 
 # [我们使用AWS得到的5个教训](http://techblog.netflix.com/2010/12/5-lessons-weve-learned-using-aws.html)
+
+In my [last post](http://techblog.netflix.com/2010/12/four-reasons-we-choose-amazons-cloud-as.html) I talked about some of the reasons we chose AWS as our computing platform. We’re about one year into our transition to AWS from our own data centers. We’ve learned a lot so far, and I thought it might be helpful to share with you some of the mistakes we’ve made and some of the lessons we’ve learned.
+
+## Dorothy, you’re not in Kansas anymore.
+
+If you’re used to designing and deploying applications in your own data centers, you need to be
+prepared to unlearn a lot of what you know. Seek to understand and embrace the differences operating in a cloud environment.
+
+Many examples come to mind, such as hardware reliability. In our own data centers, session-based memory management was a fine approach, because any single hardware instance failure was rare. Managing state in volatile memory was reasonable, because it was rare that we would have to migrate from one instance to another. I knew to expect higher rates of individual instance failure in AWS, but I hadn’t thought through some of these sorts of implications.
+
+Another example: in the Netflix data centers, we have a high capacity, super fast, highly reliable
+network. This has afforded us the luxury of designing around chatty APIs to remote systems. AWS networking has more variable latency. We’ve had to be much more structured about “over the wire” interactions, even as we’ve transitioned to a more highly distributed architecture.
+
+## Co-tenancy is hard.
+
+When designing customer-facing software for a cloud environment, it is all about managing down expected overall latency of response. AWS is built around a model of sharing resources; hardware, network, storage, etc. Co-tenancy can introduce variance in throughput at any level of the stack. You’ve got to either be willing to abandon any specific subtask, or manage your resources within AWS to avoid co-tenancy where you must.
+
+Your best bet is to build your systems to expect and accommodate failure at any level, which introduces the next lesson.
+
+## The best way to avoid failure is to fail constantly.
+
+We’ve sometimes referred to the Netflix software architecture in AWS as our Rambo Architecture. Each system has to be able to succeed, no matter what, even all on its own. We’re designing each distributed system to expect and tolerate failure from other systems on which it depends.
+
+If our recommendations system is down, we degrade the quality of our responses to our customers, but we still respond. We’ll show popular titles instead of personalized picks. If our search system is intolerably slow, streaming should still work perfectly fine.
+
+One of the first systems our engineers built in AWS is called the Chaos Monkey. The Chaos Monkey’s job is to randomly kill instances and services within our architecture. If we aren’t constantly testing our ability to succeed despite failure, then it isn’t likely to work when it matters most – in the event of an unexpected outage.
+
+## Learn with real scale, not toy models.
+
+Before we committed ourselves to AWS, we spent time researching the platform and building test systems within it. We tried hard to simulate realistic traffic patterns against these research projects.
+
+This was critical in helping us select AWS, but not as helpful as we expected in thinking through our architecture. Early in our production build out, we built a simple repeater and started copying full customer request traffic to our AWS systems. That is what really taught us where our bottlenecks were, and some design choices that had seemed wise on the white board turned out foolish at big scale.
+
+We continue to research new technologies within AWS, but today we’re doing it at full scale with real data. If we’re thinking about new NoSQL options, for example, we’ll pick a real data store and port it full scale to the options we want to learn about.
+
+## Commit yourself.
+
+When I look back at what the team has accomplished this year in our AWS migration, I’m truly amazed. But it didn’t always feel this good. AWS is only a few years old, and building at a high scale within it is a pioneering enterprise today. There were some dark days as we struggled with the sheer size of the task we’d taken on, and some of the differences between how AWS operates vs. our own data centers.
+
+As you run into the hurdles, have the grit and the conviction to fight through them. Our CEO, Reed Hastings, has not only been fully on board with this migration, he is the person who motivated it! His commitment, the commitment of the technology leaders across the company, helped us push through to success when we could have chosen to retreat instead.
+
+AWS is a tremendous suite of services, getting better all the time, and some big technology companies are running successfully there today. You can too! We hope some of our mistakes and the lessons we’ve learned can help you do it well.
 
 ----------
