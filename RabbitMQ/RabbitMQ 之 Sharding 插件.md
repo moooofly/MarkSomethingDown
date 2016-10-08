@@ -87,17 +87,11 @@ $CTL set_policy images-shard "^shard.images$" '{"shards-per-node": 2, "routing-k
 
 ### About the routing-key policy definition
 
-In the example above we use the routing key `1234` when defining the
-policy. This means that the underlying exchanges used for sharding
-will bind the sharded queues to the exchange using the `1234` routing
-key specified above. This means that for a direct exchange, _only
-messages that are published with the routing key `1234` will be routed
-to the sharded queues. If you decide to use a fanout exchange for
-sharding, then the `1234` routing key, while used during binding, will
-be ignored by the exchange. If you use the `"x-modulus-hash"`
-exchange, then the routing key will be ignored as well. So depending
-on the exchange you use, will be the effect the `routing-key` policy
-definition has while routing messages.
+在上面的例子中，我们在定义 policy 时使用了 `1234` 作为 routing key ，这意味着底层用作 sharding 功能的 exchanges 将会使用 `1234` 这个 routing key 绑定 sharded queues 到该 exchange 上；
+
+这也意味着，对于 direct 类型的 exchange ，只有使用 routing key `1234` 进行 publish 的消息才会被路由到 sharded queues 中；
+
+如果你决定使用 fanout 类型的 exchange 用作 sharding ，那么 `1234` 这个 routing key 尽管在绑定操作中被使用，但仍旧会被 exchange 所忽略；如果你使用了 `"x-modulus-hash"` exchange，那么使用的 routing key 同样会被忽略掉；因此，取决于你所使用的 exchange ，在进行消息路由时，与 `routing-key` 相关的 policy 定义产生的效果会有所不同；
 
 针对 `routing-key` 的 policy 定义是可选的；
 
@@ -132,56 +126,36 @@ make
 
 ## 我们为何需要这个插件？
 
-RabbitMQ queues are bound to the node where they were first declared. This means that even if you create a cluster of RabbitMQ brokers, at some point all message traffic will go to the node where the queue lives. What this plugin does is to give you a centralized place where to send your messages, plus __load balancing__ across many
-nodes, by adding queues to the other nodes in the cluster.
+RabbitMQ 中的 queues 会默认在其首次声明的节点上建立绑定关系；这意味着即使你创建了 RabbitMQ cluster，但从某种角度来说，所有消息通信流量还是会发往 queue 所位于的节点上；而该插件所解决的就是给你提供了一个消息发送的中心点，并提供了跨多节点的 __负载均衡__ 功能（将 queues 分散到同一个 cluster 中的其他节点上）；
 
-The advantage of this setup is that the queues from where your
-consumers will get messages will be local to the node where they are
-connected.  On the other hand, the producers don't need to care about
-what's behind the exchange.
+这种方式的优势在于，你的 consumers 获取消息的 queue 相对其所连接的节点来说是本地的；换句话说，producers 不需要关心 exchange 后面有些什么；
 
-All the plumbing to __automatically maintain__ the shard queues is done by the plugin. If you add more nodes to the cluster, then the plugin will __automatically create queues in those nodes__.
+针对 shard queues 需要进行维护，全部由插件本身 __自动完成__；如果你向 cluster 中添加了更多的节点，则该插件会 __在那些节点上自动创建相应的 queues__；
 
-If you remove nodes from the cluster then RabbitMQ will take care of
-taking them out of the list of bound queues. Message loss can happen
-in the case where a race occurs from a node going away and your
-message arriving to the shard exchange. If you can't afford to lose a
-message then you can use
-[publisher confirms](http://www.rabbitmq.com/confirms.html) to prevent
-message loss.
+如果你从 cluster 中移除了节点，RabbitMQ 会负责将相应信息从 queues 绑定信息列表中移除；消息丢失是可能发生的，因为存在一种竞争条件：即节点失效的过程中，有消息到达了用于 shard 的 exchange 上；如果你无法承受消息丢失的问题，那么你需要使用 [publisher confirms](http://www.rabbitmq.com/confirms.html) 机制进行处理；
 
-## Message Ordering ##
+## Message Ordering
 
-Message order is maintained per sharded queue, but not globally. This
-means that once a message entered a queue, then for that queue and the
-set of consumers attached to the queue, ordering will be preserved.
+针对每个 sharded queue 来说，消息顺序是能够得到保证的；这意味着，一旦一条消息进入到了 queue 中，那么对于该 queue 以及该 queue 的相应 consumer 来说，消息顺序是确定的；
 
-If you need global ordering then stick with
-[mirrored queues](http://www.rabbitmq.com/ha.html).
+如果你需要全局顺序性保证，那么请使用 [mirrored queues](http://www.rabbitmq.com/ha.html)；
 
-## What strategy is used for picking the queue name ##
+## What strategy is used for picking the queue name
 
-When you issue a `basic.consume`, the plugin will choose the queue
-with the _least amount of consumers_.  The queue will be local to the
-broker your client is connected to. Of course the local sharded queue
-will be part of the set of queues that belong to the chosen shard.
+当你发送了 `basic.consume` 命令后，该插件将会选择拥有 _最少数量 consumers_ 的 queue ；并且该 queue 对于你的 client 所连接 broker 而言是本地的；当然，本地 sharded queue 将会是属于选中 shard 的 queue 分组的一部分； 
 
-## Intercepted Channel Behaviour ##
+## Intercepted Channel Behaviour
 
 This plugin works with the new `channel interceptors`. An interceptor basically allows a plugin to modify parts of an AMQP method. For example in this plugin case, whenever a user sends a `basic.consume`, the plugin will map the queue name sent by the user to one of the sharded queues.
 
-Also a plugin can decide that a certain AMQP method can't be performed
-on a queue that's managed by the plugin. In this case declaring a queue
-called `my_shard` doesn't make much sense when there's actually a
-sharded queue by that name. In this case the plugin will return a
-channel error to the user.
+Also a plugin can decide that a certain AMQP method can't be performed on a queue that's managed by the plugin. In this case declaring a queue called `my_shard` doesn't make much sense when there's actually a sharded queue by that name. In this case the plugin will return a channel error to the user.
 
-下面给出的是该插件能够理解的 AMQP 方法，以及相应的处理行为：
+下面给出插件能够处理的 AMQP 方法，以及相应的处理方式：
 
-- `'basic.consume', QueueName`: The plugin will pick the sharded queue with the least amount of consumers from the `QueueName` shard.
-- `'basic.get', QueueName`: The plugin will pick the sharded queue with the least amount of consumers from the `QueueName` shard.
-- `'queue.declare', QueueName`: The plugin rewrites `QueueName` to be the first queue in the shard, so `queue.declare_ok` returns the stats for that queue.
-- `'queue.bind', QueueName`: since there isn't an actual `QueueName` queue, this method returns a channel error.
-- `'queue.unbind', QueueName`: since there isn't an actual `QueueName` queue, this method returns a channel error.
-- `'queue.purge', QueueName`: since there isn't an actual `QueueName` queue, this method returns a channel error.
-- `'queue.delete', QueueName`: since there isn't an actual `QueueName` queue, this method returns a channel error.
+- `'basic.consume', QueueName`: 插件会将 `QueueName` 作为 shard 名字，选择具有最少数量 consumers 的 sharded queue ；
+- `'basic.get', QueueName`: 插件会将 `QueueName` 作为 shard 名字，选择具有最少数量 consumers 的 sharded queue ；
+- `'queue.declare', QueueName`: 插件会以 `QueueName` 作为名字在 shard 中声明 queue，因此 `queue.declare_ok` 将返回该 queue 的统计信息；
+- `'queue.bind', QueueName`: 由于没有实际的名为 `QueueName` 的 queue ，因此该方法将返回一个 channel 错误信息；
+- `'queue.unbind', QueueName`: 由于没有实际的名为 `QueueName` 的 queue ，因此该方法将返回一个 channel 错误信息；
+- `'queue.purge', QueueName`: 由于没有实际的名为 `QueueName` 的 queue ，因此该方法将返回一个 channel 错误信息；
+- `'queue.delete', QueueName`: 由于没有实际的名为 `QueueName` 的 queue ，因此该方法将返回一个 channel 错误信息；
