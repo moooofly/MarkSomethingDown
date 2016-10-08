@@ -146,9 +146,9 @@ RabbitMQ 中的 queues 会默认在其首次声明的节点上建立绑定关系
 
 ## Intercepted Channel Behaviour
 
-This plugin works with the new `channel interceptors`. An interceptor basically allows a plugin to modify parts of an AMQP method. For example in this plugin case, whenever a user sends a `basic.consume`, the plugin will map the queue name sent by the user to one of the sharded queues.
+该插件实现了一种新型的 `channel interceptors` ；该 interceptor 为插件提供了修改部分 AMQP 方法的能力；例如，针对当前插件的情况，无论何时用户发送了 `basic.consume` 方法，该插件都会将用户设置的 queue 名字映射为 sharded queues 之一对应的名字；
 
-Also a plugin can decide that a certain AMQP method can't be performed on a queue that's managed by the plugin. In this case declaring a queue called `my_shard` doesn't make much sense when there's actually a sharded queue by that name. In this case the plugin will return a channel error to the user.
+另外，该插件还能令某些 AMQP 方法无法在某些由该插件管理的 queue 上起作用；在这种情况下，声明一个名为 `my_shard` 的 queue 将是没有什么实际意义的，在已经有一个 sharded queue 叫了该名字时；此时，该插件会返回一个 channel 错误消息给用户；
 
 下面给出插件能够处理的 AMQP 方法，以及相应的处理方式：
 
