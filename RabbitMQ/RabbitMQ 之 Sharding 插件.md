@@ -9,15 +9,15 @@
 
 ![Sharding Overview](https://raw.githubusercontent.com/rabbitmq/rabbitmq-sharding/master/docs/sharded_queues.png)
 
-正如你从图中所见，当 producers 发布一系列消息后，这些消息会被分区到不同的 queue 中，之后我们的 consumer 可以从这些 queue 中获取到消息；换句话说，如果你有一个由 3 个 queue 构成的分区，那么你将需要至少 3 个 consumer 才能获取到所需的全部消息；
+正如你从图中所见，当 producers 发布一系列消息后，这些消息会被 partition 到不同的 queue 中，之后我们的 consumer 可以从这些 queue 中获取到消息；换句话说，如果你有一个由 3 个 queue 构成的 partition ，那么你将需要至少 3 个 consumer 才能获取到所需的全部消息；
 
 ## Auto-scaling
 
-该插件的其中一项有趣的特性为，如果你添加更多节点到 RabbitMQ cluster 中，那么该插件将会在新节点上自动创建出更多的 shards；假如你有一个由 4 个 queue 构成的 shard 位于 `node a` 中，同时 `node b` 刚刚加入了 cluster ；那么该插件将自动创建出 4 个 queue 在 `node b` 中，并将这些 queue 加入到 shard 分区中；已经投递到消息 _将不会_ 被 rebalanced ，但是新到达的消息将会分区到新 queues 中；
+该插件的其中一项有趣的特性为，如果你添加更多节点到 RabbitMQ cluster 中，那么该插件将会在新节点上自动创建出更多的 shards；假如你有一个由 4 个 queue 构成的 shard 位于 `node a` 中，同时 `node b` 刚刚加入了 cluster ；那么该插件将自动创建出 4 个 queue 在 `node b` 中，并将这些 queue 加入到 shard 分区中；已经投递到消息 _将不会_ 被 rebalanced ，但是新到达的消息将会被 partition 到新 queues 中；
 
 ## Partitioning Messages
 
-RabbitMQ 中默认提供的 exchanges 以 "all or nothing" 的模式工作；也就是说，一个 routing key 会匹配上绑定到 exchange 上的一组 queues ，而 RabbitMQ 会路由消息到相应的所有 queue 中；因此，对于该插件的工作方式来说，我们需要路由消息到负责分区消息的特定 exchange 上，以便消息_至多_被路由到一个 queue 中；
+RabbitMQ 中默认提供的 exchanges 以 "all or nothing" 的模式工作；也就是说，一个 routing key 会匹配上绑定到 exchange 上的一组 queues ，而 RabbitMQ 会路由消息到相应的所有 queue 中；因此，对于该插件的工作方式来说，我们需要路由消息到负责 partition 消息的 exchange 上，以便消息_至多_被路由到一个 queue 中；
 
 该插件提供了一种新 exchange 类型 `"x-modulus-hash"`，其基于传统的 hash 技术跨 queue 进行消息分区；
 
@@ -31,12 +31,12 @@ RabbitMQ 中默认提供的 exchanges 以 "all or nothing" 的模式工作；也
 
 尽管该插件会创建一组 "shard" queues ，但背后的想法是那些 queues 共同表现为一个大的、逻辑 queue ，供你进行消息的 consume ；跨 shard 时的消息整体顺序未进行定义；
 
-一例胜千言：我们假设你声明来 exchange _images_ 作为 sharded exchange ；之后 RabbitMQ 会在幕后创建出多个 "shard" queues ：
+一例胜千言：我们假设你声明了 exchange _images_ 作为 sharded exchange ；之后 RabbitMQ 会在幕后帮你创建出多个 "shard" queues ：
 
  * _shard: - nodename images 1_
  * _shard: - nodename images 2_
  * _shard: - nodename images 3_
- * _shard: - nodename images 4_.
+ * _shard: - nodename images 4_
 
 为了从 sharded queue 上进行 consume，需要使用 `basic.consume` 方法注册一个 consumer 到 `"images"` pseudo-queue 上；RabbitMQ 会在幕后“偷偷的“将 consumer 附着到 shard 上；需要注意的是，在进行消费行为之前，**consumers 不可以声明一个与 sharded pseudo-queue 同名的 queue **；
 
@@ -83,7 +83,7 @@ $CTL set_policy images-shard "^shard.images$" '{"shards-per-node": 2, "routing-k
 
 这将在 cluster 中的每个 node 上创建出 `2` 个 sharded queues ，并将那些 queues 通过 `"1234"` 这个 routing key 进行绑定；
 
-### About the routing-key policy definition
+### 关于 routing-key 的 policy 定义
 
 在上面的例子中，我们在定义 policy 时使用了 `1234` 作为 routing key ，这意味着底层用作 sharding 功能的 exchanges 将会使用 `1234` 这个 routing key 绑定 sharded queues 到该 exchange 上；
 
@@ -105,12 +105,12 @@ cd ../rabbitmq-sharding
 make
 ```
 
-## Plugin Status
+## 插件状态
 
 此时此刻，应该认为该插件仍旧处于 __experimental__ 状态，以便更好的从社区获取反馈；
 
 
-## Extra information ##
+## 额外信息
 
 关于该插件如何影响消息顺序，以及一些其他细节内容可以查看 [README.extra.md](https://github.com/rabbitmq/rabbitmq-sharding/blob/master/README.extra.md) ；
 
@@ -138,7 +138,7 @@ RabbitMQ 中的 queues 会默认在其首次声明的节点上建立绑定关系
 
 如果你需要全局顺序性保证，那么请使用 [mirrored queues](http://www.rabbitmq.com/ha.html)；
 
-## What strategy is used for picking the queue name
+## queue 名字选取策略
 
 当你发送了 `basic.consume` 命令后，该插件将会选择拥有 _最少数量 consumers_ 的 queue ；并且该 queue 对于你的 client 所连接 broker 而言是本地的；当然，本地 sharded queue 将会是属于选中 shard 的 queue 分组的一部分； 
 
