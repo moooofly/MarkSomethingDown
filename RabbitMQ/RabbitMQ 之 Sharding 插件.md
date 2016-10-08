@@ -1,11 +1,9 @@
 
 
 
-# [RabbitMQ Sharding Plugin](https://github.com/rabbitmq/rabbitmq-sharding)
+# [RabbitMQ Sharding Plugin](https://github.com/rabbitmq/rabbitmq-sharding/blob/master/README.md)
 
-该插件为 RabbitMQ 引入了 sharded queues 概念；Sharding 机制通过 exchanges 实现，也就是说，消息通过一个定义为 sharded 的 exchange 被分区保存到 "shard" queues 中；
-
-幕后使用的机制表明：我们会定义一个用于跨 queues 分区或 shard 消息的 exchange ；而分区操作会为你自动完成，也就是说，一旦你定义了用于 _sharded_ 功能的 exchange，相应的 queues 就会被自动创建到 cluster 中的每一个节点上，之后消息会在这些 queue 中被 sharded ；
+该插件为 RabbitMQ 引入了 sharded queues 概念；Sharding 行为是通过 exchanges 实现的；也就是说，消息通过一个起 sharded 作用的 exchange 被分区保存到不同的 "shard" queues 中；机制的背后是这样的：我们定义一个用于 partition 或 shard 消息的 exchange ，其可以跨 queues 工作，并且 partitioning 行为是自动完成的；也就是说，一旦你定义了用于 _sharded_ 功能的 exchange，相应的 queues 就会被自动创建到 cluster 中的每一个节点上，之后消息会被 sharded 到这些 queue 中；
 
 下图描述了从 publisher 和 consumer 的角度该插件是如何工作的：
 
