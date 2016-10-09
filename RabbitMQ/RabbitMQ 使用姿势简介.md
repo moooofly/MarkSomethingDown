@@ -3,23 +3,6 @@
 
 # 初级用户指令
 
-## 创建用户
-
-```shell
-rabbitmqctl add_user moooofly moooofly
-```
-
-## 设置用户角色
-
-```shell
-rabbitmqctl set_user_tags moooofly administrator
-```
-
-## 设置用户权限
-
-```shell
-rabbitmqctl set_permissions -p / moooofly ".\*" ".\*" ".\*"
-```
 
 ## 单机集群构建（1 disc + 2 ram）
 
@@ -39,6 +22,14 @@ rabbitmqctl -n rabbit_3 stop_app
 rabbitmqctl -n rabbit_3 join_cluster rabbit_1@`hostname -s`
 rabbitmqctl -n rabbit_3 change_cluster_node_type ram
 rabbitmqctl -n rabbit_3 start_app
+```
+
+## 创建用户+设置用户角色+设置用户权限
+
+```shell
+rabbitmqctl add_user moooofly moooofly
+rabbitmqctl set_user_tags moooofly administrator
+rabbitmqctl set_permissions -p / moooofly ".\*" ".\*" ".\*"
 ```
 
 ## 远程连接
