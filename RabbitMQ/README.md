@@ -1,5 +1,7 @@
 
 
+# TODO
+
 
 ----------
 
@@ -21,6 +23,9 @@
 - [RabbitMQ management 插件过载问题](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20management%20%E6%8F%92%E4%BB%B6%E8%BF%87%E8%BD%BD%E9%97%AE%E9%A2%98.md)
 - [RabbitMQ management 插件过载问题（高级篇）](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20management%20%E6%8F%92%E4%BB%B6%E8%BF%87%E8%BD%BD%E9%97%AE%E9%A2%98%EF%BC%88%E9%AB%98%E7%BA%A7%E7%AF%87%EF%BC%89.md)
 
+## sharding 插件
+
+- [RabbitMQ 之 Sharding 插件](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20%E4%B9%8B%20Sharding%20%E6%8F%92%E4%BB%B6.md)
 
 ## shovel 插件
 
@@ -43,6 +48,7 @@
 # 功能特性
 
 - [RabbitMQ 之延迟队列](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20%E4%B9%8B%E5%BB%B6%E8%BF%9F%E9%98%9F%E5%88%97.md)
+- [RabbitMQ 之 queue 长度限制](https://github.com/moooofly/MarkSomethingDown/blob/master/RabbitMQ/RabbitMQ%20%E4%B9%8B%20queue%20%E9%95%BF%E5%BA%A6%E9%99%90%E5%88%B6.md)
 
 
 ----------
