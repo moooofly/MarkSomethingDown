@@ -38,6 +38,18 @@ rabbitmqctl set_permissions -p / moooofly ".\*" ".\*" ".\*"
 erl -sname dbg -remsh NodeName@`hostname -s` -setcookie xxx
 ```
 
+## 社区插件
+
+获取地址：[这里](https://www.rabbitmq.com/community-plugins/)
+
+## 类似文章
+
+- [RabbitMQ基础](http://soft.dog/2015/10/23/RabbitMQ-basic/)
+- [RabbitMQ 监控](http://soft.dog/2016/01/13/rabbitmq-monitoring/)
+- [RabbitMQ管理](http://soft.dog/2015/11/18/RabbitMQ-management/)
+- [RabbitMQ集群I](http://soft.dog/2015/10/23/RabbitMQ-cluster/)
+- [RabbitMQ集群II](http://soft.dog/2015/10/26/RabbitMQ-cluster-advanced/)
+- [RabbitMQ 的CLI管理工具 rabbitmqadmin](http://soft.dog/2016/04/20/RabbitMQ-cli-rabbitmqadmin/)
 
 
 ----------
