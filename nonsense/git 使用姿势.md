@@ -56,7 +56,7 @@ git push -u
 git branch --set-upstream-to=origin/new_branch new_branch
 ```
 
-# 重命名 github repo 中的分支名
+# 重命名 github repo 中的远程分支名
 
 
 当在本地执行过如下命令后，你将会创建一个本地分支 old_branch 并且关联到远程的 old_branch 分支上；
@@ -94,7 +94,7 @@ git push origin --delete <remote_branch_name>
 - 将本地的新分支 push 到远程
 
 ```shell
-git push origin new_branch
+git push -u
 ```
 
 
