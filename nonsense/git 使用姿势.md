@@ -56,6 +56,69 @@ git push -u
 git branch --set-upstream-to=origin/new_branch new_branch
 ```
 
+# 重命名 github repo 中的分支名
+
+
+当在本地执行过如下命令后，你将会创建一个本地分支 old_branch 并且关联到远程的 old_branch 分支上；
+
+```shell
+git checkout -b old_branch
+git push -u
+```
+
+此时若想更改远程分支的名字，则可以按如下方式进行操作：
+
+- 修改本地分支名字
+
+```shell
+git branch -m old_branch new_branch 
+```
+
+- 删除远程待修改分支名（其实就是推送一个空分支到远程分支，以达到删除远程分支的目的）
+
+```shell
+git push origin :old_branch
+```
+
+在 Git v1.7.0 之后，可以使用这种语法删除远程分支
+
+```shell
+git push origin --delete <remote_branch_name>
+```
+
+> 删除本地分支命令为（需要切换到其他分支上执行该命令）
+> ```shell
+> git branch -d <local_branch_name>
+> ```
+
+- 将本地的新分支 push 到远程
+
+```shell
+git push origin new_branch
+```
+
+
+分支信息查看说明：
+
+> ```shell
+> git branch
+> ```
+> 查看本地分支名字
+> ```shell
+> git branch -a
+> ```
+> 查看本地和远程分支名字（红色显示部分为远程分支）
+> ```shell
+> git branch -a -vv
+> ```
+> 查看本地和远程分支名字，会显示出本地和远程的 tracking 关系；
+
+
+
+
+
+
+
 
 # fork 别人项目后如何同步其后续更新
 
