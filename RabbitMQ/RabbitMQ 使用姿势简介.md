@@ -29,7 +29,7 @@ rabbitmqctl -n rabbit_3 start_app
 ```shell
 rabbitmqctl add_user moooofly moooofly
 rabbitmqctl set_user_tags moooofly administrator
-rabbitmqctl set_permissions -p / moooofly ".\*" ".\*" ".\*"
+rabbitmqctl set_permissions -p / moooofly ".*" ".*" ".*"
 ```
 
 ## 远程连接
