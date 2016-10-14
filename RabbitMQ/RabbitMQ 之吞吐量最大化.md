@@ -45,14 +45,14 @@ According to a response I once got from the rabbitmq-discuss mailing group there
 - **prefetch** 应该尽量调大；
 - topic 匹配性能问题已经在新版本中有所优化；
 - queue 中留存的消息应该尽量少（理想很丰满，现实很残酷）；
-- 消息大小约小越能降低延迟，提高消息速率；而将小消息合并成大消息进行处理，能够增大吞吐量；
+- 消息大小越小越能降低延迟，提高消息速率；而将小消息合并成大消息进行处理，能够增大吞吐量；
 - 对消息进行高效的表达（更精简的数据格式 or 压缩），能够提升传输性能（业务处理复杂度略微提高）；
 - HiPE 是什么鸟？仍处于实验性阶段？适用于哪些场景？
 - 事务肯定要禁止使用，可靠性通过其他方案解决；
 - immediate 已经被取消，存在其他等效方案；mandatory 适用于某些特定场景，是否使用应该视情况而定；
 - 避免 HA ？扯什么蛋！cluster 也会对性能有一定影响？嗯，这是一句没有错误的废话；
-- 在多核系统上跑 RabbitMQ 性能会比泡在单核上强（需要注意下 docker 等虚拟环境等使用情况）；
-- Virtualisation 也会性能有一定影响，如果这里是指通过 management 插件的 Virtualisation ，那么性能问题已经被我遇到过了！
+- 在多核系统上跑 RabbitMQ 性能会比跑在单核上强（需要注意下 docker 等虚拟环境等使用情况）；
+- Virtualisation 也会对性能有一定影响，如果这里是指通过 management 插件实现的 Virtualisation ，那么性能问题已经被遇到了！
 
 ----------
 
