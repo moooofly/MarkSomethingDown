@@ -6,9 +6,7 @@
 git clone git@github.com:moooofly/aaa.git bbb
 ```
 
-
 ----------
-
 
 
 # 基于本地项目创建 github repo
@@ -151,6 +149,135 @@ git pull eleme_sre master
 ```shell
 git push
 ```
+
+
+----------
+
+# 定制化 git 全局配置
+
+取自：[SRE 团队 git 配置参考](https://github.com/eleme/sre/blob/master/git.md)
+
+```shell
+[color]
+
+    ui = auto
+
+[alias]
+
+    lg1 = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold white)— %an%C(reset)%C(bold yellow)%d%C(reset)' --abbrev-commit --date=relative
+
+    lg2 = log --graph --all --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(bold white)— %an%C(reset)' --abbrev-commit
+
+[core]
+
+    editor = vim
+
+    safecrlf = true
+
+    excludesfile = ~/.gitignore
+
+[push]
+
+    default = current
+
+[rerere]
+
+    enabled = 1
+
+    autoupdate = 1
+
+[user]
+
+    name = your-name
+
+    email = your-email
+
+[merge]
+
+    tool = vimdiff
+
+[url "git@github.com:"]
+
+    insteadOf = https://github.com/
+
+[url "git@github.com:"]
+
+    insteadOf = http://github.com/
+
+[url "git@github.com:"]
+
+    insteadOf = git://github.com/
+```
+
+
+
+# 基于 SSH 协议访问 git
+
+```shell
+vagrant@vagrant-ubuntu-trusty:~$ ll .ssh
+
+total 16
+drwx------ 2 vagrant vagrant 4096 Jun  6 09:30 ./
+drwxr-xr-x 7 vagrant vagrant 4096 Jun  6 09:38 ../
+-rw------- 1 vagrant vagrant  389 Jun  6 08:18 authorized_keys
+-rw-r--r-- 1 vagrant vagrant  884 Jun  6 09:30 known_hosts
+vagrant@vagrant-ubuntu-trusty:~$
+```
+
+
+创建 RSA 密钥对
+```shell
+vagrant@vagrant-ubuntu-trusty:~$ ssh-keygen -t rsa -b 4096 -C "aaa@bbb.com"
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/vagrant/.ssh/id_rsa):
+Enter passphrase (empty for no passphrase):               -- 最好不使用密码
+Enter same passphrase again:
+
+Your identification has been saved in /home/vagrant/.ssh/id_rsa.
+Your public key has been saved in /home/vagrant/.ssh/id_rsa.pub.
+
+The key fingerprint is:
+f1:a9:8a:a3:23:18:64:3e:5b:3a:e9:39:54:32:23:83 aaa@bbb.com
+
+The key's randomart image is:
++--[ RSA 4096]----+
+|                 |
+|                 |
+|.       .        |
+|E* .     o .     |
+|=.=     S o      |
+|.+ .     .       |
+|o.*     .        |
+|o*o .. .         |
+|.++o...          |
++-----------------+
+vagrant@vagrant-ubuntu-trusty:~$
+```
+
+```shell
+vagrant@vagrant-ubuntu-trusty:~$ ll .ssh
+
+total 24
+drwx------ 2 vagrant vagrant 4096 Jun  6 09:40 ./
+drwxr-xr-x 7 vagrant vagrant 4096 Jun  6 09:38 ../
+-rw------- 1 vagrant vagrant  389 Jun  6 08:18 authorized_keys
+-rw------- 1 vagrant vagrant 3243 Jun  6 09:40 id_rsa
+-rw-r--r-- 1 vagrant vagrant  745 Jun  6 09:40 id_rsa.pub
+-rw-r--r-- 1 vagrant vagrant  884 Jun  6 09:30 known_hosts
+vagrant@vagrant-ubuntu-trusty:~$
+```
+
+```shell
+vagrant@vagrant-ubuntu-trusty:~/workspace/eleme_project$ eval "$(ssh-agent -s)"
+Agent pid 1371
+vagrant@vagrant-ubuntu-trusty:~/workspace/eleme_project$ ssh-add ~/.ssh/id_rsa
+Identity added: /home/vagrant/.ssh/id_rsa (/home/vagrant/.ssh/id_rsa)
+vagrant@vagrant-ubuntu-trusty:~/workspace/eleme_project$
+```
+
+最后将 id_rsa.pub 文件中的内容添加到 github 账户中
+
+> 遗留问题：为什么需要执行 ssh-add ~/.ssh/id_rsa
 
 
 ----------
