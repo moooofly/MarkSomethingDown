@@ -46,6 +46,33 @@ Spotlight 是 Mac OS X 中非常实用的搜索功能，可以通过 `control+�
 - [zsh]()
 
 
+
+# Mac 上的 root 权限的使用（sudo 和密码问题）
+
+默认情况下，OS X 中的 root 用户处于停用状态。如果需要，请按照[本文](https://support.apple.com/zh-cn/HT204012)中的步骤启用并使用 root 用户。
+
+
+# Mac 中启用 sshd 服务
+
+```shell
+sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
+```
+参考：[这里](https://segmentfault.com/a/1190000001732729)
+
+# Mac 系统环境变量加载顺序
+
+- /etc/profile
+- /etc/paths
+- ~/.bash_profile
+- ~/.bash_login
+- ~/.profile
+- ~/.bashrc
+
+当然 /etc/profile 和 /etc/paths 是**系统级别**的，系统启动就会加载；后面几个是当前**用户级**的环境变量。
+
+~/.bashrc 没有上述规则，它是 bash shell 打开的时候载入的。
+
+
 # Mac 上的“邮件”不断提示输入密码
 
 最终在 Mac 上通过 web 登录邮箱后，会弹出提示“是否允许其他应用使用该账户“，允许后就没有问题了；    
