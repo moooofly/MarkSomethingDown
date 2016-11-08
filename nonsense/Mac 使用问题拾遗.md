@@ -72,6 +72,54 @@ sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
 
 ~/.bashrc 没有上述规则，它是 bash shell 打开的时候载入的。
 
+# Mac 上进行 shell 切换
+
+查看系统当前可用的 shell
+
+```shell
+➜  ~ cat /etc/shells
+# List of acceptable shells for chpass(1).
+# Ftpd will not allow users to connect who are not using
+# one of these shells.
+
+/bin/bash
+/bin/csh
+/bin/ksh
+/bin/sh
+/bin/tcsh
+/bin/zsh
+➜  ~
+```
+
+确定当前使用的 shell
+
+```shell
+➜  ~ echo $SHELL
+/bin/zsh
+➜  ~
+```
+
+进行 shell 切换
+
+```shell
+➜  ~ chsh -s /bin/bash
+Changing shell for sunfei.
+Password for sunfei:
+➜  ~
+➜  ~ echo $SHELL
+/bin/zsh
+➜  ~
+```
+
+> ⚠️ 此时虽然成功切换，但在当前窗口中不会有效果，需要新开一个窗口才能看到变化！
+
+在新窗口中进行确认
+
+```shell
+sunfeideMacBook-Pro:~ sunfei$ echo $SHELL
+/bin/bash
+sunfeideMacBook-Pro:~ sunfei$
+```
 
 # Mac 上的“邮件”不断提示输入密码
 
