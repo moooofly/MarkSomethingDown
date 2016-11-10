@@ -137,6 +137,61 @@ Mac 官方解答：[这里](https://support.apple.com/zh-cn/HT204187)；
 参考：[这里](http://www.baifeng.me/apple/macosx/2010/04/1295/)；
 
 
+# mac 下通过 brew 安装 wireshark
+
+安装命令
+
+```shell
+brew install lua
+brew install wireshark --with-qt5 --with-lua --with-libsmi --with-headers
+brew cask install wireshark-chmodbpf
+```
+
+安装后
+
+```shell
+➜  ~ Wireshark -v
+Wireshark 2.2.1 (Git Rev Unknown from unknown)
+
+Copyright 1998-2016 Gerald Combs <gerald@wireshark.org> and contributors.
+License GPLv2+: GNU GPL version 2 or later <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>
+This is free software; see the source for copying conditions. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Compiled (64-bit) with Qt 5.7.0, with libpcap, without POSIX capabilities, with
+GLib 2.50.2, with zlib 1.2.5, with SMI 0.4.8, with c-ares 1.12.0, with Lua
+5.2.4, with GnuTLS 3.4.16, with Gcrypt 1.7.3, with MIT Kerberos, with GeoIP,
+with QtMultimedia, without AirPcap.
+
+Running on Mac OS X 10.11.6, build 15G31 (Darwin 15.6.0), with locale
+zh_CN.UTF-8, with libpcap version 1.5.3 - Apple version 54, with GnuTLS 3.4.16,
+with Gcrypt 1.7.3, with zlib 1.2.5.
+Intel(R) Core(TM) i5-5257U CPU @ 2.70GHz (with SSE4.2)
+
+Built using clang 4.2.1 Compatible Apple LLVM 7.3.0 (clang-703.0.31).
+➜  ~
+➜  ~ tshark -v
+TShark (Wireshark) 2.2.1 (Git Rev Unknown from unknown)
+
+Copyright 1998-2016 Gerald Combs <gerald@wireshark.org> and contributors.
+License GPLv2+: GNU GPL version 2 or later <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>
+This is free software; see the source for copying conditions. There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Compiled (64-bit) with libpcap, without POSIX capabilities, with GLib 2.50.2,
+with zlib 1.2.5, with SMI 0.4.8, with c-ares 1.12.0, with Lua 5.2.4, with GnuTLS
+3.4.16, with Gcrypt 1.7.3, with MIT Kerberos, with GeoIP.
+
+Running on Mac OS X 10.11.6, build 15G31 (Darwin 15.6.0), with locale
+zh_CN.UTF-8, with libpcap version 1.5.3 - Apple version 54, with GnuTLS 3.4.16,
+with Gcrypt 1.7.3, with zlib 1.2.5.
+Intel(R) Core(TM) i5-5257U CPU @ 2.70GHz (with SSE4.2)
+
+Built using clang 4.2.1 Compatible Apple LLVM 7.3.0 (clang-703.0.31).
+➜  ~
+```
+
+
 # mac 下如何更新 locate 命令依赖的数据库
 
 在 CentOS 系统上，更新 `locate` 命令依赖的数据库，只需要执行 `updatedb` 命令；
