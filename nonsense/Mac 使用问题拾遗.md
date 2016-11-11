@@ -27,6 +27,8 @@ sudo python get-pip.py
 
 之后就可以正常使用 pip 命令安装各种功能 python 包了；
 
+stackoverflow:[installing-pip-on-mac-os-x](http://stackoverflow.com/questions/17271319/installing-pip-on-mac-os-x)
+
 
 # Mac 快速锁屏
 
