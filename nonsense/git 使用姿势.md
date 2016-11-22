@@ -112,9 +112,75 @@ git push -u
 > 查看本地和远程分支名字，会显示出本地和远程的 tracking 关系；
 
 
+# 删除不存在对应远程分支的本地分支
 
+一种情况：提交 PR 后，master 分支在合并完成后会删除对应的 PR 分支，而提交 PR 的人的本地分支会看到如下提示信息；
 
+```shell
+➜  redis_dissector_for_wireshark git:(master)  git branch -a  -- 该命令看不出问题
+* master
+  revert
+  remotes/origin/master
+  remotes/origin/revert
+➜  redis_dissector_for_wireshark git:(master)
+➜  redis_dissector_for_wireshark git:(master) git remote show origin
+* remote origin
+  Fetch URL: git@github.com:moooofly/redis_dissector_for_wireshark.git
+  Push  URL: git@github.com:moooofly/redis_dissector_for_wireshark.git
+  HEAD branch: master
+  Remote branches:
+    master                     tracked
+    refs/remotes/origin/revert stale (use 'git remote prune' to remove) -- 这里
+  Local branch configured for 'git pull':
+    master merges with remote master
+  Local ref configured for 'git push':
+    master pushes to master (local out of date)
+➜  redis_dissector_for_wireshark git:(master)
+```
 
+上述信息表明：
+> remote 分支 revert 处于 stale 状态（过时）
+
+两种解决方法：
+- 使用 `git remote prune origin` 可以将其从本地版本库中去除；
+- 更简单的方法是使用 `git fetch -p` 命令，在 fetch 之后删除掉没有与远程分支对应的本地分支；
+
+输出结果如下
+
+```shell
+➜  redis_dissector_for_wireshark git:(master) git fetch -p
+From github.com:moooofly/redis_dissector_for_wireshark
+ x [deleted]         (none)     -> origin/revert
+remote: Counting objects: 1, done.
+remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (1/1), done.
+   ea2ef49..193304e  master     -> origin/master
+➜  redis_dissector_for_wireshark git:(master)
+➜  redis_dissector_for_wireshark git:(master) git branch -a
+* master
+  revert
+  remotes/origin/master
+➜  redis_dissector_for_wireshark git:(master)
+➜  redis_dissector_for_wireshark git:(master) git remote show origin
+* remote origin
+  Fetch URL: git@github.com:moooofly/redis_dissector_for_wireshark.git
+  Push  URL: git@github.com:moooofly/redis_dissector_for_wireshark.git
+  HEAD branch: master
+  Remote branch:
+    master tracked
+  Local branch configured for 'git pull':
+    master merges with remote master
+  Local ref configured for 'git push':
+    master pushes to master (local out of date)
+➜  redis_dissector_for_wireshark git:(master)
+```
+
+最后还需要通过 `git branch -D revert` 删除 local 分支；
+```shell
+➜  redis_dissector_for_wireshark git:(master) git branch -D revert
+Deleted branch revert (was be9b8d1).
+➜  redis_dissector_for_wireshark git:(master)
+```
 
 
 
