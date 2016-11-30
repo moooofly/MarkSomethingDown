@@ -53,6 +53,44 @@ Spotlight 是 Mac OS X 中非常实用的搜索功能，可以通过 `control+�
 
 默认情况下，OS X 中的 root 用户处于停用状态。如果需要，请按照[本文](https://support.apple.com/zh-cn/HT204012)中的步骤启用并使用 root 用户。
 
+# Mac 上执行 brew 命令提示 “GitHub API Error”
+
+执行 brew 时会输出如下错误信息：
+
+
+```shell
+...
+Error: GitHub API Error: API rate limit exceeded for 103.215.2.69. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)
+Try again in 11 minutes 48 seconds, or create a personal access token:
+  https://github.com/settings/tokens/new?scopes=gist,public_repo&description=Homebrew
+and then set the token as: export HOMEBREW_GITHUB_API_TOKEN="your_new_token"
+```
+
+在浏览器中打开上述 URL 并创建 token ；
+
+```
+Personal access tokens
+
+Tokens you have generated that can be used to access the GitHub API.
+
+Make sure to copy your new personal access token now. You won’t be able to see it again!
+
+f7c**********(略)*********ccb
+
+Personal access tokens function like ordinary OAuth access tokens. They can be used instead of a password for Git over HTTPS, or can be used to authenticate to the API over Basic Authentication.
+```
+
+将生成的 token 值添加到对应 shell 的 rc 文件中，例如 .zshrc 文件
+```shell
+if [ -f /usr/local/bin/brew ]; then
+    export HOMEBREW_GITHUB_API_TOKEN=f7c**********(略)*********ccb
+fi
+```
+
+最后通过 source 命令使其立即生效；
+```shell
+source ~/.zshrc
+```
 
 # Mac 中启用 sshd 服务
 
