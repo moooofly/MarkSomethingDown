@@ -336,3 +336,17 @@ fi
 ```
 
 Once you’ve done this, you’ll be able to install the additional completion scripts. You can find a complete list of these [over here](https://github.com/Homebrew/homebrew-completions) on GitHub. Happy tabbing!
+
+> UPDATED
+
+[Homebrew/homebrew-completions](https://github.com/Homebrew/homebrew-completions) supports `bash` and `fish` completions (only for `brew-cask` right now). Install them with:
+```shell
+$ brew install homebrew/completions/brew-cask-completion
+```
+
+For zsh completion support, simply run:
+```shell
+$ brew install zsh-completions
+```
+
+
