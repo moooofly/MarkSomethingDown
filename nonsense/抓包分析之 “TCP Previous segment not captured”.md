@@ -9,7 +9,7 @@
 
 抓包截图如下：
 
-![HTTP 请求正常情况](https://github.com/moooofly/ImageCache/blob/master/Pictures/HTTP%20%E8%AF%B7%E6%B1%82%E6%AD%A3%E5%B8%B8%E6%83%85%E5%86%B5.png "HTTP 请求正常情况")
+![HTTP 请求正常情况](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/HTTP%20%E8%AF%B7%E6%B1%82%E6%AD%A3%E5%B8%B8%E6%83%85%E5%86%B5.png "HTTP 请求正常情况")
 
 > 在正常情况下，服务器在接收到 HTTP 请求后会迅速进行回应；并且 TCP 连接关闭是客户端侧发起的；
 
