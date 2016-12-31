@@ -11,7 +11,7 @@
 ```golang
 func checkError (err error) {
     if err != nil {   // 问题点 2
-		panic(err)
+        panic(err)
     }
 }
 
@@ -37,15 +37,15 @@ func main() {
 }
 ```
 
-上述代码的本意是：在未对 `e` 进行显式初始化时，`e` 将被默认初始化为零值，将零值传入 `checkError()` 中与 `nil` 进行想等判定，应该不会触发 `panic(err)` 调用；
+> 上述代码的本意是：在未对 `e` 进行显式初始化时，`e` 将被默认初始化为零值，将零值传入 `checkError()` 中与 `nil` 进行相等判定，应该不触发 `panic(err)` 调用；
 
 ## 原因说明
 
 事实上，上述代码总是会触发 `panic(err)` 调用；原因总结如下：
 
-- 在通过 `var e *Error` 定义 `e` 的时候，运行时系统会将其默认初始化为对应类型的零值，即 (*Error)nil ；
-- 当 `e` 被传递到 `checkError()` 函数中，通过 error 接口拿到后，产生到效果为 `interface{Error() string}((*Error)nil)` ；
-- 当通过 `if err != nil` 进行相等判定时，由于两者类型不同，因此永远得到 false 结果，所以总是会触发 `panic()` ；
+- 在通过 `var e *Error` 定义 `e` 的时候，运行时系统会将其默认初始化为对应类型的零值，即 `(*Error)nil` ；
+- 当 `e` 被传递给 `checkError()` 函数，再通过 error 接口接收后，得到的值实际上是 `interface{Error() string}((*Error)nil)` ；
+- 当通过 `if err != nil` 进行相等判定时，由于两者类型不同，因此永远得到 false 结果，所以总是触发 `panic()` ；
 
 
 ----------
@@ -54,9 +54,9 @@ func main() {
 其实，若想要深刻理解上述错误原因，实际上要正确理解如下问题：
 
 - `nil` 是什么？如何使用？
-- `error` 是什么？接收入参后如何工作？
+- `error` 是什么？接收到值后的行为是？
 
-下面给出一些能够解答上述问题的相关材料；
+下面的资料用于解答上述问题；
 
 ## nil 
 
