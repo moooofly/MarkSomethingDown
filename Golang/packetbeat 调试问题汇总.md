@@ -65,11 +65,15 @@ func (sniffer *SnifferSetup) Run() error {
 
 ### 问题原因
 
-在未使用 `-t` 选项时，每个包都使用当前系统时间作为包的时间戳，然后又使用了包实际捕获的时间戳与其做减法，结果就导致了所谓的“回退”问题；
+相邻两个数据包之间的时间差，是基于包捕获时的时间戳计算的；在存在大量 TCP 重传的情况下（如下图），则会出现时间戳相同的情况；当有乱序发生时，则会出现时间差为负值的情况；
+
+![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Seconds%20since%20beginning%20of%20capture.png)
+
+该问题与是否使用 `-t` 选项没有直接关系；
 
 ### 解决办法
 
-可以通过设置 `-t` 参数绕过此问题；
+通过设置 `-t` 参数绕过此问题，因为此时不会输出对应的打印内容；
 
 ### 补充试验
 
@@ -87,7 +91,7 @@ func (sniffer *SnifferSetup) Run() error {
 2017/01/11 07:20:27.991096 logp.go:246: INFO Uptime: 14.847278439s
 ```
 
-对比发现，是否使用 `-t` 选项对包数据解析时间的影响还是很大的；
+经确认，使用 `-t` 选项的目的在于能够准确的按照包中的内容进行重放（包括时间延迟）；
 
 
 ## #03 在 packetbeat.yml 中移除（通过 '#' 注释掉） [Transaction protocols] 中的内容时出现协议端口错乱问题
