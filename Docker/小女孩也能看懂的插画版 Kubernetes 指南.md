@@ -6,6 +6,8 @@
 
 > Matt Butcher 是 Deis 的平台架构师，热爱哲学，咖啡和精雕细琢的代码。有一天女儿走进书房问他什么是 Kubernetes，于是就有了这本插画版的 Kubernetes 指南，讲述了勇敢的 Phippy（一个 PHP 应用），在 Kubernetes 的冒险故事，满满的父爱有木有！
 
+原文地址：[这里](https://deis.com/blog/2016/kubernetes-illustrated-guide/)
+
 ----------
 
 ## 某一天
