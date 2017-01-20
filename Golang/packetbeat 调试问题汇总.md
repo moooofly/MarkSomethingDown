@@ -18,7 +18,7 @@
 
 调整为 `file` 和 `console` 输出；
 
-## #02 "sniffer.go:365: WARN Time in pcap went backwards: 0" 错误
+## #02 "sniffer.go:365: WARN Time in pcap went backwards: 0" 警告
 
 ### 问题描述
 
@@ -65,7 +65,7 @@ func (sniffer *SnifferSetup) Run() error {
 
 ### 问题原因
 
-相邻两个数据包之间的时间差，是基于包捕获时的时间戳计算的；在存在大量 TCP 重传的情况下（如下图），则会出现时间戳相同的情况；当有乱序发生时，则会出现时间差为负值的情况；
+相邻两个数据包之间的时间差，是基于包捕获时的时间戳计算得到的；当存在大量 TCP 重传情况时（如下图），则会出现时间戳相同的情况；当有乱序发生时，则会出现时间戳差值为负的情况；
 
 ![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Seconds%20since%20beginning%20of%20capture.png)
 
@@ -73,7 +73,7 @@ func (sniffer *SnifferSetup) Run() error {
 
 ### 解决办法
 
-通过设置 `-t` 参数绕过此问题，因为此时不会输出对应的打印内容；
+可以通过设置 `-t` 参数绕过此问题，因为此时不会输出相应的打印内容；
 
 ### 补充试验
 
@@ -91,7 +91,7 @@ func (sniffer *SnifferSetup) Run() error {
 2017/01/11 07:20:27.991096 logp.go:246: INFO Uptime: 14.847278439s
 ```
 
-经确认，使用 `-t` 选项的目的在于能够准确的按照包中的内容进行重放（包括时间延迟）；
+经确认，使用 `-t` 选项的目的在于能够准确的按照包内容进行数据重放（包括时间延迟）；
 
 
 ## #03 在 packetbeat.yml 中移除（通过 '#' 注释掉） [Transaction protocols] 中的内容时出现协议端口错乱问题
