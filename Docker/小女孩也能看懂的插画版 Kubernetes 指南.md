@@ -8,7 +8,7 @@
 
 ----------
 
-- 某一天
+## 某一天
 
 ![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/kubernetes-illustrated-guide-illustration-1.png)
 
@@ -20,7 +20,7 @@
 >
 > 女儿更疑惑了……于是就有了这个故事。
 
-- 给孩子的插画版 Kubernetes 指南
+## 给孩子的插画版 Kubernetes 指南
 
 ![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/kubernetes-illustrated-guide-illustration-2.png)
 
