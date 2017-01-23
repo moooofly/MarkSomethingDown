@@ -1,6 +1,6 @@
 
-> 作者：Simon Tatham 专业的自由软件程序员
-> 翻译：Dasn
+> 作者：Simon Tatham 专业的自由软件程序员   
+> 翻译：Dasn   
 
 > 原文地址：[这里](http://www.chiark.greenend.org.uk/~sgtatham/bugs-cn.html)
 
