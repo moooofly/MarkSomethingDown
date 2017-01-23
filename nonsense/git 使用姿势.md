@@ -1,5 +1,98 @@
 
 
+# git tag 操作
+
+- 显示已有标签
+
+```shell
+git tag
+```
+
+- 基于搜索模式列出符合条件的标签
+
+```shell
+git tag -l '<pattern>'
+```
+
+> 模式为正则表达式；
+
+- 新建标签
+
+> Git 使用的标签有两种类型：轻量级的（lightweight）和含附注的（annotated）；
+
+1. 新建含附注的标签
+
+```shell
+git tag -a <tag_name> -m "your comment"
+```
+
+2. 新建基于 GPG 签署的标签
+
+```shell
+git tag -s <tag_name> -m "your comment"
+```
+
+> 签署的目的是为了进行后续验证，防止篡改；
+
+3. 新建轻量级标签
+
+```shell
+git tag <tag_name>
+```
+
+- 查看标签相关信息
+
+```shell
+git show <tag_name>
+```
+
+- 基于 GPG 验证已经签署的标签
+
+```shell
+git tag -v <tag-name>
+```
+
+> 需要有签署者的公钥，存放在 keyring 中（即导入），才能验证；
+
+- 后期（补）加注标签
+
+```shell
+git log --pretty=oneline           # 查看提交历史，确定某次提交的哈希值
+git tag -a <tag_name> <hashValue>  # 可以只给出哈希值的前几位
+```
+
+- 将标签推送到远端仓库
+
+> 默认情况下，`git push` 并不会将标签推送到远端仓库；必须显式指定才行；
+
+1. 推送指定标签
+
+```shell
+git push origin <tag_name>
+```
+
+2. 推送所有标签
+
+```shell
+git push origin --tags
+```
+
+- 删除远端标签
+
+```shell
+git push origin --delete tag <tag_name>
+git tag -d <tag_name>
+git push origin :refs/tags/<tag_name>
+```
+
+- 获取远端标签
+
+```shell
+git fetch origin tag <tag_name>
+```
+
+> 尚未理解该命令的作用
+
 # git clone 时直接 rename
 
 ```shell
@@ -343,14 +436,11 @@ vagrant@vagrant-ubuntu-trusty:~/workspace/eleme_project$
 
 最后将 id_rsa.pub 文件中的内容添加到 github 账户中
 
-> 遗留问题：为什么需要执行 ssh-add ~/.ssh/id_rsa
-
 
 ----------
 
 
 # 问题
 
-- 是否设置 --set-upstream-to 有何区别？
-- 
+
 
