@@ -20,25 +20,25 @@ git tag -l '<pattern>'
 
 > Git 使用的标签有两种类型：轻量级的（lightweight）和含附注的（annotated）；
 
-1. 新建含附注的标签
+    1. 新建含附注的标签
 
-```shell
-git tag -a <tag_name> -m "your comment"
-```
+    ```shell
+    git tag -a <tag_name> -m "your comment"
+    ```
 
-2. 新建基于 GPG 签署的标签
+    2. 新建基于 GPG 签署的标签
 
-```shell
-git tag -s <tag_name> -m "your comment"
-```
+    ```shell
+    git tag -s <tag_name> -m "your comment"
+    ```
 
-> 签署的目的是为了进行后续验证，防止篡改；
+    > 签署的目的是为了进行后续验证，防止篡改；
 
-3. 新建轻量级标签
+    3. 新建轻量级标签
 
-```shell
-git tag <tag_name>
-```
+    ```shell
+    git tag <tag_name>
+    ```
 
 - 查看标签相关信息
 
