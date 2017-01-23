@@ -65,13 +65,13 @@ git tag -a <tag_name> <hashValue>  # 可以只给出哈希值的前几位
 
     > 默认情况下，`git push` 并不会将标签推送到远端仓库；必须显式指定才行；
 
-    1. 推送指定标签
+    - 推送指定标签
 
         ```shell
         git push origin <tag_name>
         ```
 
-    2. 推送所有标签
+    - 推送所有标签
 
         ```shell
         git push origin --tags
@@ -191,18 +191,24 @@ git push -u
 
 分支信息查看说明：
 
+> - 查看本地分支名字
+>
 > ```shell
 > git branch
 > ```
-> 查看本地分支名字
+> 
+> - 查看本地和远程分支名字（红色显示部分为远程分支）
+> 
 > ```shell
 > git branch -a
 > ```
-> 查看本地和远程分支名字（红色显示部分为远程分支）
+> 
+> - 查看本地和远程分支名字，会显示出本地和远程的 tracking 关系；
+> 
 > ```shell
 > git branch -a -vv
 > ```
-> 查看本地和远程分支名字，会显示出本地和远程的 tracking 关系；
+
 
 
 # 删除不存在对应远程分支的本地分支
