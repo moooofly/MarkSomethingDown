@@ -18,7 +18,7 @@ git tag -l '<pattern>'
 
 - 新建标签
 
-> Git 使用的标签有两种类型：轻量级的（lightweight）和含附注的（annotated）；
+    > Git 使用的标签有两种类型：轻量级的（lightweight）和含附注的（annotated）；
 
     - 新建含附注的标签
 
@@ -63,19 +63,19 @@ git tag -a <tag_name> <hashValue>  # 可以只给出哈希值的前几位
 
 - 将标签推送到远端仓库
 
-> 默认情况下，`git push` 并不会将标签推送到远端仓库；必须显式指定才行；
+    > 默认情况下，`git push` 并不会将标签推送到远端仓库；必须显式指定才行；
 
-1. 推送指定标签
+    1. 推送指定标签
 
-```shell
-git push origin <tag_name>
-```
+        ```shell
+        git push origin <tag_name>
+        ```
 
-2. 推送所有标签
+    2. 推送所有标签
 
-```shell
-git push origin --tags
-```
+        ```shell
+        git push origin --tags
+        ```
 
 - 删除远端标签
 
