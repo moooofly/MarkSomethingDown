@@ -93,6 +93,9 @@ func (sniffer *SnifferSetup) Run() error {
 
 经确认，使用 `-t` 选项的目的在于能够准确的按照包内容进行数据重放（包括时间延迟）；
 
+### 其他
+
+在官方论坛上的[讨论](https://discuss.elastic.co/t/packetbeat-something-wired-with-warn-time-in-pcap-went-backwards/72142)；
 
 ## #03 在 packetbeat.yml 中移除（通过 '#' 注释掉） [Transaction protocols] 中的内容时出现协议端口错乱问题
 
@@ -104,7 +107,7 @@ func (sniffer *SnifferSetup) Run() error {
 
 ## #04 移除 flow 相关的 report 配置以减少信息干扰
 
-需要确认 flow report 到底是干什么的
+> 需要确认 flow report 到底是干什么的
 
 ## #05 基于 packetbeat 可执行程序分析 redis 协议数据包时每次输出结果都不同
 
