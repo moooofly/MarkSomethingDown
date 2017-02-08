@@ -387,9 +387,10 @@ func (redis *redisPlugin) correlate(conn *redisConnectionData) {
 - 将 packetbeat.yml 中的 `queue_size` 值按需要调大；
 - 使用 `-waitstop=N` 增加 `packetbeat` 等待文件分析结束的时间；
 
-## 补充试验
+## 其他
 
-详见我在官方论坛上的[说明](https://discuss.elastic.co/t/why-packetbeat-generates-result-of-libbeat-publisher-published-events-changing-every-time/71699)；
+- 在官方论坛上的[讨论](https://discuss.elastic.co/t/why-packetbeat-generates-result-of-libbeat-publisher-published-events-changing-every-time/71699)；
+- 给官方提的 [issue](https://github.com/elastic/beats/issues/3404)；
 
 ## 遗留问题
 
