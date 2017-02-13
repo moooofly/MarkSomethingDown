@@ -162,6 +162,8 @@ value should be Int, but we get ->
 
 当调用 `HMGET` 时同时查询多个数据，应答包含的数据量比较大时，需要分包进行回复；若在应答回复的过程中，出现丢包，则会导致数据解析出错；
 
+补充结论：经过深入研究发现，应答内容大并不是充分条件，导致数据解析出错和分包位置有关（有些情况分包数据并不会导致错误）；
+
 ![HMGET 的应答数据分包回复遇到丢包问题](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/HMGET%20%E7%9A%84%E5%BA%94%E7%AD%94%E6%95%B0%E6%8D%AE%E5%88%86%E5%8C%85%E5%9B%9E%E5%A4%8D%E9%81%87%E5%88%B0%E4%B8%A2%E5%8C%85%E9%97%AE%E9%A2%98.png "HMGET 的应答数据分包回复遇到丢包问题")
 
 具体分析如下：
@@ -201,65 +203,6 @@ $519
 {"userId":147,"userBuList":[3175],"tagsList":[],"userBuRoleDto":[{"id":81524,"bu_id":3175,"bu_name":"............BU","role_id":859,"role_name":".........","user_id":147,"user_name":"......"}],"user":{"id":147,"email":"xin.jin@ele.me","work_code":"E000029","mobile":18607175626,"name":"......","walle_id":56063,"status":6,"pinyin_name":"jx","sex":1,"security_level":70,"certificate_type":0,"certificate_number":"420106198511242510","created_at":1431550030000,"updated_at":1449228115000,"nchr_id":"0001A910000000002ERE"}}
 ```
 
-数据包细节展示如下：
-
-```
-0000   3a 7b 22 69 64 22 3a 31 35 33 2c 22 65 6d 61 69  :{"id":153,"emai
-0010   6c 22 3a 22 78 69 61 6f 6a 69 61 6f 2e 78 69 65  l":"xiaojiao.xie
-0020   40 65 6c 65 2e 6d 65 22 2c 22 77 6f 72 6b 5f 63  @ele.me","work_c
-0030   6f 64 65 22 3a 22 45 30 30 30 30 32 37 22 2c 22  ode":"E000027","
-0040   6d 6f 62 69 6c 65 22 3a 31 38 36 30 33 37 32 30  mobile":18603720
-0050   39 32 35 2c 22 6e 61 6d 65 22 3a 22 e8 b0 a2 e5  925,"name":"....
-0060   b0 8f e4 bd bc 22 2c 22 77 61 6c 6c 65 5f 69 64  .....","walle_id
-0070   22 3a 37 37 32 38 37 2c 22 73 74 61 74 75 73 22  ":77287,"status"
-0080   3a 36 2c 22 70 69 6e 79 69 6e 5f 6e 61 6d 65 22  :6,"pinyin_name"
-0090   3a 22 78 78 6a 22 2c 22 73 65 78 22 3a 31 2c 22  :"xxj","sex":1,"
-00a0   73 65 63 75 72 69 74 79 5f 6c 65 76 65 6c 22 3a  security_level":
-00b0   36 30 2c 22 63 65 72 74 69 66 69 63 61 74 65 5f  60,"certificate_
-00c0   74 79 70 65 22 3a 30 2c 22 63 65 72 74 69 66 69  type":0,"certifi
-00d0   63 61 74 65 5f 6e 75 6d 62 65 72 22 3a 22 34 32  cate_number":"42
-00e0   30 36 38 33 31 39 38 39 30 38 31 31 33 37 33 33  0683198908113733
-00f0   22 2c 22 63 72 65 61 74 65 64 5f 61 74 22 3a 31  ","created_at":1
-0100   34 33 31 35 35 30 30 32 39 30 30 30 2c 22 75 70  431550029000,"up
-0110   64 61 74 65 64 5f 61 74 22 3a 31 34 34 39 32 32  dated_at":144922
-0120   38 32 33 37 30 30 30 2c 22 6e 63 68 72 5f 69 64  8237000,"nchr_id
-0130   22 3a 22 30 30 30 31 41 39 31 30 30 30 30 30 30  ":"0001A91000000
-0140   30 30 30 32 45 51 50 22 7d 7d 0d 0a 24 35 31 39  0002EQP"}}..$519
-0150   0d 0a 7b 22 75 73 65 72 49 64 22 3a 31 34 37 2c  ..{"userId":147,
-0160   22 75 73 65 72 42 75 4c 69 73 74 22 3a 5b 33 31  "userBuList":[31
-0170   37 35 5d 2c 22 74 61 67 73 4c 69 73 74 22 3a 5b  75],"tagsList":[
-0180   5d 2c 22 75 73 65 72 42 75 52 6f 6c 65 44 74 6f  ],"userBuRoleDto
-0190   22 3a 5b 7b 22 69 64 22 3a 38 31 35 32 34 2c 22  ":[{"id":81524,"
-01a0   62 75 5f 69 64 22 3a 33 31 37 35 2c 22 62 75 5f  bu_id":3175,"bu_
-01b0   6e 61 6d 65 22 3a 22 e4 ba a4 e6 98 93 e5 b9 b3  name":".........
-01c0   e5 8f b0 42 55 22 2c 22 72 6f 6c 65 5f 69 64 22  ...BU","role_id"
-01d0   3a 38 35 39 2c 22 72 6f 6c 65 5f 6e 61 6d 65 22  :859,"role_name"
-01e0   3a 22 e5 89 af e6 80 bb e8 a3 81 22 2c 22 75 73  :".........","us
-01f0   65 72 5f 69 64 22 3a 31 34 37 2c 22 75 73 65 72  er_id":147,"user
-0200   5f 6e 61 6d 65 22 3a 22 e9 87 91 e9 91 ab 22 7d  _name":"......"}
-0210   5d 2c 22 75 73 65 72 22 3a 7b 22 69 64 22 3a 31  ],"user":{"id":1
-0220   34 37 2c 22 65 6d 61 69 6c 22 3a 22 78 69 6e 2e  47,"email":"xin.
-0230   6a 69 6e 40 65 6c 65 2e 6d 65 22 2c 22 77 6f 72  jin@ele.me","wor
-0240   6b 5f 63 6f 64 65 22 3a 22 45 30 30 30 30 32 39  k_code":"E000029
-0250   22 2c 22 6d 6f 62 69 6c 65 22 3a 31 38 36 30 37  ","mobile":18607
-0260   31 37 35 36 32 36 2c 22 6e 61 6d 65 22 3a 22 e9  175626,"name":".
-0270   87 91 e9 91 ab 22 2c 22 77 61 6c 6c 65 5f 69 64  .....","walle_id
-0280   22 3a 35 36 30 36 33 2c 22 73 74 61 74 75 73 22  ":56063,"status"
-0290   3a 36 2c 22 70 69 6e 79 69 6e 5f 6e 61 6d 65 22  :6,"pinyin_name"
-02a0   3a 22 6a 78 22 2c 22 73 65 78 22 3a 31 2c 22 73  :"jx","sex":1,"s
-02b0   65 63 75 72 69 74 79 5f 6c 65 76 65 6c 22 3a 37  ecurity_level":7
-02c0   30 2c 22 63 65 72 74 69 66 69 63 61 74 65 5f 74  0,"certificate_t
-02d0   79 70 65 22 3a 30 2c 22 63 65 72 74 69 66 69 63  ype":0,"certific
-02e0   61 74 65 5f 6e 75 6d 62 65 72 22 3a 22 34 32 30  ate_number":"420
-02f0   31 30 36 31 39 38 35 31 31 32 34 32 35 31 30 22  106198511242510"
-0300   2c 22 63 72 65 61 74 65 64 5f 61 74 22 3a 31 34  ,"created_at":14
-0310   33 31 35 35 30 30 33 30 30 30 30 2c 22 75 70 64  31550030000,"upd
-0320   61 74 65 64 5f 61 74 22 3a 31 34 34 39 32 32 38  ated_at":1449228
-0330   31 31 35 30 30 30 2c 22 6e 63 68 72 5f 69 64 22  115000,"nchr_id"
-0340   3a 22 30 30 30 31 41 39 31 30 30 30 30 30 30 30  :"0001A910000000
-0350   30 30 32 45 52 45 22 7d 7d 0d 0a                 002ERE"}}..
-```
-
 **37648 号包**：提示 *[TCP Fast Retransmission]* 信息，结合数据包内容可以看出，重传数据即为之前判定丢失的数据；
 
 ```
@@ -283,12 +226,16 @@ $526
 > 遗留问题：
 >
 > - 抓到的数据包显示：每个报文都会被重传一次，原因何在？
-> - 触发快速重传的机制
-> - 为何会丢包
+> - 触发快速重传的机制？
+> - 为何会丢包？
 
 ### 解决办法
 
 xxx
+
+### 其他
+
+在官网论坛上的[讨论](https://discuss.elastic.co/t/packetbeat-err-failed-to-read-integer-reply-expected-digit/74352)；
 
 
 ## #07 packetbeat 在进行 request-response 关联（构建 transaction）时，在某些情况下是不正确的
@@ -305,16 +252,114 @@ responsetime(947201 microseconds)	==>    No.<1>
 
 情况二：
 
-（目前未遇到，但推断可能）发送请求后，没有收到响应的应答，一段时间后收到其他回复信息，结果被当成了应答，此时的关联是错误的；
+发送请求后，没有收到对应的应答响应，一段时间后收到其他响应信息，结果被当成了对应的应答，此时的关联是错误的；
 
+> 应该不存在这种情况：因为 transaction 的构建是基于 TCP 连接的；
 
 ### 问题原因
 
-上例中将 `PING` 和 `[REPLCONF, ACK, 5372098]` 进行了关联，而这种关联是不对的；
+上述将 `PING` 和 `[REPLCONF, ACK, 5372098]` 进行了关联，而这两者的关联明显是不对的；
+
+- **`PING`** 的使用
+
+1. [**客户端-服务器**] 使用客户端向 Redis 服务器发送一个 PING ，如果服务器运作正常的话，会返回一个 PONG 。通常用于测试与服务器的连接是否仍然生效，或者用于测量延迟值；
+
+2. [**Sentinel**] 在默认情况下，Sentinel 会以每秒一次的频率向所有与它创建了命令连接的实例（包括主服务器、从服务器、其他 Sentinel 在内）发送 PING 命令，并通过实例返回的 PING 命令回复（有效回复为 +PONG/-LOADING/-MASTERDOWN）来判断实例是否在线（主观下线状态检测）；
+
+3. [**主从复制**] 当从服务器成为主服务器的客户端后，做的第一件事就是向主服务器发送一个 PING 命令；两个作用：a) 检查套接字的读写状态是否正常；b) 检查主服务器能否正常处理命令请求；只有从服务器在规定时间内读取到主服务器返回的 PONG 才算成功；
+
+4. [**主从复制**] Slaves 以预定义的周期向 server 发送 PING；该周期通过 `repl_ping_slave_period` 选项进行配置，默认为 10 秒； 
+The original replication protocol was vulnerable to network/Internet outages where the master detects the outage and closes the connection, but the slave does not. The slave thinks the connection is still open and the master simply has no updates to send (low traffic or no traffic). So the slave never disconnects and re-connects to restart the replication. I know this very well. I have some v2.0.x Redis instances that replicate across 3,000 miles and once or twice a month this problem occurs.
+Adding PING to the replication protocol solved that. The slave now detects the connection problem when the PING replies stop coming from the master. The slave can close its end of the connection and re-connect again.
+
+5. [**集群**] 集群里的每个节点默认每隔一秒钟就会从已知节点列表中随机选出五个节点，然后对这五个节点中最长时间没有发送过 PING 消息的节点发送 PING 消息，以此来检测被选中的节点是否在线；除此之外，如果节点 A 最后一次收到节点 B 发送的 PONG 消息的时间，距离当前时间已经超过了节点 A 的 cluster-node-timeout 选项设置时长的一半，那么节点 A 也会向节点 B 发送 PING 消息，这可以防止节点 A 因为长时间没有随机选中节点 B 作为 PING 消息的发送对象，而导致对节点 B 的信息更新滞后；
+
+- **`[REPLCONF, ACK, <replication_offset>]`** 的使用
+在命令传播阶段，从服务器默认会以每秒一次的频率，向主服务器发送该命令；该命令的作用为：a) 检测主从服务器的网络连接状态；b) 辅助实现 min-slaves 选项；c) 检测命令丢失；
+
+具体抓包数据如下
+
+```
+*3
+$8
+REPLCONF
+$3
+ACK
+$11
+81234009046
+*3
+$8
+REPLCONF
+$3
+ACK
+$11
+81234009046
+*3
+$8
+REPLCONF
+$3
+ACK
+$11
+81234009046
+*3
+$8
+REPLCONF
+$3
+ACK
+$11
+81234009046
+*3
+$8
+REPLCONF
+$3
+ACK
+$11
+81234009046
+*3
+$8
+REPLCONF
+$3
+ACK
+$11
+81234009046
+*3
+$8
+REPLCONF
+$3
+ACK
+$11
+81234009046
+*3
+$8
+REPLCONF
+$3
+ACK
+$11
+81234009046
+*3
+$8
+REPLCONF
+$3
+ACK
+$11
+81234009046
+*1
+$4
+PING
+*3
+$8
+REPLCONF
+$3
+ACK
+$11
+81234009060
+```
+
+可以看到，在一个 10s 的抓包周期中，出现了 10 个 `[REPLCONF, ACK, xxxx]` 和 1 个 `PING` ；可以确定，该 PING 为基于 `repl_ping_slave_period` 选项的包括 PING ；
 
 ### 解决办法
 
-这种问题需要具体情况具体分析了，可能需要进行命令过滤处理；
+这种问题需要具体情况具体分析了，可能需要进行命令过滤处理；换一种说法：一般情况下我们不太会通过 PING 来确定网络延迟，因为常规的 Redis 命令交互会起到同样到作用；因此，理论上讲非客户端直接发起的 Redis 命令都可以过滤掉（当前想法）；
 
 ## #08 编译出的 packetbeat 可执行程序需要动态链接 libpcap.so 库（当前默认情况），而目标生产服务器上存在多种版本的操作系统，另外相应的 .so 版本也可能存在不一致问题
 
