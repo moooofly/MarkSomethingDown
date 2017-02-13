@@ -242,40 +242,35 @@ xxx
 
 ### 问题描述
 
-情况一：
-
 ```
 responsetime(947201 microseconds)	==>    No.<1>
 ----
 {"@timestamp":"2016-12-29T07:21:24.657Z","beat":{"hostname":"xg-mesos-39","name":"xg-mesos-39","version":"6.0.0-alpha1"},"bytes_in":14,"bytes_out":40,"client_ip":"10.0.242.43","client_port":7125,"client_proc":"","client_server":"","ip":"10.0.246.114","method":"PING","port":48877,"proc":"","query":"PING","redis":{"return_value":"[REPLCONF, ACK, 5372098]"},"resource":"","responsetime":947201,"server":"","status":"OK","type":"redis"}
 ```
 
-情况二：
-
-发送请求后，没有收到对应的应答响应，一段时间后收到其他响应信息，结果被当成了对应的应答，此时的关联是错误的；
-
-> 应该不存在这种情况：因为 transaction 的构建是基于 TCP 连接的；
+> 因为 transaction 的构建是基于 TCP 连接的，因此不会出现不同请求应答错乱匹配问题；
 
 ### 问题原因
 
-上述将 `PING` 和 `[REPLCONF, ACK, 5372098]` 进行了关联，而这两者的关联明显是不对的；
+上面错误在于，将 `PING` 和 `[REPLCONF, ACK, 5372098]` 进行了关联，而这两者明显不是对应关系；
 
 - **`PING`** 的使用
 
-1. [**客户端-服务器**] 使用客户端向 Redis 服务器发送一个 PING ，如果服务器运作正常的话，会返回一个 PONG 。通常用于测试与服务器的连接是否仍然生效，或者用于测量延迟值；
-
-2. [**Sentinel**] 在默认情况下，Sentinel 会以每秒一次的频率向所有与它创建了命令连接的实例（包括主服务器、从服务器、其他 Sentinel 在内）发送 PING 命令，并通过实例返回的 PING 命令回复（有效回复为 +PONG/-LOADING/-MASTERDOWN）来判断实例是否在线（主观下线状态检测）；
-
-3. [**主从复制**] 当从服务器成为主服务器的客户端后，做的第一件事就是向主服务器发送一个 PING 命令；两个作用：a) 检查套接字的读写状态是否正常；b) 检查主服务器能否正常处理命令请求；只有从服务器在规定时间内读取到主服务器返回的 PONG 才算成功；
-
-4. [**主从复制**] Slaves 以预定义的周期向 server 发送 PING；该周期通过 `repl_ping_slave_period` 选项进行配置，默认为 10 秒； 
-The original replication protocol was vulnerable to network/Internet outages where the master detects the outage and closes the connection, but the slave does not. The slave thinks the connection is still open and the master simply has no updates to send (low traffic or no traffic). So the slave never disconnects and re-connects to restart the replication. I know this very well. I have some v2.0.x Redis instances that replicate across 3,000 miles and once or twice a month this problem occurs.
-Adding PING to the replication protocol solved that. The slave now detects the connection problem when the PING replies stop coming from the master. The slave can close its end of the connection and re-connect again.
-
-5. [**集群**] 集群里的每个节点默认每隔一秒钟就会从已知节点列表中随机选出五个节点，然后对这五个节点中最长时间没有发送过 PING 消息的节点发送 PING 消息，以此来检测被选中的节点是否在线；除此之外，如果节点 A 最后一次收到节点 B 发送的 PONG 消息的时间，距离当前时间已经超过了节点 A 的 cluster-node-timeout 选项设置时长的一半，那么节点 A 也会向节点 B 发送 PING 消息，这可以防止节点 A 因为长时间没有随机选中节点 B 作为 PING 消息的发送对象，而导致对节点 B 的信息更新滞后；
+    1. [**客户端-服务器**] 使用客户端向 Redis 服务器发送一个 PING ，如果服务器运作正常的话，会返回一个 PONG 。通常用于测试与服务器的连接是否仍然生效，或者用于测量延迟值；
+    
+    2. [**Sentinel**] 在默认情况下，Sentinel 会以每秒一次的频率向所有与它创建了命令连接的实例（包括主服务器、从服务器、其他 Sentinel 在内）发送 PING 命令，并通过实例返回的 PING 命令回复（有效回复为 +PONG/-LOADING/-MASTERDOWN）来判断实例是否在线（主观下线状态检测）；
+    
+    3. [**主从复制**] 当从服务器成为主服务器的客户端后，做的第一件事就是向主服务器发送一个 PING 命令；两个作用：a) 检查套接字的读写状态是否正常；b) 检查主服务器能否正常处理命令请求；只有从服务器在规定时间内读取到主服务器返回的 PONG 才算成功；
+    
+    4. [**主从复制**] Slaves 以预定义的周期向 server 发送 PING；该周期通过 `repl_ping_slave_period` 选项进行配置，默认为 10 秒； 
+    The original replication protocol was vulnerable to network/Internet outages where the master detects the outage and closes the connection, but the slave does not. The slave thinks the connection is still open and the master simply has no updates to send (low traffic or no traffic). So the slave never disconnects and re-connects to restart the replication. I know this very well. I have some v2.0.x Redis instances that replicate across 3,000 miles and once or twice a month this problem occurs.
+    Adding PING to the replication protocol solved that. The slave now detects the connection problem when the PING replies stop coming from the master. The slave can close its end of the connection and re-connect again.
+    
+    5. [**集群**] 集群里的每个节点默认每隔一秒钟就会从已知节点列表中随机选出五个节点，然后对这五个节点中最长时间没有发送过 PING 消息的节点发送 PING 消息，以此来检测被选中的节点是否在线；除此之外，如果节点 A 最后一次收到节点 B 发送的 PONG 消息的时间，距离当前时间已经超过了节点 A 的 cluster-node-timeout 选项设置时长的一半，那么节点 A 也会向节点 B 发送 PING 消息，这可以防止节点 A 因为长时间没有随机选中节点 B 作为 PING 消息的发送对象，而导致对节点 B 的信息更新滞后；
 
 - **`[REPLCONF, ACK, <replication_offset>]`** 的使用
-在命令传播阶段，从服务器默认会以每秒一次的频率，向主服务器发送该命令；该命令的作用为：a) 检测主从服务器的网络连接状态；b) 辅助实现 min-slaves 选项；c) 检测命令丢失；
+
+    在命令传播阶段，从服务器默认会以每秒一次的频率，向主服务器发送该命令；该命令的作用为：a) 检测主从服务器的网络连接状态；b) 辅助实现 min-slaves 选项；c) 检测命令丢失；
 
 具体抓包数据如下
 
