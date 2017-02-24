@@ -1,4 +1,4 @@
-# packetbeat 线上运行测试
+# packetbeat 线上运行测试汇总
 
 标签（空格分隔）： packetbeat
 
@@ -96,7 +96,7 @@ total 1.8G
 -rw-r--r-- 1 root root 101M Feb 21 17:48 packetbeat.8
 -rw-r--r-- 1 root root 101M Feb 21 17:48 packetbeat.9
 [root@xg-bigkey-rediscluster-1 logs]# du -shx .
-1.8G	.
+1.8G  .
 ```
 
 pb 输出的统计结果
@@ -121,60 +121,60 @@ failure rate       : 0.000068%
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-responsetime(143457699 microseconds)	==>    No.<1>
+responsetime(143457699 microseconds)  ==>    No.<1>
 ----
 {"@timestamp":"2017-02-21T09:47:47.122Z","beat":{"hostname":"xg-bigkey-rediscluster-1","name":"xg-bigkey-rediscluster-1","version":"6.0.0-alpha1"},"bytes_in":66,"bytes_out":47,"client_ip":"10.0.27.40","client_port":7102,"client_proc":"","client_server":"","direction":"out","ip":"10.0.28.25","method":"EXPIRE","port":52180,"proc":"","query":"EXPIRE app:hotfood:187147299:foodclick 172800","redis":{"return_value":"[REPLCONF, ACK, 2311648430835]"},"resource":"app:hotfood:187147299:foodclick","responsetime":143457699,"server":"","status":"OK","type":"redis"}
 
 
-responsetime(143444975 microseconds)	==>    No.<2>
+responsetime(143444975 microseconds)  ==>    No.<2>
 ----
 {"@timestamp":"2017-02-21T09:47:47.152Z","beat":{"hostname":"xg-bigkey-rediscluster-1","name":"xg-bigkey-rediscluster-1","version":"6.0.0-alpha1"},"bytes_in":82,"bytes_out":47,"client_ip":"10.0.28.25","client_port":7103,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.40","method":"HSET","port":31182,"proc":"","query":"HSET app:hotfood:159897675:shopclick 1414481 1487670442","redis":{"return_value":"[REPLCONF, ACK, 2305174778527]"},"resource":"app:hotfood:159897675:shopclick","responsetime":143444975,"server":"","status":"OK","type":"redis"}
 
 
-responsetime(143294293 microseconds)	==>    No.<3>
+responsetime(143294293 microseconds)  ==>    No.<3>
 ----
 {"@timestamp":"2017-02-21T09:47:47.116Z","beat":{"hostname":"xg-bigkey-rediscluster-1","name":"xg-bigkey-rediscluster-1","version":"6.0.0-alpha1"},"bytes_in":83,"bytes_out":47,"client_ip":"10.0.28.25","client_port":7107,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.40","method":"HSET","port":36024,"proc":"","query":"HSET app:hotfood:40827992:search update_time 1487670467","redis":{"return_value":"[REPLCONF, ACK, 2298184951759]"},"resource":"app:hotfood:40827992:search","responsetime":143294293,"server":"","status":"OK","type":"redis"}
 
 
-responsetime(143231599 microseconds)	==>    No.<4>
+responsetime(143231599 microseconds)  ==>    No.<4>
 ----
 {"@timestamp":"2017-02-21T09:47:47.235Z","beat":{"hostname":"xg-bigkey-rediscluster-1","name":"xg-bigkey-rediscluster-1","version":"6.0.0-alpha1"},"bytes_in":93,"bytes_out":47,"client_ip":"10.0.28.25","client_port":7109,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.40","method":"EXPIRE","port":47650,"proc":"","query":"EXPIRE app:hotfood:2C537BAE-CE37-45E6-A4D5-EE014DB35B4C:foodclick 172800","redis":{"return_value":"[REPLCONF, ACK, 2296028618540]"},"resource":"app:hotfood:2C537BAE-CE37-45E6-A4D5-EE014DB35B4C:foodclick","responsetime":143231599,"server":"","status":"OK","type":"redis"}
 
 
-responsetime(143186975 microseconds)	==>    No.<5>
+responsetime(143186975 microseconds)  ==>    No.<5>
 ----
 {"@timestamp":"2017-02-21T09:47:47.280Z","beat":{"hostname":"xg-bigkey-rediscluster-1","name":"xg-bigkey-rediscluster-1","version":"6.0.0-alpha1"},"bytes_in":114,"bytes_out":47,"client_ip":"10.0.27.40","client_port":7107,"client_proc":"","client_server":"","direction":"out","ip":"10.0.29.23","method":"HSET","port":60426,"proc":"","query":"HSET app:hotfood:5994AE71-AE42-4B38-8BA1-8313E341AB27:shopclick update_time 1487670467","redis":{"return_value":"[REPLCONF, ACK, 2298803422475]"},"resource":"app:hotfood:5994AE71-AE42-4B38-8BA1-8313E341AB27:shopclick","responsetime":143186975,"server":"","status":"OK","type":"redis"}
 
 
-responsetime(143162442 microseconds)	==>    No.<6>
+responsetime(143162442 microseconds)  ==>    No.<6>
 ----
 {"@timestamp":"2017-02-21T09:47:47.246Z","beat":{"hostname":"xg-bigkey-rediscluster-1","name":"xg-bigkey-rediscluster-1","version":"6.0.0-alpha1"},"bytes_in":111,"bytes_out":47,"client_ip":"10.0.27.40","client_port":7105,"client_proc":"","client_server":"","direction":"out","ip":"10.0.29.23","method":"HSET","port":35231,"proc":"","query":"HSET app:hotfood:2B679B89-70E6-4F0F-A6A0-989B04376669:shopclick 150024477 1487670441","redis":{"return_value":"[REPLCONF, ACK, 2290388973817]"},"resource":"app:hotfood:2B679B89-70E6-4F0F-A6A0-989B04376669:shopclick","responsetime":143162442,"server":"","status":"OK","type":"redis"}
 
 
-responsetime(143042767 microseconds)	==>    No.<7>
+responsetime(143042767 microseconds)  ==>    No.<7>
 ----
 {"@timestamp":"2017-02-21T09:47:47.250Z","beat":{"hostname":"xg-bigkey-rediscluster-1","name":"xg-bigkey-rediscluster-1","version":"6.0.0-alpha1"},"bytes_in":93,"bytes_out":47,"client_ip":"10.0.27.40","client_port":7109,"client_proc":"","client_server":"","direction":"out","ip":"10.0.29.23","method":"EXPIRE","port":57062,"proc":"","query":"EXPIRE app:hotfood:55B530EF-99D6-4E8A-AA68-150D3A5D5644:shopclick 172800","redis":{"return_value":"[REPLCONF, ACK, 2302142943147]"},"resource":"app:hotfood:55B530EF-99D6-4E8A-AA68-150D3A5D5644:shopclick","responsetime":143042767,"server":"","status":"OK","type":"redis"}
 
 
-responsetime(142726281 microseconds)	==>    No.<8>
+responsetime(142726281 microseconds)  ==>    No.<8>
 ----
 {"@timestamp":"2017-02-21T09:47:47.138Z","beat":{"hostname":"xg-bigkey-rediscluster-1","name":"xg-bigkey-rediscluster-1","version":"6.0.0-alpha1"},"bytes_in":93,"bytes_out":47,"client_ip":"10.0.27.40","client_port":7101,"client_proc":"","client_server":"","direction":"out","ip":"10.0.29.23","method":"EXPIRE","port":29811,"proc":"","query":"EXPIRE app:hotfood:969a380e-925d-3cd2-b634-4af9cbdcf215:foodclick 172800","redis":{"return_value":"[REPLCONF, ACK, 2323417606067]"},"resource":"app:hotfood:969a380e-925d-3cd2-b634-4af9cbdcf215:foodclick","responsetime":142726281,"server":"","status":"OK","type":"redis"}
 
 
-responsetime(142483891 microseconds)	==>    No.<9>
+responsetime(142483891 microseconds)  ==>    No.<9>
 ----
 {"@timestamp":"2017-02-21T09:47:47.227Z","beat":{"hostname":"xg-bigkey-rediscluster-1","name":"xg-bigkey-rediscluster-1","version":"6.0.0-alpha1"},"bytes_in":108,"bytes_out":47,"client_ip":"10.0.28.25","client_port":7105,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.40","method":"HSET","port":38744,"proc":"","query":"HSET app:hotfood:59dcd09d-83ed-343c-9149-cea86176830a:shopclick 800050 1487670439","redis":{"return_value":"[REPLCONF, ACK, 2304936939673]"},"resource":"app:hotfood:59dcd09d-83ed-343c-9149-cea86176830a:shopclick","responsetime":142483891,"server":"","status":"OK","type":"redis"}
 
 
-responsetime(142475195 microseconds)	==>    No.<10>
+responsetime(142475195 microseconds)  ==>    No.<10>
 ----
 {"@timestamp":"2017-02-21T09:47:47.234Z","beat":{"hostname":"xg-bigkey-rediscluster-1","name":"xg-bigkey-rediscluster-1","version":"6.0.0-alpha1"},"bytes_in":66,"bytes_out":47,"client_ip":"10.0.29.23","client_port":7104,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.40","method":"EXPIRE","port":24908,"proc":"","query":"EXPIRE app:hotfood:183753799:shopclick 172800","redis":{"return_value":"[REPLCONF, ACK, 2314157704993]"},"resource":"app:hotfood:183753799:shopclick","responsetime":142475195,"server":"","status":"OK","type":"redis"}
 
 
 
-real	1m56.783s
-user	1m55.540s
-sys	0m1.333s
+real  1m56.783s
+user  1m55.540s
+sys 0m1.333s
 [root@xg-bigkey-rediscluster-1 packageCaptureAnalysis]#
 ```
 
@@ -212,107 +212,113 @@ sys	0m1.333s
 
 ### 测试结果（针对 slave mysql）
 
-测试命令（抓去 3306 上的 slave mysql 通信 7 分钟）
+测试命令（抓取 3306 上的 slave mysql 通信 7 分钟）
 
 ```
-[root@xg-restaurant-slave-2 packageCaptureAnalysis]# LD_LIBRARY_PATH=. ./packageCaptureAnalysis -c ./packetbeat.yml
+[root@xg-restaurant-slave-2 packageCaptureAnalysis]# time LD_LIBRARY_PATH=. ./packageCaptureAnalysis -c ./packetbeat.yml
 ^C
+real  7m1.033s
+user  0m9.475s
+sys 0m1.614s
 [root@xg-restaurant-slave-2 packageCaptureAnalysis]#
 ```
 
-top 输出（32 核，pb 运行平均占用 6% 左右）
+top 输出（32 核，pb 运行平均占用 2% 左右）
 
 ```
-top - 18:25:17 up 89 days,  3:04,  3 users,  load average: 2.23, 2.12, 2.10
+top - 17:04:35 up 91 days,  1:44,  2 users,  load average: 2.13, 2.12, 2.14
 Tasks: 574 total,   1 running, 573 sleeping,   0 stopped,   0 zombie
-Cpu(s):  0.7%us,  0.2%sy,  0.0%ni, 99.0%id,  0.1%wa,  0.0%hi,  0.0%si,  0.0%st
-Mem:  132045660k total, 117768888k used, 14276772k free,   457824k buffers
-Swap: 16383996k total,        0k used, 16383996k free, 33700564k cached
+Cpu(s):  0.1%us,  0.0%sy,  0.0%ni, 99.9%id,  0.0%wa,  0.0%hi,  0.0%si,  0.0%st
+Mem:  132045660k total, 118399316k used, 13646344k free,   457908k buffers
+Swap: 16383996k total,        0k used, 16383996k free, 34307604k cached
 
    PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 80408 mysql     20   0 80.5g  76g 9536 S 18.9 61.0   5596:11 mysqld
- 68675 root      20   0 1538m  80m 9168 S  5.6  0.1   0:13.91 packageCaptureA
- 55336 root      20   0 32064  19m 5136 S  3.0  0.0 242:36.90 esm-agent
-   203 root      20   0     0    0    0 S  0.3  0.0  28:38.63 kblockd/1
-  3442 root      20   0     0    0    0 S  0.3  0.0 138:14.52 jbd2/sdb-8
- 68268 root      20   0 15432 1632  924 R  0.3  0.0   0:01.14 top
-     1 root      20   0 19360 1552 1224 S  0.0  0.0   0:32.46 init
+ 80408 mysql     20   0 80.5g  76g 9540 S  2.3 61.0   5826:43 mysqld
+101504 root      20   0 1752m 104m 9032 S  1.3  0.1   0:07.40 packageCaptureA
+  3442 root      20   0     0    0    0 S  0.3  0.0 145:27.98 jbd2/sdb-8
+101503 root      20   0 15432 1644  928 R  0.3  0.0   0:00.82 top
+     1 root      20   0 19360 1552 1224 S  0.0  0.0   0:33.22 init
      2 root      20   0     0    0    0 S  0.0  0.0   0:00.00 kthreadd
-     3 root      RT   0     0    0    0 S  0.0  0.0   0:02.11 migration/0
+     3 root      RT   0     0    0    0 S  0.0  0.0   0:02.15 migration/0
+     4 root      20   0     0    0    0 S  0.0  0.0   2:58.82 ksoftirqd/0
 ```
 
 pb 输出的统计结果
 
 ```
-2017-02-22T18:55:06+08:00 INFO Input finish. Processed 103462 packets. Have a nice day!
-2017-02-22T18:55:06+08:00 INFO Total non-zero values:  tcp.dropped_because_of_gaps=31 libbeat.publisher.published_events=14924 mysql.unmatched_responses=15496
-2017-02-22T18:55:06+08:00 INFO Uptime: 4m28.81701879s
+2017-02-24T17:06:24+08:00 INFO Input finish. Processed 314066 packets. Have a nice day!
+2017-02-24T17:06:24+08:00 INFO Total non-zero values:  mysql.unmatched_requests=19 libbeat.publisher.published_events=8567 mysql.unmatched_responses=144902 tcp.dropped_because_of_gaps=422
+2017-02-24T17:06:24+08:00 INFO Uptime: 7m1.004944299s
 ```
 
-基于 python 脚本进行 topN 分析（耗费大约 0.34 秒）
+基于 python 脚本进行 topN 分析（耗费大约 0.2 秒）
 
 ```
-[root@xg-restaurant-slave-2 packageCaptureAnalysis]# python redis_analysis.py -p logs -f packetbeat -t 10
+[root@xg-restaurant-slave-2 packageCaptureAnalysis]# time python redis_analysis.py -p logs -f packetbeat -t 10
 
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-total transactions : 14924
+total transactions : 8567
 total failure nums : 0
 failure rate       : 0.000000%
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-responsetime(53 microseconds)	==>    No.<1>
+responsetime(5045 microseconds) ==>    No.<1>
 ----
-{"@timestamp":"2017-02-22T10:54:00.018Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":378,"bytes_out":9873,"client_ip":"10.0.13.33","client_port":47175,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":10,"num_rows":101},"path":"eleme_restaurant.t_ord_order_serial","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^1047058104948068138|1487760840018\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select\n         \n        id,eleme_order_id,tp_order_id,new_status,extra,is_manage,create_time,create_by,modify_time,modify_by\n     \n        from t_ord_order_serial where is_manage = 0 and create_time \u003e= date_sub(curdate(),interval 1 day) ORDER BY new_status desc,id asc limit 800;","responsetime":53,"server":"","status":"OK","type":"mysql"}
+{"@timestamp":"2017-02-24T09:03:40.333Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":109,"bytes_out":1986,"client_ip":"10.0.13.28","client_port":52655,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":10,"num_rows":10},"path":".ivt, eleme_restaurant.m","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^-4928775211267635361|1487927020283\u0026rpcid=1.11\u0026appid=me.ele.zs.erp:E */SELECT 'x'","responsetime":5045,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(15 microseconds)	==>    No.<2>
+responsetime(86 microseconds) ==>    No.<2>
 ----
-{"@timestamp":"2017-02-22T10:55:00.059Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":230,"bytes_out":63,"client_ip":"10.0.13.33","client_port":44645,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":1,"num_rows":1},"path":".","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^9112177956226558331|1487760900058\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select count(1) from  t_bms_push_backup \n    where \n     \n    is_delete=0\n    and status\u002616\u003c\u003e16\n    and status\u00268\u003c\u003e8 \n    and level=2","responsetime":15,"server":"","status":"OK","type":"mysql"}
+{"@timestamp":"2017-02-24T09:00:00.022Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":215,"bytes_out":9678,"client_ip":"10.0.13.25","client_port":60870,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":1,"num_rows":735},"path":"eleme_restaurant.t_ord_order_item","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^4528982066532003257|1487926800021\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select order_item_id from t_ord_order_item where is_manage = 0 and create_time \u003e= date_sub(curdate(),interval 1 day);","responsetime":86,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(13 microseconds)	==>    No.<3>
+responsetime(67 microseconds) ==>    No.<3>
 ----
-{"@timestamp":"2017-02-22T10:55:00.078Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":231,"bytes_out":63,"client_ip":"10.0.13.33","client_port":47175,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":1,"num_rows":1},"path":".","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^-1815965779687898817|1487760900078\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select count(1) from  t_bms_push_backup \n    where \n     \n    is_delete=0\n    and status\u002616\u003c\u003e16\n    and status\u00268\u003c\u003e8 \n    and level=1","responsetime":13,"server":"","status":"OK","type":"mysql"}
+{"@timestamp":"2017-02-24T08:59:54.283Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":356,"bytes_out":67,"client_ip":"10.0.13.30","client_port":60148,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":1,"num_rows":1},"path":".","port":3306,"proc":"","query":"/* E:rid=zs.wms^^-8369752357173665489|1487926794276\u0026rpcid=1.2\u0026appid=zs.wms:E */ select\n    count(1)\n    from t_wms_batch_stock_account a\n    inner join t_warehouse b on a.warehouse_id= b.id\n    inner join t_material c  on a.material_id=c.id\n     WHERE  a.create_time\u003e='2017-01-24 00:00:00'\n      \n      \n        and a.create_time\u003c'2017-02-25 00:00:00'","responsetime":67,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(7 microseconds)	==>    No.<4>
+responsetime(61 microseconds) ==>    No.<4>
 ----
-{"@timestamp":"2017-02-22T10:55:00.018Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":272,"bytes_out":63,"client_ip":"10.0.13.33","client_port":47175,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":1,"num_rows":1},"path":".","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^946622612971717496|1487760900017\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select count(1) from  t_bms_push_point \n    where \n     \n    is_delete=0\n    and type=2 \n    and status\u002616\u003c\u003e16 \n    and status\u00268\u003c\u003e8 \n    and status\u002632\u003c\u003e32 \n    and time\u003c=now()","responsetime":7,"server":"","status":"OK","type":"mysql"}
+{"@timestamp":"2017-02-24T09:00:00.023Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":378,"bytes_out":5825,"client_ip":"10.0.13.25","client_port":53093,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":10,"num_rows":55},"path":"eleme_restaurant.t_ord_order_serial","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^8786876279895981556|1487926800022\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select\n         \n        id,eleme_order_id,tp_order_id,new_status,extra,is_manage,create_time,create_by,modify_time,modify_by\n     \n        from t_ord_order_serial where is_manage = 0 and create_time \u003e= date_sub(curdate(),interval 1 day) ORDER BY new_status desc,id asc limit 800;","responsetime":61,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(6 microseconds)	==>    No.<5>
+responsetime(29 microseconds) ==>    No.<5>
 ----
-{"@timestamp":"2017-02-22T10:54:01.550Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":365,"bytes_out":1636,"client_ip":"10.0.13.28","client_port":54065,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":17,"num_rows":1},"path":"eleme_restaurant.t_restaurant","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^7120619295620167600|1487760841549\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select\n\t\t \n\t\tid, eleme_restaurant_id, restaurant_oid, store_id, store_code,\n\t\tstore_name, city_id,\n\t\tcity_name, name,is_valid, is_delete, brand_id, brand_name, create_time, create_by,\n\t\tmodify_time,\n\t\tmodify_by\n\t \n\t\tfrom t_restaurant\n\t\twhere restaurant_oid = 73506650","responsetime":6,"server":"","status":"OK","type":"mysql"}
+{"@timestamp":"2017-02-24T09:05:00.068Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":231,"bytes_out":63,"client_ip":"10.0.13.33","client_port":27686,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":1,"num_rows":1},"path":".","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^-6792588474860490963|1487927100067\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select count(1) from  t_bms_push_backup \n    where \n     \n    is_delete=0\n    and status\u002616\u003c\u003e16\n    and status\u00268\u003c\u003e8 \n    and level=2","responsetime":29,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(6 microseconds)	==>    No.<6>
+responsetime(28 microseconds) ==>    No.<6>
 ----
-{"@timestamp":"2017-02-22T10:54:00.750Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":364,"bytes_out":1636,"client_ip":"10.0.13.28","client_port":49326,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":17,"num_rows":1},"path":"eleme_restaurant.t_restaurant","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^-1004743063856515343|1487760840749\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select\n\t\t \n\t\tid, eleme_restaurant_id, restaurant_oid, store_id, store_code,\n\t\tstore_name, city_id,\n\t\tcity_name, name,is_valid, is_delete, brand_id, brand_name, create_time, create_by,\n\t\tmodify_time,\n\t\tmodify_by\n\t \n\t\tfrom t_restaurant\n\t\twhere restaurant_oid = 927281","responsetime":6,"server":"","status":"OK","type":"mysql"}
+{"@timestamp":"2017-02-24T09:00:00.073Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":231,"bytes_out":63,"client_ip":"10.0.13.33","client_port":57592,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":1,"num_rows":1},"path":".","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^-7686390300957555904|1487926800072\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select count(1) from  t_bms_push_backup \n    where \n     \n    is_delete=0\n    and status\u002616\u003c\u003e16\n    and status\u00268\u003c\u003e8 \n    and level=2","responsetime":28,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(6 microseconds)	==>    No.<7>
+responsetime(27 microseconds) ==>    No.<7>
 ----
-{"@timestamp":"2017-02-22T10:53:57.653Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":866,"bytes_out":2729,"client_ip":"10.0.13.28","client_port":49326,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":35,"num_rows":0},"path":"eleme_restaurant.tm","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^7859161504596717036|1487760837649\u0026rpcid=1.2\u0026appid=me.ele.zs.erp:E */ SELECT  \n    id, code, name, standard_name, category_level_1, category_level_2, material_group_id, short_name, unit_group_id,unit_group,\n    transport_unit_id, purchase_type, is_valid,is_ever_valid, min_unit_id,\n    min_unit, transport_unit, shelf_life,type, is_delete, create_time, create_by, modify_time,\n    modify_by, supply_chain_prop, lead_time, moq,material_length,material_width,material_height,\n    material_netweight,material_grossweight,storage_type,material_volume,storage_conversion\n   \n    FROM t_material tm\n    WHERE  EXISTS\n    (select 1 from t_store_stock si where si.store_id =2549 and  tm.id =si.material_id)\n    and\n    (instr(tm.code,'麻辣f') OR instr(tm.short_name,'麻辣f') OR instr(tm.name,'麻辣f'))\n    and tm.is_delete=0\n     limit 0,20","responsetime":6,"server":"","status":"OK","type":"mysql"}
+{"@timestamp":"2017-02-24T09:00:00.042Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":231,"bytes_out":63,"client_ip":"10.0.13.33","client_port":59944,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":1,"num_rows":1},"path":".","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^-5920746471248873719|1487926800041\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select count(1) from  t_bms_push_backup \n    where \n     \n    is_delete=0\n    and status\u002616\u003c\u003e16\n    and status\u00268\u003c\u003e8 \n    and level=2","responsetime":27,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(6 microseconds)	==>    No.<8>
+responsetime(14 microseconds) ==>    No.<8>
 ----
-{"@timestamp":"2017-02-22T10:54:02.810Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":364,"bytes_out":1664,"client_ip":"10.0.13.33","client_port":47175,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":17,"num_rows":1},"path":"eleme_restaurant.t_restaurant","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^5702849354046426014|1487760842809\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select\n\t\t \n\t\tid, eleme_restaurant_id, restaurant_oid, store_id, store_code,\n\t\tstore_name, city_id,\n\t\tcity_name, name,is_valid, is_delete, brand_id, brand_name, create_time, create_by,\n\t\tmodify_time,\n\t\tmodify_by\n\t \n\t\tfrom t_restaurant\n\t\twhere restaurant_oid = 2166476","responsetime":6,"server":"","status":"OK","type":"mysql"}
+{"@timestamp":"2017-02-24T09:03:17.908Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":565,"bytes_out":66,"client_ip":"10.0.13.25","client_port":24961,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":1,"num_rows":1},"path":".","port":3306,"proc":"","query":"/* E:rid=zs.wms^^-8657669696484071898|1487926997901\u0026rpcid=1.2\u0026appid=zs.wms:E */ select\n    count(1)\n    from t_wms_batch_stock a\n    left join t_material b on a.material_id=b.id\n    left join t_material_category c on b.category_level_1=c.id\n    left join t_material_category d on b.category_level_2=d.id\n    left join t_supplier_purchase_info e on b.id=e.material_id\n    left join t_warehouse g on g.id = a.warehouse_id\n    and not exists (select * from t_supplier_purchase_info f where f.material_id=e.material_id and f.id\u003ee.id)\n     WHERE  a.warehouse_id = 1","responsetime":14,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(6 microseconds)	==>    No.<9>
+responsetime(11 microseconds) ==>    No.<9>
 ----
-{"@timestamp":"2017-02-22T10:54:02.744Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":364,"bytes_out":1651,"client_ip":"10.0.13.33","client_port":47175,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":17,"num_rows":1},"path":"eleme_restaurant.t_restaurant","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^8689796431643186159|1487760842743\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select\n\t\t \n\t\tid, eleme_restaurant_id, restaurant_oid, store_id, store_code,\n\t\tstore_name, city_id,\n\t\tcity_name, name,is_valid, is_delete, brand_id, brand_name, create_time, create_by,\n\t\tmodify_time,\n\t\tmodify_by\n\t \n\t\tfrom t_restaurant\n\t\twhere restaurant_oid = 1881514","responsetime":6,"server":"","status":"OK","type":"mysql"}
+{"@timestamp":"2017-02-24T09:00:00.055Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":530,"bytes_out":39002,"client_ip":"10.0.13.25","client_port":52449,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":17,"num_rows":221},"path":"eleme_restaurant.t_bms_push_point","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^1387384025196058818|1487926800054\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select \n     \n    id, is_delete, create_time, create_by, modify_time, modify_by, brand_id, city_name, \n    store_type, restaurant_id, restaurant_name, version, batch, point, type, status, \n    time\n   \n    from t_bms_push_point \n    where \n     \n    is_delete=0\n    and type=2 \n    and status\u002616\u003c\u003e16 \n    and status\u00268\u003c\u003e8 \n    and status\u002632\u003c\u003e32 \n    and time\u003c=now() order by time desc, restaurant_id asc, point asc limit 0,2147483647","responsetime":11,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(6 microseconds)	==>    No.<10>
+responsetime(10 microseconds) ==>    No.<10>
 ----
-{"@timestamp":"2017-02-22T10:54:01.625Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":364,"bytes_out":1658,"client_ip":"10.0.13.33","client_port":47175,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":17,"num_rows":1},"path":"eleme_restaurant.t_restaurant","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^4371748204424072675|1487760841624\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select\n\t\t \n\t\tid, eleme_restaurant_id, restaurant_oid, store_id, store_code,\n\t\tstore_name, city_id,\n\t\tcity_name, name,is_valid, is_delete, brand_id, brand_name, create_time, create_by,\n\t\tmodify_time,\n\t\tmodify_by\n\t \n\t\tfrom t_restaurant\n\t\twhere restaurant_oid = 2326165","responsetime":6,"server":"","status":"OK","type":"mysql"}
+{"@timestamp":"2017-02-24T09:00:00.043Z","beat":{"hostname":"xg-restaurant-slave-2","name":"xg-restaurant-slave-2","version":"6.0.0-alpha1"},"bytes_in":272,"bytes_out":65,"client_ip":"10.0.13.25","client_port":21792,"client_proc":"","client_server":"","direction":"in","ip":"10.0.10.78","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":1,"num_rows":1},"path":".","port":3306,"proc":"","query":"/* E:rid=me.ele.zs.erp^^778672264187109232|1487926800041\u0026rpcid=1.1\u0026appid=me.ele.zs.erp:E */ select count(1) from  t_bms_push_point \n    where \n     \n    is_delete=0\n    and type=2 \n    and status\u002616\u003c\u003e16 \n    and status\u00268\u003c\u003e8 \n    and status\u002632\u003c\u003e32 \n    and time\u003c=now()","responsetime":10,"server":"","status":"OK","type":"mysql"}
 
 
+
+real  0m0.201s
+user  0m0.191s
+sys 0m0.009s
 [root@xg-restaurant-slave-2 packageCaptureAnalysis]#
 ```
 
@@ -334,12 +340,14 @@ responsetime(6 microseconds)	==>    No.<10>
 
 ![运行 packetbeat 分析 mysql slave 时的 disk 资源使用情况-2](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E8%BF%90%E8%A1%8C%20packetbeat%20%E5%88%86%E6%9E%90%20mysql%20slave%20%E6%97%B6%E7%9A%84%20disk%20%E8%B5%84%E6%BA%90%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5-2.png)
 
+- mysql QPS/TPS
 
+![mysql slave TPS/QPS](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/mysql%20slave%20TPSQPS.png)
 
 ### 测试结果（针对 master mysql）
 
 
-测试命令（抓去 3306 上的 master mysql 通信 8 分钟）
+测试命令（抓取 3306 上的 master mysql 通信 8 分钟）
 
 ```
 [root@xg-breakfast-master-1 packageCaptureAnalysis]# LD_LIBRARY_PATH=. ./packageCaptureAnalysis -c ./packetbeat.yml
@@ -388,7 +396,7 @@ total 727848
 -rw-r--r-- 1 root root       396 Feb 23 15:55 packetbeat.9
 [root@xg-breakfast-master-1 packageCaptureAnalysis]#
 [root@xg-breakfast-master-1 packageCaptureAnalysis]# du -shx logs/
-711M	logs/
+711M  logs/
 [root@xg-breakfast-master-1 packageCaptureAnalysis]#
 ```
 
@@ -414,60 +422,60 @@ failure rate       : 0.000111%
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-responsetime(716 microseconds)	==>    No.<1>
+responsetime(716 microseconds)  ==>    No.<1>
 ----
 {"@timestamp":"2017-02-23T08:02:00.629Z","beat":{"hostname":"xg-breakfast-master-1","name":"xg-breakfast-master-1","version":"6.0.0-alpha1"},"bytes_in":1122,"bytes_out":27873,"client_ip":"10.0.47.27","client_port":61565,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.244","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":8,"num_rows":962},"path":"eleme_breakfast.to1","port":3306,"proc":"","query":"/* E:rid=me.ele.breakfast.backend^^1220906522393322527|1487836920629\u0026rpcid=1.1\u0026appid=me.ele.breakfast.backend:E */ SELECT\n        to1.tradeAreaId as tradeAreaId,\n        to1.buildingId as buildingId,\n        to1.takeaway_id as takeawayId,\n        1 as granularity,\n        0 as businessType,\n        to1.delivery_type as deliveryType,\n        t.order_dish_type as dishType,\n        COUNT(DISTINCT(t.user_id))AS newUserNum\n        FROM t_ord_order_item t\n        JOIN t_ord_order_process to1 ON to1.orderId=t.orderId\n        WHERE   to1.createTime \u003e= '2017-02-14 00:00:00'  \n        AND    to1.createTime \u003c '2017-02-15 00:00:00'  \n        AND to1.status IN(20, 25, 30)\n        AND\n         \n            (to1.order_type = 1 or to1.order_type=4) AND to1.biz_role=0\n         \n         \n         \n         \n         \n        AND t.orderItemId in (select MIN(to2.orderItemId) from t_ord_order_item to2 JOIN t_order_ext oe on to2.orderId = oe.order_id  WHERE oe.order_id=to1.orderId  AND oe.is_first=1)\n        group by  to1.tradeAreaId,to1.buildingId,to1.takeaway_id,to1.delivery_type,t.order_dish_type\n        limit 0,1500","responsetime":716,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(711 microseconds)	==>    No.<2>
+responsetime(711 microseconds)  ==>    No.<2>
 ----
 {"@timestamp":"2017-02-23T08:01:44.208Z","beat":{"hostname":"xg-breakfast-master-1","name":"xg-breakfast-master-1","version":"6.0.0-alpha1"},"bytes_in":1122,"bytes_out":27873,"client_ip":"10.0.47.27","client_port":61565,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.244","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":8,"num_rows":962},"path":"eleme_breakfast.to1","port":3306,"proc":"","query":"/* E:rid=me.ele.breakfast.backend^^5315853952453105678|1487836904137\u0026rpcid=1.1\u0026appid=me.ele.breakfast.backend:E */ SELECT\n        to1.tradeAreaId as tradeAreaId,\n        to1.buildingId as buildingId,\n        to1.takeaway_id as takeawayId,\n        0 as granularity,\n        0 as businessType,\n        to1.delivery_type as deliveryType,\n        t.order_dish_type as dishType,\n        COUNT(DISTINCT(t.user_id))AS newUserNum\n        FROM t_ord_order_item t\n        JOIN t_ord_order_process to1 ON to1.orderId=t.orderId\n        WHERE   to1.createTime \u003e= '2017-02-14 00:00:00'  \n        AND    to1.createTime \u003c '2017-02-15 00:00:00'  \n        AND to1.status IN(20, 25, 30)\n        AND\n         \n            (to1.order_type = 1 or to1.order_type=4) AND to1.biz_role=0\n         \n         \n         \n         \n         \n        AND t.orderItemId in (select MIN(to2.orderItemId) from t_ord_order_item to2 JOIN t_order_ext oe on to2.orderId = oe.order_id  WHERE oe.order_id=to1.orderId  AND oe.is_first=1)\n        group by  to1.tradeAreaId,to1.buildingId,to1.takeaway_id,to1.delivery_type,t.order_dish_type\n        limit 0,1500","responsetime":711,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(707 microseconds)	==>    No.<3>
+responsetime(707 microseconds)  ==>    No.<3>
 ----
 {"@timestamp":"2017-02-23T08:01:47.647Z","beat":{"hostname":"xg-breakfast-master-1","name":"xg-breakfast-master-1","version":"6.0.0-alpha1"},"bytes_in":1123,"bytes_out":27873,"client_ip":"10.0.47.27","client_port":61565,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.244","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":8,"num_rows":962},"path":"eleme_breakfast.to1","port":3306,"proc":"","query":"/* E:rid=me.ele.breakfast.backend^^-7292380918749661957|1487836907647\u0026rpcid=1.1\u0026appid=me.ele.breakfast.backend:E */ SELECT\n        to1.tradeAreaId as tradeAreaId,\n        to1.buildingId as buildingId,\n        to1.takeaway_id as takeawayId,\n        1 as granularity,\n        0 as businessType,\n        to1.delivery_type as deliveryType,\n        t.order_dish_type as dishType,\n        COUNT(DISTINCT(t.user_id))AS newUserNum\n        FROM t_ord_order_item t\n        JOIN t_ord_order_process to1 ON to1.orderId=t.orderId\n        WHERE   to1.createTime \u003e= '2017-02-14 00:00:00'  \n        AND    to1.createTime \u003c '2017-02-15 00:00:00'  \n        AND to1.status IN(20, 25, 30)\n        AND\n         \n            (to1.order_type = 1 or to1.order_type=4) AND to1.biz_role=0\n         \n         \n         \n         \n         \n        AND t.orderItemId in (select MIN(to2.orderItemId) from t_ord_order_item to2 JOIN t_order_ext oe on to2.orderId = oe.order_id  WHERE oe.order_id=to1.orderId  AND oe.is_first=1)\n        group by  to1.tradeAreaId,to1.buildingId,to1.takeaway_id,to1.delivery_type,t.order_dish_type\n        limit 0,1500","responsetime":707,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(706 microseconds)	==>    No.<4>
+responsetime(706 microseconds)  ==>    No.<4>
 ----
 {"@timestamp":"2017-02-23T08:01:51.058Z","beat":{"hostname":"xg-breakfast-master-1","name":"xg-breakfast-master-1","version":"6.0.0-alpha1"},"bytes_in":1121,"bytes_out":27873,"client_ip":"10.0.47.27","client_port":61565,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.244","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":8,"num_rows":962},"path":"eleme_breakfast.to1","port":3306,"proc":"","query":"/* E:rid=me.ele.breakfast.backend^^921811928358534775|1487836911058\u0026rpcid=1.1\u0026appid=me.ele.breakfast.backend:E */ SELECT\n        to1.tradeAreaId as tradeAreaId,\n        to1.buildingId as buildingId,\n        to1.takeaway_id as takeawayId,\n        0 as granularity,\n        0 as businessType,\n        to1.delivery_type as deliveryType,\n        t.order_dish_type as dishType,\n        COUNT(DISTINCT(t.user_id))AS newUserNum\n        FROM t_ord_order_item t\n        JOIN t_ord_order_process to1 ON to1.orderId=t.orderId\n        WHERE   to1.createTime \u003e= '2017-02-14 00:00:00'  \n        AND    to1.createTime \u003c '2017-02-15 00:00:00'  \n        AND to1.status IN(20, 25, 30)\n        AND\n         \n            (to1.order_type = 1 or to1.order_type=4) AND to1.biz_role=0\n         \n         \n         \n         \n         \n        AND t.orderItemId in (select MIN(to2.orderItemId) from t_ord_order_item to2 JOIN t_order_ext oe on to2.orderId = oe.order_id  WHERE oe.order_id=to1.orderId  AND oe.is_first=1)\n        group by  to1.tradeAreaId,to1.buildingId,to1.takeaway_id,to1.delivery_type,t.order_dish_type\n        limit 0,1500","responsetime":706,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(702 microseconds)	==>    No.<5>
+responsetime(702 microseconds)  ==>    No.<5>
 ----
 {"@timestamp":"2017-02-23T08:01:54.306Z","beat":{"hostname":"xg-breakfast-master-1","name":"xg-breakfast-master-1","version":"6.0.0-alpha1"},"bytes_in":1123,"bytes_out":27873,"client_ip":"10.0.47.27","client_port":61565,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.244","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":8,"num_rows":962},"path":"eleme_breakfast.to1","port":3306,"proc":"","query":"/* E:rid=me.ele.breakfast.backend^^-6158599016008372488|1487836914306\u0026rpcid=1.1\u0026appid=me.ele.breakfast.backend:E */ SELECT\n        to1.tradeAreaId as tradeAreaId,\n        to1.buildingId as buildingId,\n        to1.takeaway_id as takeawayId,\n        1 as granularity,\n        0 as businessType,\n        to1.delivery_type as deliveryType,\n        t.order_dish_type as dishType,\n        COUNT(DISTINCT(t.user_id))AS newUserNum\n        FROM t_ord_order_item t\n        JOIN t_ord_order_process to1 ON to1.orderId=t.orderId\n        WHERE   to1.createTime \u003e= '2017-02-14 00:00:00'  \n        AND    to1.createTime \u003c '2017-02-15 00:00:00'  \n        AND to1.status IN(20, 25, 30)\n        AND\n         \n            (to1.order_type = 1 or to1.order_type=4) AND to1.biz_role=0\n         \n         \n         \n         \n         \n        AND t.orderItemId in (select MIN(to2.orderItemId) from t_ord_order_item to2 JOIN t_order_ext oe on to2.orderId = oe.order_id  WHERE oe.order_id=to1.orderId  AND oe.is_first=1)\n        group by  to1.tradeAreaId,to1.buildingId,to1.takeaway_id,to1.delivery_type,t.order_dish_type\n        limit 0,1500","responsetime":702,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(698 microseconds)	==>    No.<6>
+responsetime(698 microseconds)  ==>    No.<6>
 ----
 {"@timestamp":"2017-02-23T08:01:57.515Z","beat":{"hostname":"xg-breakfast-master-1","name":"xg-breakfast-master-1","version":"6.0.0-alpha1"},"bytes_in":1123,"bytes_out":27873,"client_ip":"10.0.47.27","client_port":61565,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.244","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":8,"num_rows":962},"path":"eleme_breakfast.to1","port":3306,"proc":"","query":"/* E:rid=me.ele.breakfast.backend^^-2254936189944000241|1487836917515\u0026rpcid=1.1\u0026appid=me.ele.breakfast.backend:E */ SELECT\n        to1.tradeAreaId as tradeAreaId,\n        to1.buildingId as buildingId,\n        to1.takeaway_id as takeawayId,\n        0 as granularity,\n        0 as businessType,\n        to1.delivery_type as deliveryType,\n        t.order_dish_type as dishType,\n        COUNT(DISTINCT(t.user_id))AS newUserNum\n        FROM t_ord_order_item t\n        JOIN t_ord_order_process to1 ON to1.orderId=t.orderId\n        WHERE   to1.createTime \u003e= '2017-02-14 00:00:00'  \n        AND    to1.createTime \u003c '2017-02-15 00:00:00'  \n        AND to1.status IN(20, 25, 30)\n        AND\n         \n            (to1.order_type = 1 or to1.order_type=4) AND to1.biz_role=0\n         \n         \n         \n         \n         \n        AND t.orderItemId in (select MIN(to2.orderItemId) from t_ord_order_item to2 JOIN t_order_ext oe on to2.orderId = oe.order_id  WHERE oe.order_id=to1.orderId  AND oe.is_first=1)\n        group by  to1.tradeAreaId,to1.buildingId,to1.takeaway_id,to1.delivery_type,t.order_dish_type\n        limit 0,1500","responsetime":698,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(634 microseconds)	==>    No.<7>
+responsetime(634 microseconds)  ==>    No.<7>
 ----
 {"@timestamp":"2017-02-23T08:00:31.128Z","beat":{"hostname":"xg-breakfast-master-1","name":"xg-breakfast-master-1","version":"6.0.0-alpha1"},"bytes_in":2814,"bytes_out":13502,"client_ip":"10.0.47.28","client_port":38226,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.244","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":14,"num_rows":200},"path":".t","port":3306,"proc":"","query":"/* E:rid=me.ele.breakfast.backend^^-4099252426591907081|1487836831128\u0026rpcid=1.1\u0026appid=me.ele.breakfast.backend:E */ SELECT cityId,\n        cityName,\n        tradeAreaId,\n        buildingId,\n        takeawayId,\n        1 as granularity,\n        0 as businessType,\n        deliveryType,\n        dishType,\n         \n         \n             \n             \n                sum(deliveryNumOld) deliveryNumOld,\n                sum(retailAmountOld) retailAmountOld,\n                sum(purchaseAmountOld) purchaseAmountOld,\n                sum(saleAmountOld) saleAmountOld,\n                sum(paidAmountOld) paidAmountOld\n             \n         \n        FROM (\n            SELECT cityId,cityName,tradeAreaId,buildingId,takeawayId,deliveryType,dishType,\n             \n             \n                 \n                 \n                    COUNT(DISTINCT takeawayDate) deliveryNumOld,\n                    sum(retailAmountOld) retailAmountOld,\n                    sum(purchaseAmountOld) purchaseAmountOld,\n                    sum(saleAmountOld) saleAmountOld,\n                    sum(paidAmountOld) paidAmountOld\n                 \n             \n            FROM (\n                SELECT t.city_id as cityId,\n                t.city_name as cityName,\n                t.trade_area_id as tradeAreaId,\n                t.building_id as buildingId,\n                t.takeaway_id as takeawayId,\n                t1.delivery_type as deliveryType,\n                t.dish_type as dishType,\n                t.takeaway_date as takeawayDate,\n                t1.elemeOrderId as elemeOrderId,\n                 \n                 \n                     \n                     \n                        t.price*t.quantity as retailAmountOld,\n                        t.purchase_price*t.quantity as purchaseAmountOld,\n                        t.selling_amount as saleAmountOld,\n                        t.selling_amount-t.voucher_amount as paidAmountOld\n                     \n                 \n                FROM t_delivery_order_item t\n                JOIN t_ord_order_process t1 ON t.order_id = t1.orderId\n                WHERE t.takeaway_date = '2017-02-23 00:00:00' and t.takeaway_status in (20,30) AND\n                 \n                    (t1.order_type = 1 or t1.order_type=4) AND t1.biz_role=0\n                 \n                 \n                 \n                 \n                 \n                 \n                     \n                     \n                        AND NOT EXISTS (select 1 from t_order_ext oe WHERE oe.order_id=t1.orderId  AND oe.is_first=1)\n                     \n                 \n            )t  GROUP BY cityId,cityName,tradeAreaId,buildingId,takeawayId,deliveryType,dishType,elemeOrderId\n        ) t\n        GROUP BY cityId,cityName,tradeAreaId,buildingId,takeawayId,deliveryType,dishType\n        limit 1500,1500","responsetime":634,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(606 microseconds)	==>    No.<8>
+responsetime(606 microseconds)  ==>    No.<8>
 ----
 {"@timestamp":"2017-02-23T08:00:42.276Z","beat":{"hostname":"xg-breakfast-master-1","name":"xg-breakfast-master-1","version":"6.0.0-alpha1"},"bytes_in":469,"bytes_out":2334,"client_ip":"10.0.13.95","client_port":38975,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.244","method":"SELECT","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":17,"num_rows":7},"path":"ecs.order_assign","port":3306,"proc":"","query":"select  \n    id, order_pool_id, order_id, cs_id, rst_id, user_id, status, order_type, is_valid,\n    assign_reason, invalid_reason, active_at, accept_at, handle_time, create_time, create_by,\n    update_time\n   \n    from order_assign\n    where cs_id = 2011\n    and is_valid = 1\n     \n      and status = 0\n     \n     \n      and order_type = 1\n     \n     \n     \n     \n    and 'bind_master' = 'bind_master'\n     \n        order by create_time asc\n       \n    limit 0, 15","responsetime":606,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(593 microseconds)	==>    No.<9>
+responsetime(593 microseconds)  ==>    No.<9>
 ----
 {"@timestamp":"2017-02-23T07:57:47.206Z","beat":{"hostname":"xg-breakfast-master-1","name":"xg-breakfast-master-1","version":"6.0.0-alpha1"},"bytes_in":468,"bytes_out":2327,"client_ip":"10.0.13.30","client_port":42406,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.244","method":"SELECT","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":17,"num_rows":7},"path":"ecs.order_assign","port":3306,"proc":"","query":"select  \n    id, order_pool_id, order_id, cs_id, rst_id, user_id, status, order_type, is_valid,\n    assign_reason, invalid_reason, active_at, accept_at, handle_time, create_time, create_by,\n    update_time\n   \n    from order_assign\n    where cs_id = 474\n    and is_valid = 1\n     \n      and status = 0\n     \n     \n      and order_type = 1\n     \n     \n     \n     \n    and 'bind_master' = 'bind_master'\n     \n        order by create_time asc\n       \n    limit 0, 15","responsetime":593,"server":"","status":"OK","type":"mysql"}
 
 
-responsetime(590 microseconds)	==>    No.<10>
+responsetime(590 microseconds)  ==>    No.<10>
 ----
 {"@timestamp":"2017-02-23T08:00:26.587Z","beat":{"hostname":"xg-breakfast-master-1","name":"xg-breakfast-master-1","version":"6.0.0-alpha1"},"bytes_in":2810,"bytes_out":94892,"client_ip":"10.0.47.28","client_port":38226,"client_proc":"","client_server":"","direction":"in","ip":"10.0.27.244","method":"/*","mysql":{"affected_rows":0,"error_code":0,"error_message":"","insert_id":0,"iserror":false,"num_fields":14,"num_rows":1500},"path":".t","port":3306,"proc":"","query":"/* E:rid=me.ele.breakfast.backend^^6683072567797086865|1487836826587\u0026rpcid=1.1\u0026appid=me.ele.breakfast.backend:E */ SELECT cityId,\n        cityName,\n        tradeAreaId,\n        buildingId,\n        takeawayId,\n        1 as granularity,\n        0 as businessType,\n        deliveryType,\n        dishType,\n         \n         \n             \n             \n                sum(deliveryNumOld) deliveryNumOld,\n                sum(retailAmountOld) retailAmountOld,\n                sum(purchaseAmountOld) purchaseAmountOld,\n                sum(saleAmountOld) saleAmountOld,\n                sum(paidAmountOld) paidAmountOld\n             \n         \n        FROM (\n            SELECT cityId,cityName,tradeAreaId,buildingId,takeawayId,deliveryType,dishType,\n             \n             \n                 \n                 \n                    COUNT(DISTINCT takeawayDate) deliveryNumOld,\n                    sum(retailAmountOld) retailAmountOld,\n                    sum(purchaseAmountOld) purchaseAmountOld,\n                    sum(saleAmountOld) saleAmountOld,\n                    sum(paidAmountOld) paidAmountOld\n                 \n             \n            FROM (\n                SELECT t.city_id as cityId,\n                t.city_name as cityName,\n                t.trade_area_id as tradeAreaId,\n                t.building_id as buildingId,\n                t.takeaway_id as takeawayId,\n                t1.delivery_type as deliveryType,\n                t.dish_type as dishType,\n                t.takeaway_date as takeawayDate,\n                t1.elemeOrderId as elemeOrderId,\n                 \n                 \n                     \n                     \n                        t.price*t.quantity as retailAmountOld,\n                        t.purchase_price*t.quantity as purchaseAmountOld,\n                        t.selling_amount as saleAmountOld,\n                        t.selling_amount-t.voucher_amount as paidAmountOld\n                     \n                 \n                FROM t_delivery_order_item t\n                JOIN t_ord_order_process t1 ON t.order_id = t1.orderId\n                WHERE t.takeaway_date = '2017-02-23 00:00:00' and t.takeaway_status in (20,30) AND\n                 \n                    (t1.order_type = 1 or t1.order_type=4) AND t1.biz_role=0\n                 \n                 \n                 \n                 \n                 \n                 \n                     \n                     \n                        AND NOT EXISTS (select 1 from t_order_ext oe WHERE oe.order_id=t1.orderId  AND oe.is_first=1)\n                     \n                 \n            )t  GROUP BY cityId,cityName,tradeAreaId,buildingId,takeawayId,deliveryType,dishType,elemeOrderId\n        ) t\n        GROUP BY cityId,cityName,tradeAreaId,buildingId,takeawayId,deliveryType,dishType\n        limit 0,1500","responsetime":590,"server":"","status":"OK","type":"mysql"}
 
 
 
-real	0m26.254s
-user	0m25.738s
-sys	0m0.514s
+real  0m26.254s
+user  0m25.738s
+sys 0m0.514s
 [root@xg-breakfast-master-1 packageCaptureAnalysis]#
 ```
 
@@ -488,3 +496,14 @@ sys	0m0.514s
 ![运行 packetbeat 分析 mysql master 时的 disk 资源使用情况-1](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E8%BF%90%E8%A1%8C%20packetbeat%20%E5%88%86%E6%9E%90%20mysql%20master%20%E6%97%B6%E7%9A%84%20disk%20%E8%B5%84%E6%BA%90%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5-1.png)
 
 ![运行 packetbeat 分析 mysql master 时的 disk 资源使用情况-2](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E8%BF%90%E8%A1%8C%20packetbeat%20%E5%88%86%E6%9E%90%20mysql%20master%20%E6%97%B6%E7%9A%84%20disk%20%E8%B5%84%E6%BA%90%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5-2.png)
+
+- mysql QPS/TPS
+
+![mysql master TPS/QPS](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/mysql%20master%20TPSQPS.png)
+
+
+----------
+
+
+由于 pb 中对 mysql 协议的支持，不包括 master-slave replication 协议，因此目前不存在 redis 中匹配错误问题；
+如果后续增加了相应的功能，应该也不会出现类似 redis 的问题，应该 mysql 的 c/s 协议和 m/s replication 协议是不同的；
