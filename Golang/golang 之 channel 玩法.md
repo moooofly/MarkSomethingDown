@@ -480,7 +480,7 @@ func main() {
 
 > 关于 quit channel 和 done channel 的补充说明：
 >
-> 很多场景下，quit channel 和 done channel 是相同的概念；一般来讲，如果负责调度的 goroutine 不知道负责干活的 goroutine 是否完成，只需要关心令其退出的能力，则使用 quit channel ；如果负责调度的 goroutine 需要更加细粒度的控制，比如需要了解多少工作 goroutine 完成了任务，则需要 done channel ；
+> 很多场景下，quit channel 和 done channel 是相同的概念；一般来讲，如果负责调度的 goroutine 不需要知道负责干活的 goroutine 是否完成，只需要关心令其退出的能力，则使用 quit channel ；如果负责调度的 goroutine 需要更加细粒度的控制，比如需要了解多少负责干活的 goroutine 完成了任务，则需要 done channel ；
 > 
 
 
