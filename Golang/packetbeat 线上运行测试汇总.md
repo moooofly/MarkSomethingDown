@@ -4,9 +4,36 @@
 
 ---
 
+
+## 讨论记录
+
+### 2017-02-28
+
+最新沟通结论：
+
+- redis 和 mysql 均同意进行线上压力测试，但要求将负责抓包的进程限定在一个核心上，因此 cpu 使用上限为 100% ；
+- 建议抓取行为为短时抽样（具体抽样时长待定），根据分析效果和性能影响做 trade-off ；
+- 优先针对 redis 进行分析处理；
+
+现状说明：
+
+- 之前的抓包分析整体流程：基于 eoc 触发 tcpdump 针对指定 redis cluster 进行定时抓包 => 上传抓包文件到 ceph => 下载相应的 pcap 抓包文件到本地 => 调用 packetbeat 进行抓包文件分析（输出到本地文件） => 基于 python 脚本对上述文件进行聚合分析（集群的完整分析结果）
+- 调整后的抓包分析整体流程（尚未完成）：基于 eoc 触发 packetbeat 针对指定 redis cluster 进行定时抓包分析（输出到本地文件） => 基于 eoc 触发 python 脚本对上述文件进行聚合分析（集群的部分分析结果）=> 将部分分析结果汇总到某个地方进一步聚合得到完整结论（尚未确定下来）
+- 上述方案的变更需要一定时间进行调整（由于方案尚未调整好，因此若想针对 redis cluster 进行整体分析，则只能人肉方式逐个机器上跑 pb）；
+- 需要对 redis 集群中的 master 和 slave 进行区分（不需要抓取 slave 通信），以减少 packetbeat 需要处理的包量和分析数量；目前在跟进协调解决该问题；
+- 需要解决“排除 redis 的 master-slave 通信引起的分析干扰”问题（因为 client 和 slave 均使用相同的端口和 master 通信，只要抓取 master 的监听端口就一定会碰到此问题）；目前正着手解决；
+
+## 测试说明
+
+本测试主要用于确认：在线上实际运行 `packetbeat` 进行抓包和分析操作过程中，对服务和系统的影响；
+
+实际使用过程中，可能会采取短时（10s）按需（人工或监控系统触发）运行的模式；
+
+当前测试时长大概在 5~8 分钟左右，以便监控系统能够更高的展示出系统指标的变化；长时运行和短时运行的结论应该是一致的；
+
 ## redis 测试
 
-### 测试中数据流
+### 测试方法
 
 `packetbeat` 实时抓取 `bond0` 上的 `redis` 协议数据包，并进行 request-response 匹配，最终将封装成 json 结构的匹配信息写入本地文件；
 
@@ -69,7 +96,7 @@ KiB Swap: 16383996 total, 16383996 free,        0 used. 37403828 avail Mem
     2 root      20   0       0      0      0 S   0.0  0.0   0:02.30 kthreadd
 ```
 
-pb 运行大约 7 分钟，保存到文件中的分析结果占用大约 1.8G ；
+pb 运行大约 **7min** ，保存到文件中的分析结果占用大约 **1.8G** ；
 
 ```
 [root@xg-bigkey-rediscluster-1 logs]# ps aux|grep packet|grep -v grep ;ll -h
@@ -178,10 +205,6 @@ sys 0m1.333s
 [root@xg-bigkey-rediscluster-1 packageCaptureAnalysis]#
 ```
 
-小结：
-
-> 由于 `packetbeat` 源码中没有针对抓取到的 `redis` 协议包区分来自 Client-Server 侧，还是来自 master-slave 侧；因此上述分析数据存在一点问题（后续修复），此处结果仅做演示使用；
-
 ### 监控输出
 
 - cpu
@@ -196,10 +219,23 @@ sys 0m1.333s
 
 ![运行 packetbeat 分析 redis 时的 disk 资源使用情况-2](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/%E8%BF%90%E8%A1%8C%20packetbeat%20%E5%88%86%E6%9E%90%20redis%20%E6%97%B6%E7%9A%84%20disk%20%E8%B5%84%E6%BA%90%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5-2.png)
 
+### 测试结论
 
+- 由于 `packetbeat` 源码中没有针对抓取到的 `redis` 协议包区分来自 Client-Server 侧，还是来自 master-slave 侧；因此上述分析数据存在一点问题（后续修复），此处结果仅做演示使用；
+- 从上面的输出中可以看到：在 6m49.384982569s 时间内处理了 12383127 个数据包；因此 `pps` 为 **30202.7** ；
+- redis 中称作 **OPS** (Operation Per Sencond) 的概念对应的是监控面板中的 redis commands 内容（以 redis cluster appid 为纬度，因此是跨机器指标，示例看[这里](https://t.elenet.me/dashboard/dashboard/db/esm-redis-cluster?from=now-6h&to=now&var-cluster=bj_bigkey_gaia_cache&var-machine=All)，command 覆盖到的内容看[这里](https://t.elenet.me/dashboard/dashboard/db/esm-redis-command?from=now-6h&to=now&var-cluster=bj_bigkey_gaia_cache&var-machine=All)）；
+
+
+> 若想要分析 pb 的运行对 redis cluster QPS 的影响，则需要在 redis cluster 分布的所有机器上同时运行 pb 才行，目前版本做不到；
+> 
+> 目前通过 eoc 触发抓包行为是以主机为单位的，主机的确定是通过 redis cluster appid 从 `redis-admin` 上确定的，即
+> 
+> - 一个 redis cluster appid <==> N 台主机
+> - 一台主机 <==> 运行了 M 个 redis cluster ，且 master 和 slave 混合部署
+>
+> 在这种情况下，若无法区分出 redis 的 master 和 slave 对应的端口，则等价于需要浪费资源抓取和分析 slave 相关信息；
 
 ----------
-
 
 ## mysql 测试
 
@@ -322,10 +358,6 @@ sys 0m0.009s
 [root@xg-restaurant-slave-2 packageCaptureAnalysis]#
 ```
 
-小结：
-
-> 从输出结果上看，能够获取到 mysql 的 query 语句内容（其中的注释字段可以用于和 etrace 打通），能够获取到 query 的源 ip 和 port（应该对应的是 DAL 地址）；
-
 ### 监控输出
 
 - cpu
@@ -344,8 +376,14 @@ sys 0m0.009s
 
 ![mysql slave TPS/QPS](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/mysql%20slave%20TPSQPS.png)
 
-### 测试结果（针对 master mysql）
 
+### 测试结论
+
+- 从输出结果上看，能够获取到 `mysql` 的 QUERY 语句内容（其中的注释字段可以用于和 `etrace` 打通），能够获取到 QUERY 的源 ip 和 port（应该对应的是 DAL 地址）；
+- 从上面的输出中可以看到：在 7m1.004944299s 时间内处理了 314066 个数据包；因此 `pps` 为 **746** ；
+
+
+### 测试结果（针对 master mysql）
 
 测试命令（抓取 3306 上的 master mysql 通信 8 分钟）
 
@@ -479,9 +517,6 @@ sys 0m0.514s
 [root@xg-breakfast-master-1 packageCaptureAnalysis]#
 ```
 
-小结：
-
-> 从输出结果上看，能够获取到 mysql 的 query 语句内容（其中的注释字段可以用于和 etrace 打通），能够获取到 query 的源 ip 和 port（应该对应的是 DAL 地址）；
 
 ### 监控输出
 
@@ -502,8 +537,14 @@ sys 0m0.514s
 ![mysql master TPS/QPS](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/mysql%20master%20TPSQPS.png)
 
 
+### 测试结论
+
+- 从输出结果上看，能够获取到 `mysql` 的 QUERY 语句内容（其中的注释字段可以用于和 `etrace` 打通），能够获取到 QUERY 的源 ip 和 port（应该对应的是 DAL 地址）；
+- 从上面的输出中可以看到：在 7m54.66815743s 时间内处理了 2731373 个数据包；因此 `pps` 为 **5754.28** ；
+
+
 ----------
 
+补充说明：
 
-由于 pb 中对 mysql 协议的支持，不包括 master-slave replication 协议，因此目前不存在 redis 中匹配错误问题；
-如果后续增加了相应的功能，应该也不会出现类似 redis 的问题，应该 mysql 的 c/s 协议和 m/s replication 协议是不同的；
+> 由于 pb 中对 mysql 协议的支持，不包括 master-slave replication 协议部分，因此目前不存在 redis 中匹配错误问题；如果后续增加了相应的功能，应该也不会出现类似 redis 的问题，应该 mysql 的 c/s 协议和 m/s replication 协议是不同的；
