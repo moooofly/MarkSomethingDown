@@ -6,12 +6,12 @@
 
 ## [Go-简洁的并发](http://www.thinksaas.cn/topics/0/594/594568.html)
 
-本文从**并发模式**的角度讲述了 channel 和 goroutine 的使用模型；主要涉及一下内容：
+本文从**并发模式**的角度讲述了 channel 和 goroutine 的使用模型；主要涉及以下内容：
 
-- **生成器**（让函数返回“服务”，用于数据读取，生成 ID，实现定时器等）；
+- **生成器**（让函数返回“服务”，可用于数据读取，生成 ID，实现定时器等）；
 - **多路复用**（将若干个相似的小“服务”整合成一个大“服务”）；
-- **Furture 技术**（实现函数调用和函数参数准备两个过程的完全解耦，提供更大的自由度和并发度；还可以用来实现 pipe filter）；
-- **并发循环**（利用多核提升性能，解决 CPU 热点）；
+- **Furture 技术**（实现“函数调用”和“函数参数准备”两个过程的完全解耦，进而提供更大的自由度和并发度；还可以用来实现 pipe filter）；
+- **并发循环**（利用多核提升性能，解决 CPU 热点问题）；
 - Chain Filter 技术（属于 pipe filter 的特殊情况）；
 - **共享变量**（一般来说，协程之间不推荐使用共享变量来交互，但是在一些场合，使用共享变量也是可取的）；
 - **协程泄漏**（一般而言，协程执行结束后就会销毁；协程也会占用内存；只有两种情况会导致协程无法结束：一种情况是协程想从一个通道读数据，但无人往这个通道写入数据，或许这个通道已经被遗忘了；还有一种情况是程想往一个通道写数据，可是由于无人监听这个通道，该协程将永远无法向下执行）；
@@ -20,7 +20,7 @@
 ----------
 
 
-> 基于 goroutine 服务化的生成器
+> 基于 goroutine 将生成器服务化
 
 ```golang
 // 函数 rand_generator_2，返回 通道(Channel)
@@ -268,7 +268,7 @@ func main() {
 }
 ```
 
-> detect if your channel is closed in the `range` idiom （用法说明：通过 close 关闭 channel 时，能够被 range 检测出来）
+> 通过 `range` 检测 channel 是否被 close
 
 ```golang
 package main
@@ -316,11 +316,11 @@ func main() {
 }
 ```
 
-这种实现可能遇到的问题：
+该实现可能遇到的问题：
 
-1. 由于 finish 这个 channel 是 unbuffered 的，所以，一旦在目标 goroutine 中忘记了读取 finish channel ，则会导致发送端阻塞；
-2. 即使将 finish channel 改成 buffered 的，其实也只能算治标不治本的办法，因为只解决了发送端的阻塞问题，无法发现接收端是否存在泄漏；另外，确定 buffer 的大小也是一个问题，有些情况下，根本无法确定；
-3. 如果仅从解决发送端阻塞的角度，将 finish <- true 封装在 select 语句中，明显也是一个二逼方案；
+1. 由于 finish 这个 channel 是 unbuffered 的，所以，一旦在目标 goroutine 中忘记了读取该 channel ，则会导致发送端阻塞；
+2. 即使将 finish channel 改成 buffered 的，其实也只能算治标不治本的办法，因为只解决了发送端的阻塞问题，无法发现接收端是否存在泄漏；另外，如何决定 buffer size 也是一个问题，因为有些情况下，根本无法确定；
+3. 如果仅从解决发送端阻塞的角度，将 `finish <- true` 封装在 `select`语句中，明显也是一个二逼方案；
 
 >  基于 sync.WaitGroup + select + closed channel （好方案）
 
@@ -410,7 +410,7 @@ func main() {
 }
 ```
 
-> use the closed channel idiom to wait for multiple channels to close （利用 nil channel 的阻塞特性）
+> 基于 closed channel 特性等待多个 channel 的关闭（利用 nil channel 的阻塞特性）
 
 ```golang
 package main
@@ -474,6 +474,15 @@ func main() {
     - Pipelines unblock senders either by ensuring there's enough buffer for all the values that are sent or by explicitly signalling senders when the receiver may abandon the channel.
 
 本文最后给出一个对目录下所有文件计算 md5 值的程序，讲解了如何基于 pipeline 实现并行计算，值得学习（建议看英文版）；
+
+
+----------
+
+> 关于 quit channel 和 done channel 的补充说明：
+>
+> 很多场景下，quit channel 和 done channel 是相同的概念；一般来讲，如果负责调度的 goroutine 不知道负责干活的 goroutine 是否完成，只需要关心令其退出的能力，则使用 quit channel ；如果负责调度的 goroutine 需要更加细粒度的控制，比如需要了解多少工作 goroutine 完成了任务，则需要 done channel ；
+> 
+
 
 
 
