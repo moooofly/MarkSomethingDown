@@ -117,7 +117,7 @@ func (sniffer *SnifferSetup) Run() error {
 
 ### 问题描述
 
-错误信息如下（增加了打印内容）：
+错误信息如下：
 
 ```shell
 ➜  packetbeat git:(master) ✗ ./packetbeat -c ./packetbeat.yml -e -I redis_xg-bjdev-rediscluster-1_prot-7101_20161222110711_20161222110721.pcap -E packetbeat.protocols.redis.ports=7101 -t
@@ -139,8 +139,8 @@ func (sniffer *SnifferSetup) Run() error {
 2017/01/11 09:42:37.664320 protos.go:89: INFO registered protocol plugin: redis
 2017/01/11 09:42:37.665784 beat.go:207: INFO packetbeat start running.
 2017/01/11 09:47:45.218365 redis_parse.go:306: ERR Failed to read integer reply: Expected digit
-value should be Int, but we get ->
-"{\"id\":153,\"email\":\"xiaojiao.xie@ele.me\",\"work_code\":\"E000027\",\"mobile\":18603720925,\"name\":\"谢小佼\",\"walle_id\":77287,\"status\":6,\"pinyin_name\":\"xxj\",\"sex\":1,\"security_level\":60,\"certificate_type\":0,\"certificate_number\":\"420683198908113733\",\"created_at\":1431550029000,\"updated_at\":1449228237000,\"nchr_id\":\"0001A910000000002EQP\"}}"
+value should be Int, but we get -> // 后面的内容输出为自己增加的调试信息
+"{\"id\":153,\"email\":\"xiaoxxx@xxxxxxx\",\"work_code\":\"Exxxxxxx\",\"mobile\":186xxxx0925,\"name\":\"谢xxx\",\"walle_id\":77287,\"status\":6,\"pinyin_name\":\"xxj\",\"sex\":1,\"security_level\":60,\"certificate_type\":0,\"certificate_number\":\"420683198908113733\",\"created_at\":1431550029000,\"updated_at\":1449228237000,\"nchr_id\":\"0001A910000000002EQP\"}}"
 
 2017/01/11 09:42:38.430211 sniffer.go:384: INFO Input finish. Processed 40644 packets. Have a nice day!
 2017/01/11 09:42:38.430657 util.go:48: INFO flows worker loop stopped
@@ -155,14 +155,14 @@ value should be Int, but we get ->
 ```shell
 2017/01/11 09:47:45.218365 redis_parse.go:306: ERR Failed to read integer reply: Expected digit
 value should be Int, but we get ->
-"{\"id\":153,\"email\":\"xiaojiao.xie@ele.me\",\"work_code\":\"E000027\",\"mobile\":18603720925,\"name\":\"谢小佼\",\"walle_id\":77287,\"status\":6,\"pinyin_name\":\"xxj\",\"sex\":1,\"security_level\":60,\"certificate_type\":0,\"certificate_number\":\"420683198908113733\",\"created_at\":1431550029000,\"updated_at\":1449228237000,\"nchr_id\":\"0001A910000000002EQP\"}}"
+"{\"id\":153,\"email\":\"xiaoxxx@xxxxxxx\",\"work_code\":\"Exxxxxxx\",\"mobile\":186xxxx0925,\"name\":\"谢xxx\",\"walle_id\":77287,\"status\":6,\"pinyin_name\":\"xxj\",\"sex\":1,\"security_level\":60,\"certificate_type\":0,\"certificate_number\":\"420683198908113733\",\"created_at\":1431550029000,\"updated_at\":1449228237000,\"nchr_id\":\"0001A910000000002EQP\"}}"
 ```
 
 ### 问题原因
 
-当调用 `HMGET` 时同时查询多个数据，应答包含的数据量比较大时，需要分包进行回复；若在应答回复的过程中，出现丢包，则会导致数据解析出错；
+当调用 `HMGET` 进行多个数据查询时，且应答包含的数据量比较大时，则会遇到 TCP 协议层面的分包回复；若在应答回复的过程中，出现丢包，则会导致数据解析出错；
 
-补充结论：经过深入研究发现，应答内容大并不是充分条件，导致数据解析出错和分包位置有关（有些情况分包数据并不会导致错误）；
+> 结论增强：经过深入研究发现，应答内容数据量大并不是充分条件，而是必要条件；导致数据解析出错的根本原因和 TCP 分包时的位置有关，因为发现有些情况下的分包数据并不会导致解析错误的发生）；
 
 ![HMGET 的应答数据分包回复遇到丢包问题](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/HMGET%20%E7%9A%84%E5%BA%94%E7%AD%94%E6%95%B0%E6%8D%AE%E5%88%86%E5%8C%85%E5%9B%9E%E5%A4%8D%E9%81%87%E5%88%B0%E4%B8%A2%E5%8C%85%E9%97%AE%E9%A2%98.png "HMGET 的应答数据分包回复遇到丢包问题")
 
@@ -198,9 +198,9 @@ $3
 **37642 号包**：提示 *[TCP Previous segment not captured]* 信息，参考 `HMGET` 请求的内容，结合当前包的数据内容可以看出，该包为 `HMGET` 应答的最后两个 field 的部分内容（并且截断位置也应该是无规律的）；
 
 ```
-:{"id":153,"email":"xiaojiao.xie@ele.me","work_code":"E000027","mobile":18603720925,"name":".........","walle_id":77287,"status":6,"pinyin_name":"xxj","sex":1,"security_level":60,"certificate_type":0,"certificate_number":"420683198908113733","created_at":1431550029000,"updated_at":1449228237000,"nchr_id":"0001A910000000002EQP"}}
+:{"id":153,"email":"xiaoxxxxx@xxxx","work_code":"Exxxxx","mobile":186xxxx0925,"name":".........","walle_id":77287,"status":6,"pinyin_name":"xxj","sex":1,"security_level":60,"certificate_type":0,"certificate_number":"420683198908113733","created_at":1431550029000,"updated_at":1449228237000,"nchr_id":"0001A910000000002EQP"}}
 $519
-{"userId":147,"userBuList":[3175],"tagsList":[],"userBuRoleDto":[{"id":81524,"bu_id":3175,"bu_name":"............BU","role_id":859,"role_name":".........","user_id":147,"user_name":"......"}],"user":{"id":147,"email":"xin.jin@ele.me","work_code":"E000029","mobile":18607175626,"name":"......","walle_id":56063,"status":6,"pinyin_name":"jx","sex":1,"security_level":70,"certificate_type":0,"certificate_number":"420106198511242510","created_at":1431550030000,"updated_at":1449228115000,"nchr_id":"0001A910000000002ERE"}}
+{"userId":147,"userBuList":[3175],"tagsList":[],"userBuRoleDto":[{"id":81524,"bu_id":3175,"bu_name":"............BU","role_id":859,"role_name":".........","user_id":147,"user_name":"......"}],"user":{"id":147,"email":"xinxxxxx@xxxx","work_code":"Exxxx","mobile":186xxxx626,"name":"......","walle_id":56063,"status":6,"pinyin_name":"jx","sex":1,"security_level":70,"certificate_type":0,"certificate_number":"420106198511242510","created_at":1431550030000,"updated_at":1449228115000,"nchr_id":"0001A910000000002ERE"}}
 ```
 
 **37648 号包**：提示 *[TCP Fast Retransmission]* 信息，结合数据包内容可以看出，重传数据即为之前判定丢失的数据；
@@ -208,51 +208,56 @@ $519
 ```
 *8
 $532
-{"userId":18370,"userBuList":[4594],"tagsList":[],"userBuRoleDto":[{"id":120993,"bu_id":4594,"bu_name":"..................","role_id":924,"role_name":"......","user_id":18370,"user_name":"......"}],"user":{"id":18370,"email":"hui.yaobj@ele.me","work_code":"E019529","mobile":13784728281,"name":"......","walle_id":23156752,"status":6,"pinyin_name":"yh","sex":1,"security_level":20,"certificate_type":0,"certificate_number":"130984199001023033","created_at":1438657893000,"updated_at":1449228019000,"nchr_id":"0001A910000000013PM5"}}
+{"userId":18370,"userBuList":[4594],"tagsList":[],"userBuRoleDto":[{"id":120993,"bu_id":4594,"bu_name":"..................","role_id":924,"role_name":"......","user_id":18370,"user_name":"......"}],"user":{"id":18370,"email":"huixxxxx@xxxx","work_code":"Exxxxx","mobile":137xxxxx8281,"name":"......","walle_id":23156752,"status":6,"pinyin_name":"yh","sex":1,"security_level":20,"certificate_type":0,"certificate_number":"130984199001023033","created_at":1438657893000,"updated_at":1449228019000,"nchr_id":"0001A910000000013PM5"}}
 $536
-{"userId":52708,"userBuList":[4704],"tagsList":[],"userBuRoleDto":[{"id":109320,"bu_id":4704,"bu_name":".....................","role_id":867,"role_name":"......","user_id":52708,"user_name":"Neil"}],"user":{"id":52708,"email":"liangang.qu@ele.me","work_code":"E055033","mobile":18637136367,"name":"Neil","walle_id":123225472,"status":6,"pinyin_name":"Neil","sex":1,"security_level":20,"certificate_type":0,"certificate_number":"370181198109040350","created_at":1476093008000,"updated_at":1477916894000,"nchr_id":"0001B61000000010WI0Q"}}
+{"userId":52708,"userBuList":[4704],"tagsList":[],"userBuRoleDto":[{"id":109320,"bu_id":4704,"bu_name":".....................","role_id":867,"role_name":"......","user_id":52708,"user_name":"Neil"}],"user":{"id":52708,"email":"lianxxxxx@xxxxx","work_code":"Exxxxx","mobile":186xxxx6367,"name":"Neil","walle_id":123225472,"status":6,"pinyin_name":"Neil","sex":1,"security_level":20,"certificate_type":0,"certificate_number":"370181198109040350","created_at":1476093008000,"updated_at":1477916894000,"nchr_id":"0001B61000000010WI0Q"}}
 $-1
 $532
-{"userId":18370,"userBuList":[4594],"tagsList":[],"userBuRoleDto":[{"id":120993,"bu_id":4594,"bu_name":"..................","role_id":924,"role_name":"......","user_id":18370,"user_name":"......"}],"user":{"id":18370,"email":"hui.yaobj@ele.me","work_code":"E019529","mobile":13784728281,"name":"......","walle_id":23156752,"status":6,"pinyin_name":"yh","sex":1,"security_level":20,"certificate_type":0,"certificate_number":"130984199001023033","created_at":1438657893000,"updated_at":1449228019000,"nchr_id":"0001A910000000013PM5"}}
+{"userId":18370,"userBuList":[4594],"tagsList":[],"userBuRoleDto":[{"id":120993,"bu_id":4594,"bu_name":"..................","role_id":924,"role_name":"......","user_id":18370,"user_name":"......"}],"user":{"id":18370,"email":"hui.xxxx@xxxx","work_code":"Exxxx","mobile":137xxxx8281,"name":"......","walle_id":23156752,"status":6,"pinyin_name":"yh","sex":1,"security_level":20,"certificate_type":0,"certificate_number":"130984199001023033","created_at":1438657893000,"updated_at":1449228019000,"nchr_id":"0001A910000000013PM5"}}
 $533
-{"userId":1117,"userBuList":[4596],"tagsList":[],"userBuRoleDto":[{"id":89811,"bu_id":4596,"bu_name":"..................","role_id":923,"role_name":"......","user_id":1117,"user_name":"........."}],"user":{"id":1117,"email":"xuhao.hu@ele.me","work_code":"E001000","mobile":18562612164,"name":".........","walle_id":1682514,"status":6,"pinyin_name":"hxh","sex":1,"security_level":20,"certificate_type":0,"certificate_number":"640102199404171817","created_at":1431550294000,"updated_at":1463403636000,"nchr_id":"0001A910000000002GCC"}}
+{"userId":1117,"userBuList":[4596],"tagsList":[],"userBuRoleDto":[{"id":89811,"bu_id":4596,"bu_name":"..................","role_id":923,"role_name":"......","user_id":1117,"user_name":"........."}],"user":{"id":1117,"email":"xuxxxxxx@xxxxx","work_code":"Exxxxx","mobile":185xxxxx2164,"name":".........","walle_id":1682514,"status":6,"pinyin_name":"hxh","sex":1,"security_level":20,"certificate_type":0,"certificate_number":"640102199404171817","created_at":1431550294000,"updated_at":1463403636000,"nchr_id":"0001A910000000002GCC"}}
 $512
-{"userId":13,"userBuList":[104],"tagsList":[],"userBuRoleDto":[{"id":769,"bu_id":104,"bu_name":".........","role_id":865,"role_name":"CEO","user_id":13,"user_name":"........."}],"user":{"id":13,"email":"mark.zhang@ele.me","work_code":"E000001","mobile":13482200180,"name":".........","walle_id":869105,"status":6,"pinyin_name":"zxh","sex":1,"security_level":90,"certificate_type":0,"certificate_number":"310103198504094033","created_at":1431550018000,"updated_at":1449228115000,"nchr_id":"0001A910000000002EGU"}}
+{"userId":13,"userBuList":[104],"tagsList":[],"userBuRoleDto":[{"id":769,"bu_id":104,"bu_name":".........","role_id":865,"role_name":"CEO","user_id":13,"user_name":"........."}],"user":{"id":13,"email":"markxxxx@xxx","work_code":"Exxxxx","mobile":134xxxx0180,"name":".........","walle_id":869105,"status":6,"pinyin_name":"zxh","sex":1,"security_level":90,"certificate_type":0,"certificate_number":"310103198504094033","created_at":1431550018000,"updated_at":1449228115000,"nchr_id":"0001A910000000002EGU"}}
 $526
 {"userId":153,"userBuList":[3174],"tagsList":[],"userBuRoleDto":[{"id":53306,"bu_id":3174,"bu_name":"............","role_id":922,"role_name":"......","user_id":153,"user_name":"........."}],"user"
 ```
 
-
-> 遗留问题：
->
-> - 抓到的数据包显示：每个报文都会被重传一次，原因何在？
-> - 触发快速重传的机制？
-> - 为何会丢包？
-
 ### 解决办法
 
-xxx
+这个是 packetbeat 在 redis 协议解析时的 bug ，目前尚未解决；
 
 ### 其他
 
 在官网论坛上的[讨论](https://discuss.elastic.co/t/packetbeat-err-failed-to-read-integer-reply-expected-digit/74352)；
+
+### 遗留问题：
+
+- 抓到的数据包显示：每个报文都会被重传一次，原因何在？
+- 触发快速重传的机制？
+- 导致丢包的原因？
 
 
 ## #07 packetbeat 在进行 request-response 关联（构建 transaction）时，在某些情况下是不正确的
 
 ### 问题描述
 
-```
-responsetime(947201 microseconds)	==>    No.<1>
+在基于 packetbeat 分析 redis 协议时发现，在某些情况下，基于 request-response 关联出的 transaction 信息是错误的，示例如下：
+
+```shell
+responsetime(947201 microseconds)   ==>    No.<1>
 ----
 {"@timestamp":"2016-12-29T07:21:24.657Z","beat":{"hostname":"xg-mesos-39","name":"xg-mesos-39","version":"6.0.0-alpha1"},"bytes_in":14,"bytes_out":40,"client_ip":"10.0.242.43","client_port":7125,"client_proc":"","client_server":"","ip":"10.0.246.114","method":"PING","port":48877,"proc":"","query":"PING","redis":{"return_value":"[REPLCONF, ACK, 5372098]"},"resource":"","responsetime":947201,"server":"","status":"OK","type":"redis"}
 ```
 
-> 因为 transaction 的构建是基于 TCP 连接的，因此不会出现不同请求应答错乱匹配问题；
+从上述信息可以明显看出，当前 transaction 中关联的 request 为 `PING` 命令，response 为 `[REPLCONF, ACK, 5372098]` 命令；
+
+> 注意：因为 transaction 的构建是基于 TCP 连接的，因此不会出现将不同 TCP 连接上的请求应答错乱匹配的问题；
 
 ### 问题原因
 
 上面错误在于，将 `PING` 和 `[REPLCONF, ACK, 5372098]` 进行了关联，而这两者明显不是对应关系；
+
+通过梳理 Redis 协议相关资料可以知道：
 
 - **`PING`** 的使用
 
@@ -354,7 +359,7 @@ $11
 
 ### 解决办法
 
-可以采用命令过滤方式进行处理：一般情况下，我们不太会通过 PING 来确定网络延迟，因为常规 Redis 命令交互就可以起到同样的作用；因此理论上讲，非客户端直接发起的 Redis 命令都可以过滤掉（当前想法）；
+可以确认的是，出现 `[REPLCONF, ACK, xxx]` 命令的连接一定是 master 和 slave 进行通信的连接；因此，一种简单的解决办法就是针对该命令进行过滤，从而避免 transaction 的构建中出现 `[REPLCONF, ACK, xxx]`，但这种方式可能会导致统计数据输出时，多出一些 unmatched 的内容；一种高级的解决办法就是在检测出该命令后，直接将该命令属于的 TCP 流彻底剔除；
 
 ## #08 编译出的 packetbeat 可执行程序需要动态链接 libpcap.so 库（当前默认情况），而目标生产服务器上存在多种版本的操作系统，另外相应的 .so 版本也可能存在不一致问题
 
