@@ -379,7 +379,7 @@ func (redis *redisPlugin) correlate(conn *redisConnectionData) {
 
 ## 问题原因
 
-- 考虑到性能原因，官方默认配置 `queue_size` 为 **1000** ；需要注意的是，该值对应了 `packetbeat` 内部多种 channel 的 buffer 长度；如果你要处理的 pcap 文件中包数量非常多，则需要根据实际情况调大该值（否则，event 会丢失，进而导致写入文件中的 transaction 丢失）；
+- 考虑到性能原因，官方默认配置 `queue_size` 为 **1000** ；需要注意的是，该值对应了 `packetbeat` 内部多种 channel 的 buffer 长度；如果你要处理的 pcap 文件中包数量非常多，则需要根据实际情况调大该值（否则，event 会丢失，进而导致写入 output 中的 transaction 丢失）；
 - 另外，还需要给 packetbeat 预留出足够长的包分析时间，否则可能出现尚未完成全部包的分析，就进入退出过程的情况（packetbeat stops running, because all packets have been send to the protcol analyzers. Not all events might be published yet）；
 
 ## 解决办法
