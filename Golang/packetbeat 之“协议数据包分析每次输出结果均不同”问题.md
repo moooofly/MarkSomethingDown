@@ -372,15 +372,15 @@ func (redis *redisPlugin) correlate(conn *redisConnectionData) {
 
 - redis 模块协议解析完成后，进行 request-response 配对，构成 transaction 后（即 event）发布到 trans 或 flows channel 中；
 - event 从 channel 中获取出来，经过一系列判定和封装（构建为 message），再发送到 pipeline 中（试验发现使用的是 async pipeline）；
-- 发送到 pipeline 中的 message 会以广播的方式发送给该 pipeline 下关联的每一个 worker ；在代码层面 messageWorker 实现了 worker 这个 interface ，因此 message 实际是被发送到了 messageWorker 名为 queue 和 bulkQueue 的 channel 中；
+- 发送到 pipeline 中的 message 会以广播的方式发送给该 pipeline 下关联的每一个 worker ；在代码层面 messageWorker 实现了 worker 这个 interface ，因此 message 实际是被发送到了 messageWorker 结构上名为 queue 和 bulkQueue 的 channel 中；
 - 作为 goroutine 运行的 messageWorker 不断从上述 channel 取走 message 并触发初始化时注册到 handler 上的 onMessage 回调函数；经确认，初始化过程中注册到 handler 上的为 outputWorker ；
 - outputWorker 在拿到 message 后，会根据在 packetbeat.yml 中配置的 output 进行处理；在实际配置中，我只配置了 file 这个 output ，因此最终内容会写入磁盘文件（可配置的 output 包括：console, file, Redis, Kafka, logstash 和 Elasticsearch）；
 
 
 ## 问题原因
 
-- 考虑到性能原因，官方默认配置 `queue_size` 为 **1000** ；需要注意的是，该值对应了 `packetbeat` 内部多种 channel 的 buffer 长度；如果你要处理的 pcap 文件中包数量非常多，则需要根据实际情况调大该值；
-- 另外，还需要给 packetbeat 预留出足够长点包分析时间，否则可能出现尚未完成全部包的分析，就进入退出过程的情况；
+- 考虑到性能原因，官方默认配置 `queue_size` 为 **1000** ；需要注意的是，该值对应了 `packetbeat` 内部多种 channel 的 buffer 长度；如果你要处理的 pcap 文件中包数量非常多，则需要根据实际情况调大该值（否则，event 会丢失，进而导致写入文件中的 transaction 丢失）；
+- 另外，还需要给 packetbeat 预留出足够长的包分析时间，否则可能出现尚未完成全部包的分析，就进入退出过程的情况（packetbeat stops running, because all packets have been send to the protcol analyzers. Not all events might be published yet）；
 
 ## 解决办法
 
