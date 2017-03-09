@@ -19,10 +19,10 @@ Any comments are highly appreciated!!
 
 为了获得 RabbitMQ 的**最佳性能**，可以遵循其作者给出的使用建议；详见 [RabbitMQ blog](http://www.rabbitmq.com/blog/2011/09/24/sizing-your-rabbits/):
 
-> **RabbitMQ 中的 queues 在空状态下是最快的**；    
-> 当一个 queue 处于空状态，并且其下有 consumers 处于准备接收消息的状态时，只要有消息到达该 queue ，就会直接转发给相应的 consumer ；    
-> 对于 **persistent** 消息发送到 **durable** queue 的情况来说，没什么好说的，消息确实会落到磁盘上，但该动作是**异步**完成的，并且相应的消息都会 **buffered heavily**；    
-> 关键点在于：在上述场景中，RabbitMQ 需要进行 book-keeping 的内容几乎可以忽略不计，需要修改的 data structures 也非常少量，并且仅需要分配非常少量的内存；
+> - **RabbitMQ 中的 queues 在空状态下是最快的**；    
+> - 当一个 queue 处于空状态，并且其下有 consumers 处于准备接收消息的状态时，只要有消息到达该 queue ，就会直接转发给相应的 consumer ；    
+> - 对于 **persistent** 消息发送到 **durable** queue 的情况来说，没什么好说的，消息确实会落到磁盘上，但该动作是**异步**完成的，并且相应的消息都会 **buffered heavily**；    
+> - 关键点在于：在上述场景中，RabbitMQ 需要进行 book-keeping 的内容几乎可以忽略不计，需要修改的 data structures 也非常少量，并且仅需要分配非常少量的内存；
 
 如果你想要深入理解和 RabbitMQ queues 性能相关的更多内容，可以看看[这篇博客文章](http://www.rabbitmq.com/blog/2011/10/27/performance-of-queues-when-less-is-more/)；
 
@@ -60,7 +60,7 @@ According to a response I once got from the `rabbitmq-discuss` mailing group the
 
 You will increase the throughput with a **larger prefetch count** AND at the same time **ACK multiple messages** (instead of sending ACK for each message) from your consumer.
 
-But, of course, ACK with multiple flag on (http://www.rabbitmq.com/amqp-0-9-1-reference.html#basic.ack) requires extra logic on your consumer application (http://lists.rabbitmq.com/pipermail/rabbitmq-discuss/2013-August/029600.html). You will have to keep a list of delivery-tags of the messages delivered from the broker, their status (whether your application has handled them or not) and ACK every N-th delivery-tag (NDTAG) when all of the messages with delivery-tag less than or equal to NDTAG have been handled.
+But, of course, ACK with `multiple` flag on ([here](http://www.rabbitmq.com/amqp-0-9-1-reference.html#basic.ack)) requires extra logic on your consumer application ([here](http://lists.rabbitmq.com/pipermail/rabbitmq-discuss/2013-August/029600.html)). You will have to keep a list of delivery-tags of the messages delivered from the broker, their status (whether your application has handled them or not) and ACK every N-th delivery-tag (NDTAG) when all of the messages with delivery-tag less than or equal to NDTAG have been handled.
 
 更大的 prefetch 数值 ＋ 一次 ack 多条消息的组合必然可以提高吞吐量，但会增加一定的业务处理复杂度；
 
