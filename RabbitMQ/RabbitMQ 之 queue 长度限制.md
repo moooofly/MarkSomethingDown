@@ -9,9 +9,9 @@ queue 的最大长度可以基于**消息数量**进行限制，也可以基于*
 
 对于任何给定的 queue ，其最大长度（无论任何类型）都可以由 client 使用 queue 参数进行定义，或者在 server 侧通过 [policies](http://www.rabbitmq.com/parameters.html#policies) 进行定义；当通过两种方式同时设置了最大长度时时，取其中的最小值；
 
-在任何情况下，ready 消息数总是被计算在内的；unacknowledged 消息不会被计算到限制值内；`rabbitmqctl list_queues` 输出项中的 messages_ready 和 message_bytes_ready ，以及相应的 management API 可以展示的限制值；
+在任何情况下，**ready** 消息数总是被计算在内的；**unacknowledged** 消息不会被计算到限制值内；`rabbitmqctl list_queues` 输出项中的 **messages_ready** 和 **message_bytes_ready** ，以及相应的 management API 可以展示的限制值；
 
-当限制值被达到时，消息会被从 queue 的前端被丢弃或者 dead-lettered，以便为新消息留出空间；
+**当限制值被达到时，消息或者会被从 queue 的前端被丢弃或者被 dead-lettered 处理，以便为新消息留出空间**；
 
 ## Configuration using arguments
 
