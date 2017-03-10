@@ -17,7 +17,7 @@ Any comments are highly appreciated!!
 
 ----------
 
-为了获得 RabbitMQ 的**最佳性能**，可以遵循其作者给出的使用建议；详见 [RabbitMQ blog](http://www.rabbitmq.com/blog/2011/09/24/sizing-your-rabbits/):
+为了获得 RabbitMQ 的**最佳性能**，可以遵循其作者给出的使用建议；详见 《[Sizing your Rabbits](http://www.rabbitmq.com/blog/2011/09/24/sizing-your-rabbits/)》:
 
 > - **RabbitMQ 中的 queues 在空状态下是最快的**；    
 > - 当一个 queue 处于空状态，并且其下有 consumers 处于准备接收消息的状态时，只要有消息到达该 queue ，就会直接转发给相应的 consumer ；    
@@ -48,12 +48,12 @@ According to a response I once got from the `rabbitmq-discuss` mailing group the
 - queue 中留存的消息应该尽量少（理想很丰满，现实很残酷）；
 - 消息大小越小越能降低延迟，提高消息速率；而将小消息合并成大消息进行处理，能够增大吞吐量；
 - 对消息进行高效的表达（更精简的数据格式 or 压缩），能够提升传输性能（业务处理复杂度略微提高）；
-- 可以试试 HiPE ，对性能提升有好处（在 Erlang R17 后 HiPE 已经相当稳定）；
+- 可以试试 `HiPE` ，对性能提升有好处（在 **Erlang R17** 后 `HiPE` 已经相当稳定）；
 - 事务肯定要禁止使用，可靠性通过其他方案解决；
 - `immediate` 已经被取消，存在其他等效方案；`mandatory` 适用于某些特定场景，是否使用应该视情况而定；
 - 避免 HA ？扯什么蛋！cluster 也会对性能有一定影响？嗯，这是一句没有错误的废话；
 - 在多核系统上跑 RabbitMQ 性能会比跑在单核上强（需要注意下 docker 等虚拟环境等使用情况）；
-- flow control 功能从 v2.8.1 开始才有；
+- `flow control` 功能从 `v2.8.1` 开始才有；
 - Virtualisation 也会对性能有一定影响，如果这里是指通过 management 插件实现的 Virtualisation ，那么性能问题已经被遇到了！
 
 ----------
