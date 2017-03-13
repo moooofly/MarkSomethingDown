@@ -478,6 +478,57 @@ func main() {
 
 ----------
 
+
+
+## [Go并发模式：超时和继续](https://segmentfault.com/a/1190000005616829)
+
+> 英文原本：[这里](https://blog.golang.org/go-concurrency-patterns-timing-out-and)
+
+阅读建议：中文翻译版本不咋地，最好看英文原文；
+
+本文要点：
+
+- non-blocking send by using the send operation in select statement with a default case.
+
+- receive from the channel `ch`, but want to wait at most one second for the value to arrive
+
+```golang
+timeout := make(chan bool, 1)
+go func() {
+    time.Sleep(1 * time.Second)
+    timeout <- true
+}()
+...
+select {
+case <-ch:
+    // a read from ch has occurred
+case <-timeout:
+    // the read from ch has timed out
+}
+...
+```
+
+- read from multiple replicated databases simultaneously, and accept the answer that arrives first
+
+```golang
+func Query(conns []Conn, query string) Result {
+    ch := make(chan Result)
+    for _, conn := range conns {
+        go func(c Conn) {
+            select {
+            case ch <- c.DoQuery(query):
+            default:
+            }
+        }(conn)
+    }
+    return <-ch
+}
+```
+
+
+----------
+
+
 > 关于 quit channel 和 done channel 的补充说明：
 >
 > 很多场景下，quit channel 和 done channel 是相同的概念；一般来讲，如果负责调度的 goroutine 不需要知道负责干活的 goroutine 是否完成，只需要关心令其退出的能力，则使用 quit channel ；如果负责调度的 goroutine 需要更加细粒度的控制，比如需要了解多少负责干活的 goroutine 完成了任务，则需要 done channel ；
