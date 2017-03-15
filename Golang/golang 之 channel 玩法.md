@@ -482,7 +482,7 @@ func main() {
 
 ## [Go并发模式：超时和继续](https://segmentfault.com/a/1190000005616829)
 
-> 英文原本：[这里](https://blog.golang.org/go-concurrency-patterns-timing-out-and)
+> 英文原文：[这里](https://blog.golang.org/go-concurrency-patterns-timing-out-and)
 
 阅读建议：中文翻译版本不咋地，最好看英文原文；
 
