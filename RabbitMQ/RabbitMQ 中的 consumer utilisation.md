@@ -70,7 +70,7 @@ utilisation(#state{use = {inactive, Since, Active, Avg}}) ->
     use_avg(Active, time_compat:monotonic_time(micro_seconds) - Since, Avg).
 ```
 
-其中 `time_compat:monotonic_time/1` 用户获取单调递增的系统时间（用于计算时间差）；
+其中 `time_compat:monotonic_time/1` 用于获取单调递增的系统时间（用于计算时间差）；
 
 而 `use_avg/3` 的实现如下
 
