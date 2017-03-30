@@ -970,7 +970,7 @@ responsetime(1156406 microseconds)	==>    No.<3>
 > 遗留问题：
 > 
 > - packetbeat 占用一个 CPU 核心的情况，在 redis 服务器上会将 CPU 跑满 100% ，在 corvus 服务器上会将 CPU 跑到 75% ~ 80% 左右；如果认为跑满或跑高 CPU 后会对 packetbeat 本身产生影响的话，理论上讲，在 redis 服务器上跑时，得到的数据应该更糟糕才对，但事实上，似乎在 corvus 上得到的数据更“糟糕”；
-> - 上述结果不排出 packetbeat 进行 request-response 匹配时存在 bug ，进而导致数据“糟糕”；（需要通过其他方式确认数据的准确性）
+> - 上述结果不排除 packetbeat 进行 request-response 匹配时存在 bug ，进而导致数据“糟糕”；（需要通过其他方式确认数据的准确性）
 > - 在进行该测试时，由于 corvus proxy 没有提供相应的慢查询日志供比对，因此是否存在数据中的延迟，以及延迟是否正常的合理情况，尚不清楚；
 > - 需要验证 packetbeat 跑在 2 个 CPU 上的情况；
 > - 需要验证 packetbeat 只跑 10s 的情况；
