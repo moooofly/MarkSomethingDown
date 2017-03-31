@@ -104,7 +104,7 @@ Erlang 对 SMP 的支持分为以下几个阶段：
 2. **多调度器、单运行队列**：调度器的个数可以自定义（参见 erl 命令的 +S 参数，默认数量同 CPU 核的数量）；每个调度器运行在一个线程中，但是只有一个运行队列，所有调度器都从同一个运行队列获取运行进程，所以会涉及到共享资源的访问，需要用到锁；    
 3. **多调度器、多运行队列**：每个调度器都绑定有一个运行队列，每个调度器都从各自的运行队列中获取待运行进程。相比单运行队列，多运行队列会减少锁冲突，提高性能，但是，因为涉及到多运行队列，就必需要考虑负载问题：如果一个调度器很忙，另一个很闲，那怎么办？Erlang 虚拟机存在一个任务迁移的逻辑，来保证各个调度器达到平衡；    
 
-关于 SMP 还可以参考另外一篇总结：《[Inside the Erlang VM](https://github.com/moooofly/MarkSomethingDown/blob/master/Inside%20the%20Erlang%20VM.md)》
+关于 SMP 还可以参考另外一篇总结：《[Inside the Erlang VM](https://github.com/moooofly/MarkSomethingDown/blob/master/Erlang/Inside%20the%20Erlang%20VM.md)》
 
 ## 关于进程优先级
 
@@ -133,7 +133,7 @@ Erlang 进程存在四种优先级：max, high, normal, low ；
 Erlang 进程的 private heap 结构设计保证了进程之间的资源隔离，独立 GC 保证了尽量小的垃圾回收抖动。当进程退出时，内存会被直接回收。这些机制都保证了 Erlang 的高可用性和软实时性。
 
 
-内容整理自：
+## 参考
 
 1. [Erlang并发机制–进程调度](http://jzhihui.iteye.com/blog/1482175)
 2. [Erlang调度器是怎么工作的](http://www.zhihu.com/question/24732869)
