@@ -65,7 +65,7 @@ responsetime(193 microseconds)	==>    No.<2>
 
 - 确定产生上述日志的代码
 
-```
+```golang
 func (redis *redisPlugin) newTransaction(requ, resp *redisMessage) common.MapStr {
     ...
 	responseTime := int32(resp.ts.Sub(requ.ts).Nanoseconds() / 1e3)
@@ -90,7 +90,7 @@ func (redis *redisPlugin) newTransaction(requ, resp *redisMessage) common.MapStr
 
 - request 和 response 的关联方式
 
-```
+```golang
 // 将 request 和 response 进行关联
 func (redis *redisPlugin) correlate(conn *redisConnectionData) {
     ...
@@ -114,7 +114,7 @@ func (redis *redisPlugin) correlate(conn *redisConnectionData) {
 
 - 将 redis 协议中的 request 和 response 分类保存和匹配
 
-```
+```golang
 func (redis *redisPlugin) handleRedis(
 	conn *redisConnectionData,
 	m *redisMessage,
@@ -134,7 +134,7 @@ func (redis *redisPlugin) handleRedis(
 
 - 设置 request 或 response 时间戳的地方
 
-```
+```golang
 func (redis *redisPlugin) doParse(
 	conn *redisConnectionData,
 	pkt *protos.Packet,
@@ -168,7 +168,7 @@ func (redis *redisPlugin) doParse(
 
 - TCP 协议包到应用层协议包的处理
 
-```
+```golang
 // 将 tcp 协议层面的数据包添加到
 func (stream *TCPStream) addPacket(pkt *protos.Packet, tcphdr *layers.TCP) {
     ...
@@ -182,7 +182,7 @@ func (stream *TCPStream) addPacket(pkt *protos.Packet, tcphdr *layers.TCP) {
 
 - 将 pkt 分配到不同的 TCP stream
 
-```
+```golang
 func (tcp *TCP) Process(id *flows.FlowID, tcphdr *layers.TCP, pkt *protos.Packet) {
     ...
 	// 基于 pkt 确定 TCP stream
@@ -194,8 +194,7 @@ func (tcp *TCP) Process(id *flows.FlowID, tcphdr *layers.TCP, pkt *protos.Packet
 
 - 针对基于 gopacket 从底层收上来的 packet 进行协议的逐层解析
 
-
-```
+```golang
 func (d *Decoder) OnPacket(data []byte, ci *gopacket.CaptureInfo) {
     ...
 	// Ethernet 层给出的类型
@@ -235,8 +234,7 @@ func (d *Decoder) onTCP(packet *protos.Packet) {
 
 - sniffer 根据配置 DataSource 读取数据包
 
-
-```
+```golang
 func (sniffer *SnifferSetup) Run() error {
     ...
 	for sniffer.isAlive {
@@ -256,7 +254,7 @@ func (sniffer *SnifferSetup) Run() error {
 
 - 数据源 DataSource 的选择
 
-```
+```golang
 func (sniffer *SnifferSetup) setFromConfig(config *config.InterfacesConfig) error {
     ...
 	switch sniffer.config.Type {
@@ -282,7 +280,7 @@ func (sniffer *SnifferSetup) setFromConfig(config *config.InterfacesConfig) erro
 
 在 `pcap.go` 中有
 
-```
+```golang
 func (p *Handle) ReadPacketData() (data []byte, ci gopacket.CaptureInfo, err error) {
     ...
 	err = p.getNextBufPtrLocked(&ci)
@@ -302,7 +300,7 @@ func (p *Handle) getNextBufPtrLocked(ci *gopacket.CaptureInfo) error {
 
 可以看到，时间戳是从 `p.pkthdr.ts.tv_sec` 和 `p.pkthdr.ts.tv_usec` 两个值得到的，而 pkthdr 的定义如下：
 
-```
+```golang
 type Handle struct {
 	// cptr is the handle for the actual pcap C object.
 	cptr         *C.pcap_t
