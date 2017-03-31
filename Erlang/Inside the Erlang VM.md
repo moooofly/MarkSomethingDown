@@ -37,7 +37,7 @@ This ended the first cycle of the strategy and a new iteration with “measure�
 
 不带 SMP 支持的 Erlang VM 只会在主线程中运行一个 scheduler ；scheduler 从 run queue 中选取可运行的 Erlang 进程和 IO 任务进行执行，并且不需要锁定任何数据结构，因为只有一个线程进行数据访问；
 
-![Erlang (non SMP) VM today](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang (non SMP) VM today.png  "Erlang (non SMP) VM today")
+![Erlang (non SMP) VM today](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang%20(non%20SMP)%20VM%20today.png  "Erlang (non SMP) VM today")
 
 ### Erlang VM with SMP support (in R11B and R12B)
 
@@ -45,7 +45,7 @@ This ended the first cycle of the strategy and a new iteration with “measure�
 
 全部 scheduler 都会从同一个 common run queue 中选取可运行 Erlang 进程和 IO 任务；在支持 SMP 的 VM 中，所有共享数据结构都会被锁保护，而 run queue 是通过锁保护共享数据结构的其中一个例子；
 
-![Erlang SMP VM today](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang SMP VM today.png "Erlang SMP VM today")
+![Erlang SMP VM today](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang%20SMP%20VM%20today.png "Erlang SMP VM today")
 
 #### First release for use in Products, March 2007
 
@@ -195,7 +195,7 @@ ets-tables.
 
 针对 SMP 的下一个 Erlang 运行时系统的重大性能改进，就是将所有 scheduler 共享同一个 run queue 变更为每一个 scheduler 使用一个独立的 run queue ；该变化会极大的减少多核或多处理器系统中锁冲突的数量；从 4 核 开始，性能改进的效果已经体现在许多应用中了，并且在具有 8, 16 或者更多核的系统中，将会有更佳出色的表现；
 
-![Erlang SMP VM next step](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang SMP VM next step.png "Erlang SMP VM next step")
+![Erlang SMP VM next step](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Erlang%20SMP%20VM%20next%20step.png "Erlang SMP VM next step")
 
 #### Migration logic
 
@@ -230,7 +230,7 @@ other processes and answer with a ‘pong’ message for all ‘ping’ it recei
 The “fat” lines in the graph shows the multiple run-queue case and as can be seen
 the improvement is significant. 
 
-![Number of schedulers](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Number of schedulers.png "Number of schedulers")
+![Number of schedulers](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Number%20of%20schedulers.png "Number of schedulers")
 
 ## Frequently Asked Questions
 
