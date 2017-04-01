@@ -1,29 +1,29 @@
-
+# [Deleting all queues in rabbitmq](http://rabbitmq.1065348.n5.nabble.com/Deleting-all-queues-in-rabbitmq-td30933.html)
 
 场景：在通过 rabbit-stress 进行压力测试的时候，会创建出大量的 queue ，并在某些情况下，创建出的 queue 会残留下来，因此需要一种全部删除的方法；
 
 
-# 方法一
+## 方法一
 
 It is possible to reset the state of the entire broker to factory settings by removing the database directory. That will remove queues, but alot more. 
 
 > 通过 rabbitmqctl 的 reset 命令重置 mnesia 数据库，过于暴力，不建议；
 
-# 方法二
+## 方法二
 
 You could download the broker definitions using the management plugin, remove the queues section, reset the broker database and then upload the 
 modified broker definition. That should preserve all the broker settings but cause only queues to be removed. 
 
 > 相当于针对 reset 操作进行了保护：导出了 fabic 配置信息备用；该行为有意义，但用于删除 queue 这个目的，有点繁琐；
 
-# 方法三
+## 方法三
 
 Another option is to list all queues using "`rabbitmqctl list_queues -q name`" or "`rabbitmqadmin --format=bash list queues name`" and feed that 
 information into a program that deletes individual queues, e.g. "`rabbitmqadmin delete queue name=...`". The advantage of this method is that the broker need not be shut down. 
 
 > 适用于构成脚本进行批量处理；
 
-# 方法四
+## 方法四
 
 Another option for deleting all queues (since 3.2.0) is to define a policy which gives every queue a very short expiry. 
 
@@ -42,19 +42,17 @@ $ rabbitmqctl clear_policy deleter
 
 > 最方便的方法，没有之一；
 
-# 方法五
+## 方法五
 
 You can also delete the vhost containing the queues - of course this deletes the exchanges in that vhost as well...
 
 > 不推荐的方式；
 
 
-参考：[这里](http://rabbitmq.1065348.n5.nabble.com/Deleting-all-queues-in-rabbitmq-td30933.html)
-
 ----------
 
 
-# How to delete a single or multiple queues in RabbitMQ
+# [How to delete a single or multiple queues in RabbitMQ](https://www.cloudamqp.com/blog/2016-06-21-how-to-delete-queues-in-rabbitmq.html)
 
 ![](https://www.cloudamqp.com/images/blog/header-bunnies-faq-questions.jpg)
 
@@ -116,9 +114,10 @@ $ while read -r name; do rabbitmqadmin -q --host=HOST --port=443 --ssl --vhost=V
 
 ![delete multiple queue rabbitmq](https://www.cloudamqp.com/images/blog/delete-multiple-queue-rabbitmq.png)
 
-> 删 N 个 queue 的方式和删 1 个 queue 的方法是一样的；
-> 每删除一个 queue 都会进行一次如下 HTTP 交互，并且是串行删除
->> -----> DELETE /api/queues/%2F/queueName HTTP/1.1
+> 删 N 个 queue 的方式和删 1 个 queue 的方法是一样的；    
+> 每删除一个 queue 都会进行一次如下 HTTP 交互，并且是串行删除    
+> 
+>> -----> DELETE /api/queues/%2F/queueName HTTP/1.1    
 >> <---- HTTP/1.1 204 No Content
 
 
@@ -152,12 +151,3 @@ curl -i -XDELETE https://USERNAME:PASSWORD@HOST:PORT/api/queues/VHOST/QUEUE_NAME
 ```
 
 > 这种方式貌似一次也只能删除一个 queue
-
-
-参考：[这里](https://www.cloudamqp.com/blog/2016-06-21-how-to-delete-queues-in-rabbitmq.html)
-
-
-
-
-
-
