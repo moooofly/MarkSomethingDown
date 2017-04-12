@@ -13,23 +13,121 @@ PF_RING 的安装既可以基于从 [GIT](https://github.com/ntop/PF_RING/) 上�
 
 ## Linux Kernel Module Installation
 
-为了编译 PF_RING 内核模块，你需要安装 linux kernel 头文件（或 kernel 源码文件）；
+> 以下内容基于 `PF_RING/kernel/Makefile` 文件内容；
+
+`PF_RING/kernel/Makefile` 文件内容如下：
+
+```shell
+#
+# (C) 2009-15 - ntop.org
+#
+
+obj-m := pf_ring.o
+
+# assigned by Makefile.dkms
+GIT_REV:=
+
+ifndef GIT_REV
+ ifneq (, $(shell which git))
+  ifeq (, $(shell echo ${SUBDIRS}))
+   GIT_BRANCH=$(shell git branch --no-color|cut -d ' ' -f 2)
+   GIT_HASH=$(shell git rev-parse HEAD)
+   ifneq ($(strip $(GIT_BRANCH)),)
+    GIT_REV:=${GIT_BRANCH}:${GIT_HASH}
+   endif
+  endif
+ endif
+endif
+
+ifneq ($(strip $(GIT_REV)),)
+ GITDEF:=-DGIT_REV="\"${GIT_REV}\""
+endif
+
+ifeq (,$(BUILD_KERNEL))
+ BUILD_KERNEL=$(shell uname -r)
+endif
+
+PWD := $(shell pwd)
+EXTRA_CFLAGS += -I${PWD} ${GITDEF}
+
+HERE=${PWD}
+
+# set the install path
+INSTDIR := $(DESTDIR)/lib/modules/$(BUILD_KERNEL)/kernel/net/pf_ring
+TARGETDIR := $(DESTDIR)/usr/src/$(BUILD_KERNEL)/include/linux/
+
+all: Makefile pf_ring.c linux/pf_ring.h
+#   @if test "$(USER)" = "root"; then \
+#       echo "********** WARNING WARNING WARNING **********"; \
+#       echo "*"; \
+#       echo "* Compiling PF_RING as root might lead you to compile errors"; \
+#       echo "* Please compile PF_RING as unpriviliged user"; \
+#       echo "*"; \
+#       echo "*********************************************"; \
+#   fi
+    make -C /lib/modules/$(BUILD_KERNEL)/build SUBDIRS=${HERE} EXTRA_CFLAGS='${EXTRA_CFLAGS}' modules
+
+dkms-deb:
+    sudo make -f Makefile.dkms deb
+
+dkms-rpm:
+    sudo make -f Makefile.dkms rpm
+
+clean:
+    make -C /lib/modules/$(BUILD_KERNEL)/build SUBDIRS=$(HERE) clean
+    \rm -f *~ Module.symvers  Module.markers  modules.order *#
+
+install:
+    mkdir -p $(INSTDIR)
+    cp *.ko $(INSTDIR)
+    mkdir -p $(DESTDIR)/usr/include/linux
+    cp linux/pf_ring.h $(DESTDIR)/usr/include/linux
+    @if test -d ${TARGETDIR}; then \
+        cp linux/pf_ring.h ${TARGETDIR}; \
+    fi
+ifeq (,$(DESTDIR))
+    /sbin/depmod $(BUILD_KERNEL)
+else
+    @echo "*****NOTE:";
+    @echo "pf_ring,ko kernel module installed in ${DESTDIR}";
+    @echo "/sbin/depmod not run.  modprobe pf_ring won't work " ;
+    @echo "You can load the kernel module directly using" ;
+    @echo "insmod <path>/pf_ring.ko" ;
+    @echo "*****";
+endif
+```
+
+> 为了编译 PF_RING 内核模块，你需要安装 linux kernel 头文件（或 kernel 源码文件）；
+
+编译安装 PF_RING 内核模块 `pf_ring.ko` ；
 
 ```shell
 cd <PF_RING PATH>/kernel
 make
 make install
-``` 
+```
+
+执行输出如下：
+
+```shell
+[root@xg-esm-data-4 kernel]# make install
+mkdir -p /lib/modules/3.10.0-229.el7.x86_64/kernel/net/pf_ring
+cp *.ko /lib/modules/3.10.0-229.el7.x86_64/kernel/net/pf_ring
+mkdir -p /usr/include/linux
+cp linux/pf_ring.h /usr/include/linux
+/sbin/depmod 3.10.0-229.el7.x86_64
+[root@xg-esm-data-4 kernel]#
+```
 
 需要注意的是，kernel 模块的安装（通过 `make install` 命令）需要 root 权限；
 
 ## Running PF_RING
 
-在使用任何基于 PF_RING 的应用前，内核模块 pf_ring 应该先被加载（以超级用户身份）：
+在使用任何基于 PF_RING 的应用前，内核模块 `pf_ring.ko` 需要先被加载（以超级用户身份）：
 
 ```shell
 insmod <PF_RING PATH>/kernel/pf_ring.ko [min_num_slots=x][enable_tx_capture=1|0] [ enable_ip_defrag=1|0] [quick_mode=1|0]
-``` 
+```
 
 其中：
 
@@ -43,13 +141,13 @@ insmod <PF_RING PATH>/kernel/pf_ring.ko [min_num_slots=x][enable_tx_capture=1|0]
 ```shell
 cd <PF_RING PATH>/kernel
 insmod pf_ring.ko min_num_slot=8192 enable_tx_capture=0 quick_mode=1
-``` 
+```
 
 如果是想要达到 10 Gigabit 或之上的线速 packet 捕获速度，你应该使用 ZC drivers ；ZC drivers 属于 PF_RING 发布的一部分，可以在 `drivers/` 中找到；详情参考 **[README.ZC](https://github.com/moooofly/MarkSomethingDown/blob/master/Linux/PF_RING%20ZC.md)** 的说明；
 
 ## Libpfring and Libpcap Installation
 
-`libpfring`（用户空间 PF_RING 库）和 `libpcap` 均以源码格式发布；可以按照如下方式进行编译：
+`libpfring`（PF_RING 对应的用户空间库）和 `libpcap` 均以源码格式发布，可以按照如下方式进行编译：
 
 ```shell 
 ## 编译安装 libpfring
@@ -61,7 +159,7 @@ sudo make install
 cd ../libpcap
 ./configure
 make
-``` 
+```
 
 需要注意的是：
 
@@ -80,7 +178,7 @@ pcap2nspcap.c  pfcount.c	         pfsend.c     preflect.c
 pcount.c       pfcount_multichannel.c    pfsystest.c
 pfbridge.c     pfdump.c		         pfutils.c
 make
-``` 
+```
 
 例如，`pfcount` 允许在接收 packets 时打印一些统计信息： 
 
@@ -94,7 +192,7 @@ Total Pkts=64415543/Dropped=0.0 %
 =========================
 Actual Stats: 14214472 pkts [1'000.03 ms][14'214'017.15 pps/9.55 Gbps]
 =========================
-``` 
+```
 
 另外一个例子是 `pfsend` ，允许你以指定的速度发送 packets（人工合成 packets 或使用 .pcap 文件) ：
 
@@ -102,7 +200,7 @@ Actual Stats: 14214472 pkts [1'000.03 ms][14'214'017.15 pps/9.55 Gbps]
 ./pfsend -f 64byte_packets.pcap -n 0 -i zc:eth1 -r 5
 ...
 TX rate: [current 7'508'239.00 pps/5.05 Gbps][average 7'508'239.00 pps/5.05 Gbps][total 7'508'239.00 pkts]
-``` 
+```
 
 ## PF_RING Additional Modules
 
