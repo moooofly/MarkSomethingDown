@@ -1,4 +1,4 @@
-# PF_RING Installation
+# PF_RING 安装
 
 > 原文地址：[这里](https://github.com/ntop/PF_RING/blob/dev/doc/README.install.md)
 
@@ -6,12 +6,12 @@ PF_RING 的安装既可以基于从 [GIT](https://github.com/ntop/PF_RING/) 上�
 
 当你下载了 PF_RING 后，实际获取到如下组件：
 
-* 用户空间 PF_RING SDK ；
+* PF_RING 用户空间 SDK（`libpfring.so` 和 `libpfring.a`）；
 * 一个加强版的 `libpcap` 库，能够透明利用 PF_RING 功能（如果安装了的话），或回退到标准版本行为（如果未安装）；
-* 内核模块 PF_RING ；
+* PF_RING 内核模块（`pf_ring.ko`）；
 * PF_RING ZC drivers ；
 
-## Linux Kernel Module Installation
+## Linux 内核模块安装（PF_RING）
 
 > 以下内容基于 `PF_RING/kernel/Makefile` 文件内容；
 
@@ -121,7 +121,7 @@ cp linux/pf_ring.h /usr/include/linux
 
 需要注意的是，kernel 模块的安装（通过 `make install` 命令）需要 root 权限；
 
-## Running PF_RING
+## 加载 PF_RING 内核模块
 
 在使用任何基于 PF_RING 的应用前，内核模块 `pf_ring.ko` 需要先被加载（以超级用户身份）：
 
@@ -145,9 +145,9 @@ insmod pf_ring.ko min_num_slot=8192 enable_tx_capture=0 quick_mode=1
 
 如果是想要达到 10 Gigabit 或之上的线速 packet 捕获速度，你应该使用 ZC drivers ；ZC drivers 属于 PF_RING 发布的一部分，可以在 `drivers/` 中找到；详情参考 **[README.ZC](https://github.com/moooofly/MarkSomethingDown/blob/master/Linux/PF_RING%20ZC.md)** 的说明；
 
-## Libpfring and Libpcap Installation
+## 安装 Libpfring 和 Libpcap
 
-`libpfring`（PF_RING 对应的用户空间库）和 `libpcap` 均以源码格式发布，可以按照如下方式进行编译：
+`libpfring`（PF_RING 对应的用户空间库）和 `libpcap` （加强版）均以源码格式发布，可以按照如下方式进行编译：
 
 ```shell 
 ## 编译安装 libpfring
@@ -160,6 +160,8 @@ cd ../libpcap
 ./configure
 make
 ```
+
+> 默认安装到 `/usr/local/lib` 目录下；
 
 需要注意的是：
 
@@ -202,8 +204,40 @@ Actual Stats: 14214472 pkts [1'000.03 ms][14'214'017.15 pps/9.55 Gbps]
 TX rate: [current 7'508'239.00 pps/5.05 Gbps][average 7'508'239.00 pps/5.05 Gbps][total 7'508'239.00 pkts]
 ```
 
-## PF_RING Additional Modules
+## PF_RING 支持的其它模块
 
 PF_RING 库采用模块化架构（modular architecture），允许使用额外的组件，而不仅仅是标准的 PF_RING 内核模块；在基于 `configure` 脚本检测到支持时，相应的组件会被编译到库中；
 
 PF_RING 模块当前包含了对 Accolade, Endace DAG, Exablaze, Myricom, Napatech 等等的支持；
+
+
+------
+
+## insmod 说明
+
+insmod - Simple program to insert a module into the Linux Kernel
+
+insmod 是用于将指定模块插入 kernel 的简便程序；大多数用户更愿意使用 `modprobe(8)` ，因为后者更加智能，并能处理模块间的依赖；
+
+该程序仅会报告一些最通用的 error 消息：因为当前尝试进行模块链接的工作已经由 kernel 负责，因此通常请款下 dmesg 能够提供关于 error 的更多信息；
+
+## modprobe 说明
+
+modprobe - Add and remove modules from the Linux Kernel
+
+modprobe 能够智能的从 Linux 内核中添加和删除模块：需要注意的是，为了方便，在模块名字中出现 _ 和 - 时将不做区别处理（会进行自动 underscore 转换）；
+
+modprobe 会在模块目录 `/lib/modules/`uname -r`` 中查找所有模块和其它相关文件；但仍会在 `/etc/modprobe.d` 目录中查找可选配置文件（详见 `modprobe.d(5)`）；  
+
+modprobe 同样会使用在内核命令行中指定的模块选项，形式为 `<module>.<option>` 和黑名单 `modprobe.blacklist=<module>` ；
+
+需要注意的是，与 2.4 系列的 Linux 内核不同（该工具不支持这个版本系列），该版本的 modprobe 不会对模块本身进行任何操作：因为 symbols 解析和 parameters 解析均在 kernel 内部完成；因此，有些时候模块失败信息会由内核消息提供，详见 `dmesg(8)` ；
+
+modprobe 永远期望访问一个最新的（up-to-date）`modules.dep.bin` 文件（或者一个作为 fallback 的人类可读的 modules.dep 文件）；这些文件可由配套 modprobe 的 depmod 实用程序生成（详见 `depmod(8)`）；文件中会列出了每一个模块所需要的其他模块信息（如果存在这种依赖的话），而 modprobe 基于其内容自动添加和删除依赖关系；
+
+如果在 modulename 后指定了参数，则会被传入内核（除了列在配置文件中的那些选项外）；
+
+
+
+
+
