@@ -1,5 +1,7 @@
 # PF_RING Installation
 
+> 原文地址：[这里](https://github.com/ntop/PF_RING/blob/dev/doc/README.install.md)
+
 PF_RING 的安装既可以基于从 [GIT](https://github.com/ntop/PF_RING/) 上下载的源码，也可以使用 [Ubuntu/CentOS 仓库](http://packages.ntop.org)中的包进行安装，详见 **README.apt_rpm_packages** 中的解释说明；
 
 当你下载了 PF_RING 后，实际获取到如下组件：
@@ -43,17 +45,19 @@ cd <PF_RING PATH>/kernel
 insmod pf_ring.ko min_num_slot=8192 enable_tx_capture=0 quick_mode=1
 ``` 
 
-如果是想要达到 10 Gigabit 或之上的线速 packet 捕获速度，你应该使用 ZC drivers ；ZC drivers 属于 PF_RING 发布的一部分，可以在 `drivers/` 中找到；详情参考 **README.ZC** 的说明；
+如果是想要达到 10 Gigabit 或之上的线速 packet 捕获速度，你应该使用 ZC drivers ；ZC drivers 属于 PF_RING 发布的一部分，可以在 `drivers/` 中找到；详情参考 **[README.ZC](https://github.com/moooofly/MarkSomethingDown/blob/master/Linux/PF_RING%20ZC.md)** 的说明；
 
 ## Libpfring and Libpcap Installation
 
 `libpfring`（用户空间 PF_RING 库）和 `libpcap` 均以源码格式发布；可以按照如下方式进行编译：
 
 ```shell 
+## 编译安装 libpfring
 cd <PF_RING PATH>/userland/lib
 ./configure
 make
 sudo make install
+## 编译 libpcap
 cd ../libpcap
 ./configure
 make
