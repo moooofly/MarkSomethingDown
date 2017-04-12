@@ -50,8 +50,57 @@ XXXXXX ALL=NOPASSWD: /usr/bin/make
 
 ----------
 
+> 以下为基于 `Makefile.dkms` 文件进行 PF_RING 内核模块编译安装的过程；
 
-具体执行过程记录：
+`Makefile.dkms` 文件内容如下：
+
+```shell
+GIT_REV:=unknown
+ifneq (, $(shell which git))
+ ifeq (, $(shell echo ${SUBDIRS}))
+  GIT_BRANCH=$(shell git branch --no-color|cut -d ' ' -f 2)
+  GIT_HASH=$(shell git rev-parse HEAD)
+  ifneq ($(strip $(GIT_BRANCH)),)
+   GIT_REV:=${GIT_BRANCH}:${GIT_HASH}
+  endif
+ endif
+endif
+
+all: install
+
+add: remove
+        \/bin/rm -rf /usr/src/pfring-6.5.0
+        mkdir /usr/src/pfring-6.5.0
+        cp -r Makefile dkms.conf pf_ring.c linux/ /usr/src/pfring-6.5.0
+        cat Makefile | sed -e "s/GIT_REV:=$$/GIT_REV:=${GIT_REV}/" > /usr/src/pfring-6.5.0/Makefile
+        dkms add -m pfring -v 6.5.0
+
+build: add
+        dkms build -m pfring -v 6.5.0
+
+install: build
+        dkms install --force -m pfring -v 6.5.0
+
+deb: add add_deb install
+        dkms mkdeb -m pfring -v 6.5.0 --source-only
+
+rpm: add add_rpm install
+        dkms mkrpm -m pfring -v 6.5.0 --source-only
+
+add_rpm:
+        cp -r pfring-dkms-*.spec /usr/src/pfring-6.5.0/
+
+add_deb:
+        cp -r pfring-dkms-mkdeb /usr/src/pfring-6.5.0/
+
+remove:
+        -dkms remove -m pfring -v 6.5.0 --all
+
+veryclean: remove
+        \/bin/rm -fr /usr/src/pfring-6.5.0
+```
+
+具体执行过程：
 
 - 系统环境
 
