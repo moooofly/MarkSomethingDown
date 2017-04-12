@@ -1,17 +1,17 @@
 
-PF_RING 由 Linux 内核模块（pf_ring.ko）和用户空间框架（libpfring.so 和 .a）构成，允许包处理相关应用程序基于一致性 API 高速地处理收到的网络包； 
+PF_RING 由 Linux 内核模块（`pf_ring.ko`）和用户空间框架（`libpfring.so` 和 `libpfring.a`）构成，允许包处理相关应用程序基于一致性 API 高速地处理收到的网络包； 
 
 源码目录说明如下：
 
 ```
 drivers                     PF_RING optimized drivers
 drivers/                    PF_RING-aware/ZC drivers (suggested option)
-userland/			        用户空间代码
-userland/lib/			    用户空间库
-userland/libpcap-XXX-ring/	支持 PF_RING 的 Libpcap
-userland/examples/		    使用 PF_RING 的样例应用程序
-userland/examples_zc/		使用 PF_RING ZC 样例应用程序
-userland/snort/			    Snort DAQ module for using snort over PF_RING
+userland/                   用户空间代码
+userland/lib/               用户空间库
+userland/libpcap-XXX-ring/  支持 PF_RING 的 Libpcap
+userland/examples/          使用 PF_RING 的样例应用程序
+userland/examples_zc/       使用 PF_RING ZC 样例应用程序
+userland/snort/             Snort DAQ module for using snort over PF_RING
 ```
 
 PF_RING Drivers Models
@@ -25,7 +25,7 @@ PF_RING Drivers Models
 
 **作为标准 drivers 使用（packets 仍会进入 Linux stack）**，例如： 
 
-```
+```shell
 pfcount -i eth1
 ```
 
@@ -35,7 +35,7 @@ pfcount -i eth1
 
 以 ZC 模式打开接口，需要使用 'zc:' 作为接口名前缀，例如：
 
-```
+```shell
 pfcount -i zc:eth1
 ```
 
@@ -57,7 +57,7 @@ Compilation
 
 `PF_RING/Makefile` 文件内容如下：
 
-```shell
+```
 all:
     cd kernel; make
     cd userland; make
@@ -85,13 +85,13 @@ documentation:
 
 在 Ubuntu 系统中，可以执行
 
-```
+```shell
 # apt-get install build-essential bison flex linux-headers-$(uname -r) libnuma-dev
 ```
 
 之后进行编译
 
-```
+```shell
 # make
 ```
 
