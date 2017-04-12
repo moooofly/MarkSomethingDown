@@ -1,5 +1,5 @@
 
-PF_RING 由 Linux 内核模块和用户空间框架构成，允许包处理相关应用程序基于一致性 API 高速地处理收到的网络包； 
+PF_RING 由 Linux 内核模块（pf_ring.ko）和用户空间框架（libpfring.so 和 .a）构成，允许包处理相关应用程序基于一致性 API 高速地处理收到的网络包； 
 
 源码目录说明如下：
 
@@ -57,7 +57,7 @@ Compilation
 
 `PF_RING/Makefile` 文件内容如下：
 
-```
+```shell
 all:
     cd kernel; make
     cd userland; make
@@ -78,11 +78,10 @@ changelog:
 
 documentation:
     cd doc/doxygen; doxygen Doxyfile
-
-[root@xg-esm-data-4 PF_RING]#
 ```
 
-首先安装一些基本的编译工具和库；
+
+首先需要安装一些基本编译工具和库；
 
 在 Ubuntu 系统中，可以执行
 
@@ -102,17 +101,15 @@ documentation:
 Installation
 ------------
 
-```
--- 安装 PF_RING 内核模块 pf_ring.ko
+```shell
 # sudo su
-# cd kernel; make install
--- 安装 PF_RING 用户空间库 libpfring.a 和 libpfring.so
-# cd ../userland/lib; make install
+# cd kernel; make install    ## 安装 PF_RING 内核模块 pf_ring.ko
+# cd ../userland/lib; make install   ## 安装 PF_RING 用户空间库 libpfring.a 和 libpfring.so
 ```
 
 实际输出如下：
 
-```
+```shell
 [root@xg-esm-data-4 kernel]# make install
 mkdir -p /lib/modules/3.10.0-229.el7.x86_64/kernel/net/pf_ring
 cp *.ko /lib/modules/3.10.0-229.el7.x86_64/kernel/net/pf_ring
@@ -159,7 +156,7 @@ Testing PF_RING
 
 需要注意的是：在运行任何应用程序之前，你需要首先加载 `pf_ring.ko` 这个内核模块：
 
-```
+```shell
 # sudo su
 # insmod ./kernel/pf_ring.ko
 ```
@@ -171,7 +168,7 @@ Documentation
 
 可以通过 doxygen 生成 API 文档，只需运行
 
-```
+```shell
 # make documentation
 ```
 
