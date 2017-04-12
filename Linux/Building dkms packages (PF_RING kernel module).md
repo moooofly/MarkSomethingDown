@@ -248,7 +248,7 @@ dkms install --force -m pfring -v 6.5.0
 pf_ring:
 Running module version sanity check.
  - Original module
-   - Found /lib/modules/3.10.0-229.el7.x86_64/kernel/net/pf_ring/pf_ring.ko  -- 之前直接基于 Makefile 文件进行 make install 时产生的
+   - Found /lib/modules/3.10.0-229.el7.x86_64/kernel/net/pf_ring/pf_ring.ko  ## 之前直接基于 Makefile 文件进行 make install 时产生的
    - Storing in /var/lib/dkms/pfring/original_module/3.10.0-229.el7.x86_64/x86_64/
    - Archiving for uninstallation purposes
  - Installation
