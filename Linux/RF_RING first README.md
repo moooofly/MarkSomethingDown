@@ -53,6 +53,35 @@ PF_RING from Virtual Machines (KVM)
 Compilation
 -----------
 
+> 如下内容基于 PF_RING/Makefile 文件；
+
+`PF_RING/Makefile` 文件内容如下：
+
+```
+all:
+    cd kernel; make
+    cd userland; make
+    cd drivers; make
+
+clean:
+    cd kernel; make clean
+    cd userland; make clean
+    cd drivers; make clean
+    -cd userland/snort/pfring-daq-module; make clean
+
+snort:
+    cd userland/snort/pfring-daq-module; autoreconf -ivf; ./configure; make
+    cd userland/snort/pfring-daq-module-zc; autoreconf -ivf; ./configure; make
+
+changelog:
+    git log --since={`curl -s https://sourceforge.net/projects/ntop/files/PF_RING/|grep -o "<td headers=\"files_date_h\" class=\"opt\"><abbr title=\"[^\"]*\">[^<]*</abbr></td>"|head -n 3|tail -n 1|egrep -o "[0-9]+\-[0-9]+\-[0-9]+"|head -n 1`} --name-only --pretty=format:" - %s" > ./doc/Changelog.txt
+
+documentation:
+    cd doc/doxygen; doxygen Doxyfile
+
+[root@xg-esm-data-4 PF_RING]#
+```
+
 首先安装一些基本的编译工具和库；
 
 在 Ubuntu 系统中，可以执行
@@ -67,16 +96,21 @@ Compilation
 # make
 ```
 
+> 编译整个项目（kernel/userland/drivers）；
+
+
 Installation
 ------------
 
 ```
+-- 安装 PF_RING 内核模块 pf_ring.ko
 # sudo su
 # cd kernel; make install
+-- 安装 PF_RING 用户空间库 libpfring.a 和 libpfring.so
 # cd ../userland/lib; make install
 ```
 
-实际
+实际输出如下：
 
 ```
 [root@xg-esm-data-4 kernel]# make install
@@ -86,6 +120,30 @@ mkdir -p /usr/include/linux
 cp linux/pf_ring.h /usr/include/linux
 /sbin/depmod 3.10.0-229.el7.x86_64
 [root@xg-esm-data-4 kernel]#
+[root@xg-esm-data-4 kernel]# cd ../userland/lib
+[root@xg-esm-data-4 lib]# make install
+ar x ../nbpf/libnbpf.a
+cp ../nbpf/nbpf.h .
+ar x libs/libpfring_zc_x86_64_core-avx2.a
+ar x libs/libpfring_nt_x86_64_core-avx2.a
+ar x libs/libpfring_myricom_x86_64_core-avx2.a
+ar x libs/libpfring_dag_x86_64_core-avx2.a
+ar x libs/libpfring_fiberblaze_x86_64_core-avx2.a
+ar x libs/libpfring_accolade_x86_64_core-avx2.a
+ar x libs/libnpcap_x86_64_core-avx2.a
+=*= making library libpfring.a =*=
+ar rs libpfring.a pfring.o pfring_mod.o pfring_utils.o pfring_mod_stack.o pfring_hw_filtering.o pfring_hw_timestamp.o pfring_mod_sysdig.o pfring_zc_dev_e1000.o pfring_zc_dev_e1000e.o pfring_zc_dev_ixgbe.o pfring_zc_dev_igb.o pfring_zc_dev_i40e.o pfring_zc_dev_fm10k.o pfring_zc_dev_rss.o pfring_zc_dev_sal.o pfring_mod_zc.o pfring_mod_zc_dev.o pfring_mod_zc_spsc.o pfring_zc_cluster.o pfring_zc_mm.o uio_lib.o hugetlb_lib.o numa_lib.o pfring_zc_kvm.o pfring_zc_kvm_utils.o silicom_ts_card.o  pfring_mod_dag.o  pfring_mod_fiberblaze.o  pfring_mod_nt.o   pfring_mod_accolade.o  pfring_mod_myricom.o    pfring_mod_timeline.o npcapextract_lib.o index_match.o npcap_utils.o npcap_compression.o lzf_c.o lzf_d.o  `ar t ../nbpf/libnbpf.a | grep -F .o | tr '\n' ' '`
+ranlib libpfring.a
+mkdir -p //usr/local/include
+cp pfring.h pfring_mod_sysdig.h pfring_zc.h pfring_zc.h ../nbpf/nbpf.h //usr/local/include/
+cp: warning: source file ‘pfring_zc.h’ specified more than once
+mkdir -p //usr/local/lib
+cp libpfring.a //usr/local/lib/
+=*= making library libpfring.so =*=
+gcc -g -shared pfring.o pfring_mod.o pfring_utils.o pfring_mod_stack.o pfring_hw_filtering.o pfring_hw_timestamp.o pfring_mod_sysdig.o pfring_zc_dev_e1000.o pfring_zc_dev_e1000e.o pfring_zc_dev_ixgbe.o pfring_zc_dev_igb.o pfring_zc_dev_i40e.o pfring_zc_dev_fm10k.o pfring_zc_dev_rss.o pfring_zc_dev_sal.o pfring_mod_zc.o pfring_mod_zc_dev.o pfring_mod_zc_spsc.o pfring_zc_cluster.o pfring_zc_mm.o uio_lib.o hugetlb_lib.o numa_lib.o pfring_zc_kvm.o pfring_zc_kvm_utils.o silicom_ts_card.o  pfring_mod_dag.o  pfring_mod_fiberblaze.o  pfring_mod_nt.o   pfring_mod_accolade.o  pfring_mod_myricom.o    pfring_mod_timeline.o npcapextract_lib.o index_match.o npcap_utils.o npcap_compression.o lzf_c.o lzf_d.o  `ar t ../nbpf/libnbpf.a | grep -F .o | tr '\n' ' '` -lpthread  -lrt -ldl -lm -ldl -lm -ldl   -o libpfring.so
+mkdir -p //usr/local/lib
+cp libpfring.so //usr/local/lib/
+[root@xg-esm-data-4 lib]#
 ```
 
 
