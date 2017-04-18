@@ -227,7 +227,7 @@ modprobe - Add and remove modules from the Linux Kernel
 
 modprobe 能够智能的从 Linux 内核中添加和删除模块：需要注意的是，为了方便，在模块名字中出现 _ 和 - 时将不做区别处理（会进行自动 underscore 转换）；
 
-modprobe 会在模块目录 `/lib/modules/`uname -r`` 中查找所有模块和其它相关文件；但仍会在 `/etc/modprobe.d` 目录中查找可选配置文件（详见 `modprobe.d(5)`）；  
+modprobe 会在模块目录 `/lib/modules/$(uname -r)` 中查找所有模块和其它相关文件；但仍会在 `/etc/modprobe.d` 目录中查找可选配置文件（详见 `modprobe.d(5)`）；  
 
 modprobe 同样会使用在内核命令行中指定的模块选项，形式为 `<module>.<option>` 和黑名单 `modprobe.blacklist=<module>` ；
 
