@@ -1,5 +1,7 @@
 # RSS (Receive Side Scaling)
 
+> 原文地址：[这里](https://github.com/ntop/PF_RING/blob/dev/doc/README.RSS.md)
+
 几乎所有 Intel（以及其它厂商）的 NICs 都支持 RSS ，这意味着**可以基于硬件针对 packets 进行哈希运算以便在多条 RX queues 中进行负载分布（distribute）**；
 
 为了配置 queues 数量，你可以在调用 `insmod` 时使用 `RSS` 参数（如果你是基于 packages 安装的 PF_RING ZC drivers ，则可以使用配置文件进行配置，详情参见 `README.apt_rpm_packages` 说明），并传递一个逗号分隔的数字（每个接口上的 queue 数目）列表（每个接口对应一个列表），例如：
