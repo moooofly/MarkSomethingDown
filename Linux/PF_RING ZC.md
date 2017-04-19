@@ -87,3 +87,89 @@ Virtual Machine 中以 zero-copy 方式进行 RX 和 TX 的 packets 转发（for
 在 PF_RING ZC 中，即使面对的是 non-PF_RING aware drivers ，你依然能够使用 zero-copy 框架；这意味着你能够分发（dispatch）、处理（process）、发起（originate），和注入（inject）packets 到 zero-copy 框架中，即便其不是从 ZC devices 中发起的（originated）；
 
 一旦 packet 被拷贝到（one-copy）ZC 世界中，从此该 packet 在整个生命周期中将一直按 zero-copy 方式被处理；例如在 `zbalance_ipc` 示例应用中，其以 1-copy 模式从 non-PF_RING aware 设备中读取 packet（例如 WiFI-device 或者 Broadcom NIC），之后在 ZC 内将 packet 以 zero-copy 操作进行发送；
+
+------
+
+# PF_RING ZC (Zero Copy)
+
+> 原文地址：[这里](http://www.ntop.org/products/packet-capture/pf_ring/pf_ring-zc-zero-copy/)
+
+## Multi-10 Gbit RX/TX Packet Processing from Hosts and Virtual Machines
+
+PF_RING™ ZC (Zero Copy) 是一种灵活的 packet 处理框架，允许针对任意大小的 packet 达到 1/10 Gbit 线速包处理能力（ RX 和 TX）；其实现了 zero copy 操作，包括 inter-process 和 inter-VM (KVM) 通信模式；可以将其看作 DNA/LibZero 的后继者，基于过去几年的经验教训，提供了单一且一致的 API ；
+
+其提供了一套干净灵活的 API ，实现了一组简单方便的构建模块（queue, worker 和 pool），可被用在线程、应用和 virtual machines 中；用以实现了 10 Gbit 线速 packet 处理能力；
+
+## Simple And Clean API
+
+PF_RING™ ZC 提供的简单 API 能够用来以寥寥几行代码创建出复杂的应用；下面的例子展示了如何基于 6 行代码创建出一个 aggregator+balancer 应用：
+
+```c
+ zc = pfring_zc_create_cluster(ID, MTU, MAX_BUFFERS, NULL);
+ for (i = 0; i < num_devices; i++)
+  inzq[i] = pfring_zc_open_device(zc, devices[i], rx_only);
+ for (i = 0; i < num_slaves; i++)
+   outzq[i] = pfring_zc_create_queue(zc, QUEUE_LEN);
+ zw = pfring_zc_run_balancer(inzq, outzq, num_devices, num_slaves, NULL, NULL, !wait_for_packet, core_id);
+```
+
+关于 API 的更多信息，请参考 [documentation](http://www.ntop.org/pfring_api/pfring__zc_8h.html) 和相应的 [code examples](https://github.com/ntop/PF_RING/blob/dev/userland/examples_zc/README.examples) ；
+
+## On-Demand Kernel Bypass with PF_RING Aware Drivers
+
+PF_RING™ ZC 提供了新一代 PF_RING™ aware 驱动，能够用于 kernel 模式或 kernel bypass 模式；一旦成功安装，该驱动能够像标准 Linux 驱动一样完成常规网络工作（例如 ping 或 SSH）；当基于 PF_RING™ 完成上述功能时，会比 vanilla drivers 更快，因为其能够直接与其交互；如果你使用 PF_RING-aware 驱动以 zero copy 模式打开设备（例如 `pfcount -i zc:eth1`），该设备将变得对标准网络功能不可用，因为此时是以 zero-copy 模式通过 kernel bypass 进行访问对，正如同之前的 DNA 的行为；一旦应用完成（关闭）了设备的访问，标准网络活动又能正常使用了；
+
+## Zero Copy Operations to Virtual Machines (KVM)
+
+PF_RING™ ZC 允许你针对 KVM virtual machine 以 zero-copy 模式（针对 RX 和 TX）转发（forward）packets，而无需使用诸如 `PCIe passthrough` 这类技术；由于具备在 VMs 中动态创建 ZC 设备的能力，你能够从你的 VM 中以 zero-copy 模式捕获/发送 traffic 而无需为 KVM 代码打布丁，或者在创建 ZC 设备后启动 KVM ；重要的是，现在你已经能够在 KVM 中获得 10 Gbit 线速能力，但同样使用在物理主机中采用的命令，无需变更一行代码；
+
+![ZC_IntraVM](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/ZC_IntraVM.png "ZC_IntraVM")
+
+上图展示了基于 ZC 如何创建应用程序的 pipeline ，以 zero copy 方式跨 VMs 交流；重要的是，PF_RING™ ZC 从诞生的第一天就为云服务做好了准备（cloud-ready）；
+
+
+## Zero Copy Operations
+
+和前辈 LibZero 类似，基于 PF_RING™ ZC 你能够跨线程，应用和 VMs 进行 zero copy 操作；你能够在 zero-copy 模式下跨应用进行 **packets 均衡**；
+
+![ZC_Balancing](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/ZC_Balancing.png "ZC_Balancing")
+
+或实现 **packet fanout** 功能
+
+![ZC_Fanout](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/ZC_Fanout.png "ZC_Fanout")
+
+在 PF_RING™ ZC 中，所有事情都在 zero-copy ，线速能力下发生；
+
+## Performance
+
+和前辈 LibZero/DNA 类似，无论 packet 是来自物理主机，还是来自 KVM ，无论 packet 的大小，PF_RING™ ZC 都能保证达到 10 Gbit 线速能力；你可以使用 [demo applications](https://github.com/ntop/PF_RING/tree/dev/userland/examples_zc) 自行测试；
+
+## Integrating Zero-Copy with One-Copy Devices
+
+在 PF_RING™ ZC 中，你同样能够针对 non-PF_RING aware 驱动使用 zero-copy 框架；这意味着你能够分发（dispatch）、处理（process）、发起（originate），以及注入（inject）packets 到 zero-copy 框架中，尽管其并非起源于 ZC 设备；
+
+![ZC_OneCopy](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/ZC_OneCopy.png "ZC_OneCopy")
+
+一旦 packet 被拷贝进入（one-copy）到 ZC 世界，从此 packet 在其整个生命期内将按照 zero-copy 方式被处理；例如，[zbalance_ipc](https://github.com/ntop/PF_RING/blob/dev/userland/examples_zc/zbalance_ipc.c) 示例应用能够基于 1-copy 方式从 non-PF_RING aware 设备中读取 packet（例如，WiFI-device 或 Broadcom NIC），之后在 ZC 框架内部发送时则基于 zero-copy 操作；
+
+## Kernel Bypass and IP Stack Packet Injection
+
+与其它 kernel-bypass 技术相比，基于 PF_RING™ ZC 的你，能够在任意时刻决定哪些 packets 以 kernel-bypass 方式接收，再注入（inject）到标准 Linux IP stack 中；PF_RING 现已提供了一个称作 “stack” 的 IP [stack packet injection module](https://github.com/ntop/PF_RING/blob/dev/userland/examples/README.stackinjection)，允许你选择哪些通过 kernel-bypass 接收的 packets 需要再被注入到标准 IP stack 中；你所需要做的仅仅是打开设备 “`stack:ethX`” 并进行 packets 发送，以便将其推入 IP stack 中，就好像这些 packets 是从 ethX 上接收的一样；
+
+## DAQ for Snort
+
+[Snort](https://www.snort.org/) 用户同样能够受益于 PF_RING™ ZC 的速度能力（最受欢迎的 IDS/IPS 之一）；本地化（native）后的 PF_RING™ ZC DAQ (Snort Data AcQuisition) 库要比标准 [PF_RING™ DAQ](https://github.com/ntop/PF_RING/tree/dev/userland/snort/) 快 [20% 到 50%](http://www.ntop.org/wp-content/uploads/2012/09/Snort_over_DNA_Silicom_30_07_2012_1.pdf) 左右，并且其可在 IPS 和 IDS 模式下运行；
+
+PF_RING™ ZC DAQ 属于 [PF_RING™](https://github.com/ntop/PF_RING/tree/dev/userland/snort/) 的一部分；
+
+
+|  | e1000e | igb | ixgbe | i40e
+---|---|---|---|---
+Capture Rate (Line-Rate) | 1 Gbit/s | 1 Gbit/s | 10 Gbit/sec | 40 Gbit/sec
+Supported Cards | Intel 8254x/8256x/8257x/8258x-based | Intel 82575/82576/82580/I350-based | Intel 82599/X540/X710-based | Intel XL710
+Operating System | Linux (kernel 2.6.32 or better) | Linux (kernel 2.6.32 or better) | Linux (kernel 2.6.32 or better) | Linux (kernel 2.6.32 or better)
+Traffic Reception | included | included | included | included
+Traffic Injection | included | included | included | included
+Hw packet filtering | | | Intel 82599-based only | 
+Hw timestamping (nsec) | | Intel 82580/I350-based only | 
+
