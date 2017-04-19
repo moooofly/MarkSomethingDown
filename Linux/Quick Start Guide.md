@@ -1,9 +1,6 @@
-# README.quickstart
+# Quick Start Guide
 
 > 原文地址：[这里](https://github.com/ntop/PF_RING/blob/dev/userland/examples_zc/README.quickstart)
-
-Quick Start Guide
------------------
 
 - 加载 PF_RING 内核模块
 
