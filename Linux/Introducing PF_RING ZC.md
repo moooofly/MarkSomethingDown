@@ -7,8 +7,8 @@
 对于熟悉 DNA 和 Libzero 到用户来说，ZC 和它们的主要差别在于：
 
 - 我们统一了 in-kernel（之前的 PF_RING-aware drivers）和 kernel-bypass（之前的 DNA）驱动的实现；现在，你可以通过 “`-i eth0`”（in-kernel 处理模式）和 “`-i zc:eth0`”（kernel bypass）打开相同的设备；尤其是，你可以运行时决定使用哪种操作模式；
-- 全部的 drivers memory 被映射为（mapped）huge-pages 以后取更好性能；
-- 如果你通过 “`zc:ethX`” 打开设备，则所有操作都以 zero-copy 模式完成；你能通过简单测试看到具体效果（eth3 为一个 10 Gbit 接口，运行了 PF_RING-aware ixgbe 驱动）；第一个命令发送可达 0.82 Gbit ，而第二个可达 10 Gbit；
+- 全部的 drivers memory 被映射为（mapped）[huge-pages](https://github.com/ntop/PF_RING/blob/dev/doc/README.hugepages.md) 以后取更好性能；
+- 如果你通过 “`zc:ethX`” 打开设备，则所有操作都以 zero-copy 模式完成；你能通过简单测试看到具体效果（eth3 为一个 10 Gbit 接口，运行了 PF_RING-aware [ixgbe](https://github.com/ntop/PF_RING/tree/dev/drivers/intel/ixgbe/ixgbe-4.1.5-zc/src) 驱动）；第一个命令发送可达 0.82 Gbit ，而第二个可达 10 Gbit；
 ```
 # ./zsend -i eth3 -c 3 -g 0
 # ./zsend -i zc:eth3 -c 3 -g 0
