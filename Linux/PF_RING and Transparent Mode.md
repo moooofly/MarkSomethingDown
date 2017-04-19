@@ -13,3 +13,20 @@ PF_RING 被设计用以增强 packet 捕获性能；这意味着需要在 RX pat
     - 为了使能该模式，你必须使用支持 PF_RING 的 NIC driver ；
     - Packets 在被投递给（delivered）PF_RING 后不会再被发送到 kernel ；这意味着你将无法从基于 PF_RING-aware drivers 的 NICs 获取到活动性信息（connectivity）；
     - 该模式是最快的方式，因为 packets 会以最快的速度拷贝给 PF_RING ，并在得到处理后立即丢弃；
+
+------
+
+# [PF_RING and transparent_mode](http://www.ntop.org/pf_ring/pf_ring-and-transparent_mode/)
+
+许多 PF_RING 用户都知道为了不对 Linux kernel 打补丁，从 PF_RING 4.x 开始 packets 是通过 NAPI 机制进行接收的；这意味着 packet 的 journey 与标准 Linux 中的路径一样；因此，相对 vanilla Linux 的性能改进也是很微小的（< 5%），尽管 PF_RING 允许完成很多标准 AF_PACKET 之外的事；
+
+为了大幅改进的性能，PF_RING 支持了一个名为 `transparent_mode` 的参数，可在进行内核模块加载时使用，如 `insmod pf_ring.ko transparent_mode=X` ，其中 X 的值可以为 0, 1 或 2 ；具体含义会随着你所 hook 的 PF_RING-based 应用（例如 `pfcount` ）的、接口 NIC driver 的不同而有所变化；因此，很可能在一个接口上你使用的是标准驱动，而在另外的接口上你使用的是 PF_RING-aware 驱动；当前，所有支持的 PF_RING-aware 驱动都保存在 `PF_RING/drivers` 目录下，除了 `TNAPI` ；需要注意的是，针对 DNA 驱动的情况，由于 kernel 被完全旁路掉了，故 `transparent_mode` 参数将不起作用；
+
+
+Mode | Standard driver | PF_RING-aware driver | Packet Capture Acceleration
+---|---|---|---
+0 | Packets are received through Linux NAPI | Packets are received through Linux NAPI | Same as Vanilla Linux
+1 | Packets are received through Linux NAPI | Packets are passed to NAPI (for sending them to PF_RING-unaware applications) and copied directly to PF_RING for PF_RING-aware applications (i.e. PF_RING does not need NAPI for receiving packets) | Limited
+2 | The driver sends packets only to PF_RING so PF_RING-unaware applications do not see any packet | The driver copies packets directly to PF_RING only (i.e. NAPI does not receive any packet) | Extreme
+
+
