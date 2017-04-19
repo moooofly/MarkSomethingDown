@@ -35,9 +35,9 @@ PF_RING/userland/examples_zc# ./zsend -i zc:eth1 -c 1 -g 0 -b 8 -l 60
 PF_RING/userland/examples_zc# ./zbalance -i zc:eth4 -c 4 -m 0 -r 1 -g 2:3
 ```
 
-> 单进程多线程；
-> 不同线程分别绑定到不同 CPU core 上；
-> Balancer thread 以轮询方式将 packets 分发给 Consumer threads ；
+> 单进程多线程；   
+> 不同线程分别绑定到不同 CPU core 上；   
+> Balancer thread 以轮询方式将 packets 分发给 Consumer threads ；   
 
 
 ---
@@ -51,11 +51,12 @@ PF_RING/userland/examples_zc# ./zcount_ipc -c 99 -i 0 -g 2
 PF_RING/userland/examples_zc# ./zcount_ipc -c 99 -i 1 -g 3
 ```
 
-> 多进程；
-> Balancer process 以轮询方式将 packets 分发给 2 个 Consumer processes ；
-> Balancer process (zbalance_ipc) 会创建设备 zc:99@0 和 zc:99@1 ；
-> Consumer processes (zcount_ipc) 从指定的 sw queue 上 consume packets ；
-> zbalance_ipc 要先于 zcount_ipc 启动；
+> 多进程；   
+> Balancer process 以轮询方式将 packets 分发给 2 个 Consumer processes ；   
+> Balancer process (zbalance_ipc) 会创建设备 zc:99@0 和 zc:99@1 ；   
+> Consumer processes (zcount_ipc) 从指定的 sw queue 上 consume packets ；   
+> zbalance_ipc 要先于 zcount_ipc 启动；   
+
 
 ---
 
@@ -68,11 +69,11 @@ PF_RING/userland/tcpdump-4.1.1# ./tcpdump -i zc:99@0
 PF_RING/userland/tcpdump-4.1.1# ./tcpdump -i zc:99@1
 ```
 
-> 多进程；
-> Balancer process 以轮询方式将 packets 分发给 2 个 Consumer processes ；
-> Balancer process (zbalance_ipc) 会创建设备 zc:99@0 和 zc:99@1 ；
-> Consumer processes (tcpdump) 从设备 zc:99@0 和 zc:99@1 上 consume packets ；
-> zbalance_ipc 要先于 tcpdump 启动；
+> 多进程；   
+> Balancer process 以轮询方式将 packets 分发给 2 个 Consumer processes ；   
+> Balancer process (zbalance_ipc) 会创建设备 zc:99@0 和 zc:99@1 ；   
+> Consumer processes (tcpdump) 从设备 zc:99@0 和 zc:99@1 上 consume packets ；   
+> zbalance_ipc 要先于 tcpdump 启动；   
 
 ---
 
@@ -82,8 +83,8 @@ PF_RING/userland/tcpdump-4.1.1# ./tcpdump -i zc:99@1
 PF_RING/userland/examples_zc# ./zpipeline -i zc:eth2 -c 99 -g 2:3 
 ```
 
-> 未看出该程序有何效果；
-> 每个 thread 对应一个 pipeline stage ，thread 数量由 -g 参数控制；
+> 未看出该程序有何效果；   
+> 每个 thread 对应一个 pipeline stage ，thread 数量由 -g 参数控制；   
 
 ---
 
