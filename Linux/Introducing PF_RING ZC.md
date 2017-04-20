@@ -26,20 +26,20 @@
 
 ## FAQ
 
-Q. **PF_RING ZC 的性能如何？**
+Q. **PF_RING ZC 的性能如何？**   
 A. 线速，任意 packet 大小，multi 10 Gbit ；你可以使用各种 apps 进行测试，例如 `zcount` 和 `zsend` ；
 
-Q. **是否仍旧对 DNA 和 Libzero 进行支持？**
+Q. **是否仍旧对 DNA 和 Libzero 进行支持？**   
 A. 就目前而言，我们会继续支持 DNA/Libzero ，尽管未来会是 PF_RING ZC 的天下，因为后者提供了许多新特性和一致的 API ；
 
-Q. **PF_RING ZC 是否会支持 legacy applications ，例如那些基于 libpcap 开发的应用？**
+Q. **PF_RING ZC 是否会支持 legacy applications ，例如那些基于 libpcap 开发的应用？**   
 A. 会的，一切和其前任 DNA 一样，我们支持 pcap-based 应用程序，以及诸如基于 PF_RING DAQ 实现的 Snort 等其它 apps ；
 
-Q. **我应该如何打开一个 PF_RING ZC/libpcap 中的 queue ？**
+Q. **我应该如何打开一个 PF_RING ZC/libpcap 中的 queue ？**   
 A. 你可以使用如下语法实现：“`zc:<clusterId>@<queueId>`” ；例如：`pcount -i zc:4@0`
 
-Q. **What adapters feature native ZC drivers?**
+Q. **What adapters feature native ZC drivers?**   
 A. 我们当前支持了 Intel 适配器（1 和 10 Gbit）使用 zero-copy 模式，以及所有基于 1-copy 模式的其它适配器；需要记住的是，一旦 packets 被搬移到了 ZC 的世界，你就能够将它们以 zero-copy 模式传递给任意数量的应用程序、线程和 VMs 了；重点是，你只需在入口处支付 "copy ticket" ；
 
-Q. **How do you position ZC with respect to other technologies such as DPDK?**
+Q. **How do you position ZC with respect to other technologies such as DPDK?**   
 A. DPDK 主要面向的是贴近硬件的应用开发者，即对 X86 架构细节很熟悉的人，能够并愿意使用十六进制的 PCI ID （例如 0d:01.0）调用网络接口；对于 PF_RING ZC 的使用者来说，设备调用可以通过其名字（例如 eth1）完成，PF_RING ZC 负责管理所有底层（low-level）细节信息，因此你就可以无阻碍的运行你已有的 pcap-based 应用；ZC 是一种开发者友好的技术；
