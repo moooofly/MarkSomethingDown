@@ -23,7 +23,7 @@ kernel-bypass 模式中（使用 PF_RING ZC 库），只需添加前缀 "zc:" �
 pfcount -i zc:eth0
 ```
 
-如果你省略了 'zc:' ，则对应的是基于 PF_RING 模式（无 ZC）打开当前设备；
+如果你省略了 'zc:' ，则对应的是基于 PF_RING 模式（no ZC）打开当前设备；
 
 ## Supported Cards
 
@@ -52,7 +52,7 @@ pfcount -i zc:eth0
 
 * PF_RING 内核模块必须在 ZC driver 之前被加载；
 * 为了确保正确配置目标设备，强烈建议使用配套 drivers 的 `load_driver.sh` 脚本（可以基于该脚本进一步精细化调优）；
-* ZC drivers 需要 hugepages 功能，在 `load_driver.sh` 脚本中给出了针对 hugepages 的配置处理；更多相关信息详见 **README.hugepages** 中的说明；
+* ZC drivers 需要 hugepages 功能，在 `load_driver.sh` 脚本中给出了针对 hugepages 的配置处理；更多相关信息详见 **[README.hugepages](https://github.com/ntop/PF_RING/blob/dev/doc/README.hugepages.md)** 中的说明；
 
 加载 PF_RING 和 ixgbe-ZC driver 的示例：
 
@@ -82,7 +82,7 @@ zw = pfring_zc_run_balancer(inzq, outzq, num_devices, num_slaves, NULL, NULL, !w
 ```
 
 PF_RING ZC 允许你以在 KVM 
-Virtual Machine 中以 zero-copy 方式进行 RX 和 TX 的 packets 转发（forward），而无需使用诸如 PCIe passthrough 这类技术；得益于 ZC devices 在 VMs 中的动态创建，你能够在 VM 中基于 zero-copy 方式捕获/发送 traffic ，而无需对 KVM 代码打 patch ，或在 ZC 设备被创建后才启动 KVM；本质上，你能够在 KVM 中达到 10 Gbit 线速能力，使用的是在物理主机中同样的命令，无需改变任何一行代码；
+Virtual Machine 中以 zero-copy 方式进行 RX 和 TX 的 packets 转发（forward），而无需使用诸如 `PCIe passthrough` 这类技术；得益于 ZC devices 在 VMs 中的动态创建，你能够在 VM 中基于 zero-copy 方式捕获/发送 traffic ，而无需对 KVM 代码打 patch ，或在 ZC 设备被创建后才启动 KVM；本质上，你能够在 KVM 中达到 10 Gbit 线速能力，使用的是在物理主机中同样的命令，无需改变任何一行代码；
 
 在 PF_RING ZC 中，即使面对的是 non-PF_RING aware drivers ，你依然能够使用 zero-copy 框架；这意味着你能够分发（dispatch）、处理（process）、发起（originate），和注入（inject）packets 到 zero-copy 框架中，即便其不是从 ZC devices 中发起的（originated）；
 
@@ -117,7 +117,7 @@ PF_RING™ ZC 提供的简单 API 能够用来以寥寥几行代码创建出复�
 
 ## On-Demand Kernel Bypass with PF_RING Aware Drivers
 
-PF_RING™ ZC 提供了新一代 PF_RING™ aware 驱动，能够用于 kernel 模式或 kernel bypass 模式；一旦成功安装，该驱动能够像标准 Linux 驱动一样完成常规网络工作（例如 ping 或 SSH）；当基于 PF_RING™ 完成上述功能时，会比 vanilla drivers 更快，因为其能够直接与其交互；如果你使用 PF_RING-aware 驱动以 zero copy 模式打开设备（例如 `pfcount -i zc:eth1`），该设备将变得对标准网络功能不可用，因为此时是以 zero-copy 模式通过 kernel bypass 进行访问对，正如同之前的 DNA 的行为；一旦应用完成（关闭）了设备的访问，标准网络活动又能正常使用了；
+PF_RING™ ZC 提供了新一代 PF_RING™ aware 驱动，能够使用 in-kernel 模式或 kernel bypass 模式；一旦成功安装，该驱动能够像标准 Linux 驱动一样完成常规网络工作（例如 ping 或 SSH）；当基于 PF_RING™ 完成上述功能时，会比 vanilla drivers 更快，因为其能够直接与 drivers 交互；如果你使用 PF_RING-aware 驱动以 zero copy 模式打开设备（例如 `pfcount -i zc:eth1`），该设备将变得对标准网络功能不可用，因为此时是以 zero-copy 模式通过 kernel bypass 进行访问对，正如同之前的 DNA 的行为；一旦应用完成（关闭）了设备的访问，标准网络活动又能正常使用了；
 
 ## Zero Copy Operations to Virtual Machines (KVM)
 
@@ -154,7 +154,7 @@ PF_RING™ ZC 允许你针对 KVM virtual machine 以 zero-copy 模式（针对 
 
 ## Kernel Bypass and IP Stack Packet Injection
 
-与其它 kernel-bypass 技术相比，基于 PF_RING™ ZC 的你，能够在任意时刻决定哪些 packets 以 kernel-bypass 方式接收，再注入（inject）到标准 Linux IP stack 中；PF_RING 现已提供了一个称作 “stack” 的 IP [stack packet injection module](https://github.com/ntop/PF_RING/blob/dev/userland/examples/README.stackinjection)，允许你选择哪些通过 kernel-bypass 接收的 packets 需要再被注入到标准 IP stack 中；你所需要做的仅仅是打开设备 “`stack:ethX`” 并进行 packets 发送，以便将其推入 IP stack 中，就好像这些 packets 是从 ethX 上接收的一样；
+与其它 kernel-bypass 技术相比，基于 PF_RING™ ZC 的你，能够在任意时刻决定哪些 packets 以 kernel-bypass 方式接收，再（重新）注入（inject）到标准 Linux IP stack 中；PF_RING 现已提供了一个称作 “stack” 的 IP [stack packet injection module](https://github.com/ntop/PF_RING/blob/dev/userland/examples/README.stackinjection)，允许你选择哪些通过 kernel-bypass 接收的 packets 需要再被注入到标准 IP stack 中；你所需要做的仅仅是打开设备 “`stack:ethX`” 并进行 packets 发送，以便将其推入 IP stack 中，就好像这些 packets 是从 ethX 上接收的一样；
 
 ## DAQ for Snort
 

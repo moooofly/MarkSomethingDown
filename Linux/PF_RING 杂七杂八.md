@@ -2,7 +2,7 @@
 
 ## [How to capture from a bond interface using PF_RING ZC?](http://www.ntop.org/support/faq/how-to-capture-from-a-bond-interface-using-pf_ring-zc/)
 
-由于 PF_RING ZC 是一种**内核旁路（kernel-bypass）**技术，并且应用程序会直接访问网卡，因此不可能从 bond 设备上进行捕获操作，然而你能够在 ZC 模式下直接从多个接口上聚合（aggregate）traffic ，详见示例 `zbalance_ipc -i zc:ethX,zc:ethY` ；
+由于 PF_RING ZC 是一种内核旁路（kernel-bypass）技术，并且应用程序会直接访问网卡，因此不可能从 bond 设备上进行捕获操作，然而你能够在 ZC 模式下直接从多个接口上聚合（aggregate）traffic ，详见示例 `zbalance_ipc -i zc:ethX,zc:ethY` ；
 
 ## [ZC is faster than DNA because ZC does no copy, but DNA does?](http://www.ntop.org/support/faq/zc-is-faster-than-dna-because-zc-does-no-copy-but-dna-does/)
 

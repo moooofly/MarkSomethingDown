@@ -7,13 +7,13 @@
 对于熟悉 DNA 和 Libzero 到用户来说，ZC 和它们的主要差别在于：
 
 - 我们统一了 in-kernel（之前的 PF_RING-aware drivers）和 kernel-bypass（之前的 DNA）驱动的实现；现在，你可以通过 “`-i eth0`”（in-kernel 处理模式）和 “`-i zc:eth0`”（kernel bypass）打开相同的设备；尤其是，你可以运行时决定使用哪种操作模式；
-- 全部的 drivers memory 被映射为（mapped）[huge-pages](https://github.com/ntop/PF_RING/blob/dev/doc/README.hugepages.md) 以后取更好性能；
-- 如果你通过 “`zc:ethX`” 打开设备，则所有操作都以 zero-copy 模式完成；你能通过简单测试看到具体效果（eth3 为一个 10 Gbit 接口，运行了 PF_RING-aware [ixgbe](https://github.com/ntop/PF_RING/tree/dev/drivers/intel/ixgbe/ixgbe-4.1.5-zc/src) 驱动）；第一个命令发送可达 0.82 Gbit ，而第二个可达 10 Gbit；
+- 全部的 drivers memory 被映射为（mapped）[huge-pages](https://github.com/ntop/PF_RING/blob/dev/doc/README.hugepages.md) 以获取更好的性能；
+- 如果你通过 “`zc:ethX`” 打开设备，则所有操作都以 zero-copy 模式完成；你能通过简单测试看到具体效果（这里 eth3 为一个 10 Gbit 接口，运行了 PF_RING-aware [ixgbe](https://github.com/ntop/PF_RING/tree/dev/drivers/intel/ixgbe/ixgbe-4.1.5-zc/src) 驱动）；第一个命令发送可达 0.82 Gbit ，而第二个可达 10 Gbit；
 ```
 # ./zsend -i eth3 -c 3 -g 0
 # ./zsend -i zc:eth3 -c 3 -g 0
 ```
-- ZC 具有 [KVM](https://en.wikipedia.org/wiki/Kernel-based_Virtual_Machine) 友好性，意味着你能够从运行在 VM 中的应用和线程上以 10 Gbit 线速发送/接收 packets ，而无需使用类似 `PCIe passthrough` 这种技术；需要注意的是，同一种应用可以不做人和修改的运行在 VM 和物理机上：我们真的真的让 VM 和 ZC 之间成为了好基友；
+- ZC 具有 [KVM](https://en.wikipedia.org/wiki/Kernel-based_Virtual_Machine) 友好性，意味着你能够从运行在 VM 中的应用和线程上以 10 Gbit 线速发送/接收 packets ，而无需使用类似 `PCIe passthrough` 这种技术；需要注意的是，同一种应用可以不做任何修改的运行在 VM 和物理机上：我们真的真的让 VM 和 ZC 之间成为了好基友；
 - 与其它网络框架类似，例如 [Click Modular Router](http://read.cs.ucla.edu/click/click) ，我们提供了诸如 queue, pool, worker 这类简单组件用于保证通过几行代码构建应用程序；
 - API 已经被简化和重写过了；例如，仅使用 6 行代码你就能够创建一个 traffic aggregator 和 balancer （详见[示例程序](https://github.com/ntop/PF_RING/blob/dev/userland/examples_zc/README.examples)）；
 - 当工作在 kernel-bypass 模式下时，我们允许你和 IP stack 进行交互，并向其发送 packets 或从其获取 packets ；这可以简化既需要满足线速要求，又（有时）需要和主机 IP stack 交互的应用程序的开发过程；
