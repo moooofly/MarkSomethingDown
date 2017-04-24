@@ -19,7 +19,7 @@ PF_RING 实现了一种 socket 类型，基于该 socket 类型实现了用户�
 2. 某个 RX queue ，仅在 multi-queue 网络适配器上允许；
 3. 名为 'any' 的虚拟接口，即所有系统接口上的收发包均可被获取；
 
-正如上面所说，packets 读取发生在主存的环形缓冲区（memory ring）中（创建时分配内存）；而 incoming packets 由内核模块负责拷贝到该环形缓冲区，之后再被用户空间应用所读取；内存的分配和释放并非基于每个 packet 进行，一旦某个 packet 被从环形缓冲区中读取走了，那么之前环形缓冲区中用于保存该 packet 的空间将被用作安放后续其它的 packets ；这就意味着，如果应用想要维护一个 packet archive ，则必须自行保存读取到的所有 packets ，因为 PF_RING 不会为应用做保存；
+正如上面所说，packets 的（用户态）读取发生在主存环形缓冲区（memory ring）中（创建时分配内存）；而 incoming packets 是由内核（驱动）模块负责拷贝到该环形缓冲区的，之后再被用户空间应用所读取；内存的分配和释放并非基于每个 packet 进行，一旦某个 packet 被从环形缓冲区中读取走了，那么之前环形缓冲区中用于保存该 packet 的空间将被用作安放后续其它的 packets ；这就意味着，如果应用想要维护一个 packet archive ，则必须自行保存读取到的所有 packets ，因为 PF_RING 不会为应用做保存；
 
 ## Packet Filtering
 

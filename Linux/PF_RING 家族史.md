@@ -90,7 +90,7 @@ PF_RING 有三种工作模式（对应 `transparent_mode` 的不同值）：
 
 另外：
 
-- 默认为 `transparent=0` ，数据包通过标准的 linux 接口接收,任何驱动都可以使用该模式；
+- 默认为 `transparent=0` ，数据包通过标准的 linux 接口接收，任何驱动都可以使用该模式；
 - `transparent=1`（用于 Vanilla PF_RING 和 PF_RING-aware 驱动程序），数据包分别拷贝到 PF_RING 和标准 linux 网络协议栈各一份；
 - `transparent=2`（用于 PF_RING-aware 驱动程序），数据包仅拷贝到 PF_RING ，而不会拷贝到标准的 linux 网络协议栈（即 tcpdump 不会看到任何数据包）；
 
