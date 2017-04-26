@@ -775,7 +775,9 @@ export PATH=$GOROOT/bin:$GOPATH/bin:$PATH:/usr/local/mysql/bin
 
 ## go get 和 go get -u 的区别
 
-xx
+The `-u` flag instructs `get` to use the network to update the named packages
+and their dependencies.  By default, `get` uses the network to check out
+missing packages but does not use it to look for updates to existing packages.
 
 ## import "github.com/elastic/beats/libbeat/beat" 与版本控制问题
 
@@ -783,7 +785,42 @@ xx
 
 ## []string{} 和 make([]string, 0) 的区别
 
-xx
+说明代码
+
+```
+var s []byte
+s = make([]byte, 5, 5)
+```
+
+执行后有 `s == []byte{0, 0, 0, 0, 0}` ；
+
+因此可以知道
+
+- `[]byte{0}` 等价于 `make([]byte,1)`
+- `[]string{}` 等价于 `make([]string,0)`
+
+测试代码
+
+```
+    s1 := []string{}
+    s2 := make([]string,0)
+    s3 := []string{""}
+    s4 := make([]string,1)
+    
+    fmt.Printf("s1 => %#v  len(s1),cap(s1) => %d,%d\n", s1, len(s1), cap(s1))
+    fmt.Printf("s2 => %#v  len(s2),cap(s2) => %d,%d\n", s2, len(s2), cap(s2))
+    fmt.Printf("s3 => %#v  len(s3),cap(s3) => %d,%d\n", s3, len(s3), cap(s3))
+    fmt.Printf("s4 => %#v  len(s4),cap(s4) => %d,%d\n", s4, len(s4), cap(s4))
+```
+
+输出
+
+```
+s1 => []string{}  len(s1),cap(s1) => 0,0
+s2 => []string{}  len(s2),cap(s2) => 0,0
+s3 => []string{""}  len(s1),cap(s1) => 1,1
+s4 => []string{""}  len(s2),cap(s2) => 1,1
+```
 
 ## make(chan int) 和 make(chan int, 1) 的选择
 
@@ -796,10 +833,10 @@ gorountine是Go语言里很重要的新概念，有点类似线程，但消耗�
 ## for 用法
 
 ```
-for {}                     // 相当于C语言里的while 1 {}
-for i := 0; i < xx; i++ {} // 相当于C语言里for (int i=0; i<xx; i++) {}
-for i > 0 {}               // 相当于C语言里的while (i>0) {}
-for index, item := range array {} // 相当于Python里的foreach，index是循环序号
+for {}                     // 相当于 C 语言里的 while 1 {}
+for i := 0; i < xx; i++ {} // 相当于 C 语言里 for (int i=0; i<xx; i++) {}
+for i > 0 {}               // 相当于 C 语言里的 while (i>0) {}
+for index, item := range array {} // 相当于 Python 里的 foreach，index 是循环序号
 ```
 
 ## defer 说明
@@ -898,9 +935,9 @@ func main() {
 
 答案揭晓，输出是[1 3]。
 
-就我的理解，slice是一个_{**指向内存的指针**，**当前已有元素的长度**，**内存最大长度**}_的结构体，其中只有**指向内存的指针**一项是真正具有引用语义的域，另外两项都是每个slice自身的值。因此，对slice做赋值时，会出现两个slice指向同一块内存，但是又分别具有各自的元素长度和最大长度。程序里把array赋值给a和b，所以a和b会同时指向array的内存，并各自保存一份当前元素长度1和最大长度3。之后对a的追加操作，由于没有超出a的最大长度，因此只是把新值2追加到a指向的内存，并把a的“当前已有元素的长度”增加1。之后对b进行追加操作时，因为a和b各自拥有各自的“当前已有元素的长度”，因此b的这个值依旧是1，追加操作依旧写在b所指向内存的偏移为1的位置，也就复写了之前对a追加时写入的2。
+就我的理解，slice 是一个_{**指向内存的指针**，**当前已有元素的长度**，**内存最大长度**}_的结构体，其中只有**指向内存的指针**一项是真正具有引用语义的域，另外两项都是每个 slice 自身的值。因此，对 slice 做赋值时，会出现两个 slice 指向同一块内存，但是又分别具有各自的元素长度和最大长度。程序里把 array 赋值给 a 和 b ，所以 a 和 b 会同时指向 array 的内存，并各自保存一份当前元素长度1和最大长度 3 。之后对 a 的追加操作，由于没有超出 a 的最大长度，因此只是把新值 2 追加到 a 指向的内存，并把 a 的“当前已有元素的长度”增加 1 。之后对b进行追加操作时，因为 a 和 b 各自拥有各自的“当前已有元素的长度”，因此 b 的这个值依旧是 1 ，追加操作依旧写在 b 所指向内存的偏移为 1 的位置，也就复写了之前对 a 追加时写入的 2 。
 
-为了让slice具有引用语义，同时不增加array的实现负担，又不增加运行时的开销，似乎也只能忍受这个奇怪的语法了。
+为了让 slice 具有引用语义，同时不增加 array 的实现负担，又不增加运行时的开销，似乎也只能忍受这个奇怪的语法了。
 
 
 
@@ -913,4 +950,4 @@ go选择了CSP的内核实现，并在此上实现了goroutine和channel。这�
 ----------
 
 
-注意interface只能接收一个实例的指针，而不能直接接收实例作为参数。
+注意 interface 只能接收一个实例的指针，而不能直接接收实例作为参数。
