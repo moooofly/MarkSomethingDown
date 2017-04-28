@@ -822,6 +822,27 @@ s3 => []string{""}  len(s1),cap(s1) => 1,1
 s4 => []string{""}  len(s2),cap(s2) => 1,1
 ```
 
+同样地，对于 map 来说也是如此
+
+```
+    var mp1 map[string]bool
+    mp2 := make(map[string]bool)
+    mp3 := map[string]bool{}
+    
+    fmt.Printf("[mp1] ==> %v -- %#v\n", mp1, mp1)
+    fmt.Printf("[mp2] ==> %v -- %#v\n", mp2, mp2)
+    fmt.Printf("[mp3] ==> %v -- %#v\n", mp3, mp3)
+```
+
+得到
+
+```
+[mp1] ==> map[] -- map[string]bool(nil)
+[mp2] ==> map[] -- map[string]bool{}
+[mp3] ==> map[] -- map[string]bool{}
+```
+
+
 ## make(chan int) 和 make(chan int, 1) 的选择
 
 xx
