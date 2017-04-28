@@ -5,10 +5,10 @@
 ## [超全的Go Http路由框架性能比较](http://colobu.com/2016/03/23/Go-HTTP-request-router-and-web-framework-benchmark/)
 
 
-- net/http 自己的 [default request multiplexer (i.e. mux)](https://golang.org/pkg/net/http/#ServeMux)
+- `net/http` 自己的 [default request multiplexer (i.e. mux)](https://golang.org/pkg/net/http/#ServeMux)
     - 简单、功能有限，很容易扩展实现自定义路由器；
     - 很多第三方路由库本质上就是在其基础上的扩展；
-- [julienschmidt/httprouter](https://github.com/julienschmidt/httprouter) 在 net/http 默认的 mux 基础上，实现了 routing pattern 的变量支持，并且更具扩展性；
+- [julienschmidt/httprouter](https://github.com/julienschmidt/httprouter) 在 `net/http` 默认的 mux 基础上，实现了 routing pattern 的变量支持，并且更具扩展性；
     - 增加了一些贴心功能（路径末尾的'\'、path 自动修正等）；
     - 衍生出了一个专门用于测试 routing 性能的测试框架 [julienschmidt/go-http-routing-benchmark](https://github.com/julienschmidt/go-http-routing-benchmark)；
 - 测试框架模拟了静态路由、Github API、Goolge+ API、Parse API 的各种情况；
@@ -61,18 +61,18 @@
     - 并未测试完整的 web 框架处理过程（接受连接、路由、Handler 处理）；
     - 其 Handler 实现非常的简单，不能反映实际产品的业务处理；
 - 发现之前的测试结论存在问题（即“ iris 是最快的 HTTP 路由框架”的结论）；
-- （倒逼）现在 iris 已经改成了 fasthttp 实现，性能超级好（基本上 iris 的高性能来源于 fasthttp 和 httprouter 等一些框架的努力）；
+- （倒逼）现在 iris 已经改成了 `valyala/fasthttp` 实现，性能超级好（基本上 iris 的高性能来源于 `valyala/fasthttp` 和 `julienschmidt/httprouter` 等一些框架的努力）；
 - 促使重新实现了 [smallnest/go-web-framework-benchmark](https://github.com/smallnest/go-web-framework-benchmark) 这个测试框架；
     - 为每个 web 框架实现了 `/hello` 的 Http Get 服务，它返回 `hello world` 字符串。所有的 web 框架的实现都是一致的；
     - 可以指定业务处理的时间，如 10 毫秒，100 毫秒，500 毫秒等；
     - 自动化测试；
-- fasthttp 表现非常的好，唯一需要考虑的是：如果选它做 web 框架，你的代码将难以迁移到别的框架上，因为它实现了和标准库net/http 不一样的接口。如果开启 http pipelining ，fasthttp 会远远好于基于 net/http 实现的框架。
+- `valyala/fasthttp` 表现非常的好，唯一需要考虑的是：如果选它做 web 框架，你的代码将难以迁移到别的框架上，因为它实现了和标准库`net/http` 不一样的接口。如果开启 http pipelining ，`valyala/fasthttp` 会远远好于基于 `net/http` 实现的框架。
 
 
 > 基本上 go web 框架分为两个门派：
 > 
-> - 基于标准库 net/http 的框架；
-> - 基于 valyala/fasthttp 库的框架；
+> - 基于标准库 `net/http` 的框架；
+> - 基于 `valyala/fasthttp` 库的框架；
 >
 > ------ 
 >
@@ -92,7 +92,7 @@
 
 
 - 基于 Go v1.8.0 ；
-- HTTP pipelining 是将多个 HTTP 请求（request）整批提交的技术，而在发送过程中不需先等待服务端的回应。请求结果管线化使得 HTML 网页加载时间动态提升，特别是在具有高延迟的连接环境下，如卫星上网。在宽带连接中，加速不是那么显著的；因为需要服务器端应用 HTTP/1.1 协议：服务器端必须按照客户端的请求顺序恢复请求，这样整个连接还是先进先出的，对头阻塞（HOL blocking）可能会发生，造成延迟。未来的 HTTP/2.0 或者 SPDY 中的异步操作将会解决这个问题。因为它可能将多个 HTTP 请求填充在一个TCP数据包内，HTTP 管线化需要在网络上传输较少的 TCP 数据包，减少了网络负载；
+- HTTP pipelining 是将多个 HTTP 请求（request）整批提交的技术，而在发送过程中不需先等待服务端的回应。请求结果管线化使得 HTML 网页加载时间动态提升，特别是在具有高延迟的连接环境下，如卫星上网。在宽带连接中，加速不是那么显著的；因为需要服务器端应用 HTTP/1.1 协议：服务器端必须按照客户端的请求顺序恢复请求，这样整个连接还是先进先出的，对头阻塞（HOL blocking）可能会发生，造成延迟。未来的 HTTP/2.0 或者 SPDY 中的异步操作将会解决这个问题。因为它可能将多个 HTTP 请求填充在一个 TCP 数据包内，HTTP 管线化需要在网络上传输较少的 TCP 数据包，减少了网络负载；
 - iris 存在争议，已经从测试结果中被禁掉了；
 
 
@@ -138,7 +138,7 @@ beego 是一个用 Go 开发的应用框架，思路来自于 tornado ，路由�
 
 Golanger 是一个轻量级的 Web 应用框架，使用 Go 语言编写。
 
-Golanger 框架主要实现了 MVC (Model-View-Controller) 模式（三层架构模式），把软件系统分为三个基本部分：模型、视图和控制器；
+Golanger 框架主要实现了 MVC (Model-View-Controller) 模式（三层架构模式），把软件系统分为三个基本部分：模型、视图和`net/http`；
 
 Golanger 约定的命名规则：
 
@@ -171,10 +171,10 @@ Golanger 约定的命名规则：
 英文原文：[这里](https://medium.com/square-corner-blog/a-comparison-of-go-web-frameworks-f47804cf86f6)
 
 
-- 推荐使用 [net/http](https://golang.org/pkg/net/http/) 作为入门起步的标准库；
+- 推荐使用 [`net/http`](https://golang.org/pkg/net/http/) 作为入门起步的标准库；
 - 如果你需要**路由**方面功能，可使用 [Gorilla](http://www.gorillatoolkit.org/) 和 [Gocraft/web](https://github.com/gocraft/web) ；
 - [Revel](http://revel.github.io/) 和 [Martini](https://github.com/go-martini/martini) 有太多的依赖注入和其他魔术让人感觉舒服；
-- 上述所有的 Web 框架都是基于 net/http 包构建的；
+- 上述所有的 Web 框架都是基于 `net/http` 包构建的；
 - 本文从路由功能、数据绑定、控制器、中间件，以及杂类几个方面进行了比较，值得深入思考；
     - **路由**是一种将 Web 请求映射到一个处理器函数的机制，比较应该从灵活性和实现是否直接的角度考虑；
     - **数据绑定**是将请求参数转换成处理器使用参数的机制，会涉及到反射和依赖注入相关实现；
@@ -210,7 +210,7 @@ This suite aims to compare the public API of various Go web frameworks and route
 - Martini
 - Gorilla
 - GoCraft
-- Net/HTTP
+- `net/http`
 
 
 ----------
