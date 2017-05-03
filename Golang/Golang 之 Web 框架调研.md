@@ -166,6 +166,32 @@ Golanger 约定的命名规则：
 ----------
 
 
+## [Go语言的Web框架](http://fuxiaohei.me/2014/3/13/go-web-framework.html)
+
+### [revel/revel](https://github.com/revel/revel)
+
+- 最早的 Go 语言 Web 框架，借鉴的 java 和 scala 语言的 play 框架的很多想法；
+- 带有和 play 一样的毛病，舍弃了原有的标准完全自己来；revel 完全不理 Go 标准库的一套，全部是自己的概念；
+
+### [astaxie/beego](https://github.com/astaxie/beego)
+
+- 国内最火热的、比较中型的框架；
+- 除了基础的 MVC 结构外，还带有 Cache ，ORM ，Session 等多个库的支持；
+- 用的人很多，文档也很齐全（更新不太及时），社区和 Q 群也很活跃；
+
+###  [Martini](https://github.com/go-martini/martini) 
+
+- 概念非常不错的新锐框架；
+- 微型框架：只带有简单的核心，路由功能和依赖注入容器 inject ，因此很多东西需要自己写，比如 view ，session 等；
+- martini 营造的是一种组件生态（martini-contrib），即 nodejs 中的 expressjs 在做的事情；
+- 基于其 DI 实现，第三方库很容易改造为 martini 规范的中间件；
+- 由于依赖注入的实现依赖 reflect 反射，而 Go 语言的反射库效率很差，因此过多的中间件肯定会拖慢整体的速度（取决于 Go 本身的发展情况）；
+
+
+
+----------
+
+
 ## [Go语言的Web框架比较](http://www.jdon.com/47016)
 
 英文原文：[这里](https://medium.com/square-corner-blog/a-comparison-of-go-web-frameworks-f47804cf86f6)
@@ -173,7 +199,7 @@ Golanger 约定的命名规则：
 
 - 推荐使用 [`net/http`](https://golang.org/pkg/net/http/) 作为入门起步的标准库；
 - 如果你需要**路由**方面功能，可使用 [Gorilla](http://www.gorillatoolkit.org/) 和 [Gocraft/web](https://github.com/gocraft/web) ；
-- [Revel](http://revel.github.io/) 和 [Martini](https://github.com/go-martini/martini) 有太多的依赖注入和其他魔术让人感觉舒服；
+- [Revel](http://revel.github.io/) 和 [Martini](https://github.com/go-martini/martini) 有太多的依赖注入和其他魔术让人感觉不舒服；
 - 上述所有的 Web 框架都是基于 `net/http` 包构建的；
 - 本文从路由功能、数据绑定、控制器、中间件，以及杂类几个方面进行了比较，值得深入思考；
     - **路由**是一种将 Web 请求映射到一个处理器函数的机制，比较应该从灵活性和实现是否直接的角度考虑；
@@ -238,3 +264,21 @@ Frameworks are especially tempting for newcomers considering most of the time th
 If most of your answers are false, then
 
 Stick to the bare metal until you don’t have to.
+
+
+----------
+
+
+## [Go 开发 HTTP](http://fuxiaohei.me/2016/9/20/go-and-http-server.html?nsukey=iIAIpUMuTIu8B9MXcgDI51F9rGZ6s3Zpy3Qc6ruvD%2BF3D65%2FEWyw9vEqDxhPahbDyrLUHILxsUfpM55bCZZbXAAA5LOSOz56ljdc6kLZkw5hFIRS3GDiBQ1eATDVIutbz6jrYDM6G3GpvlXQgJ50WCWi8z2PbHoDYJ7rWkqx45Z1blqfSC%2F0ShtXuX%2F9Dml7)
+
+本文完整介绍了基于标准库 `net/http` 开发 Web 服务时的使用细节，推荐阅读！
+
+
+----------
+
+
+## [HTTP Response Snippets for Go](http://www.alexedwards.net/blog/golang-response-snippets)
+
+本文给出了如何返回 JSON, XML 数据，以及如何渲染模板内容等问题的代码示例程序。
+
+
