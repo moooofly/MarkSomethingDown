@@ -9,7 +9,7 @@
 x.(T)
 ```
 
-可以断言出 x 为非 `nil` 的情况，并获取保存在 x 中的类型为 T 的值；表达式 `x.(T)` 就被称作 **type assertion** ；
+能够断言 x （是否）非 `nil` ，以及保存在 x 中的值为 T 类型；表达式 `x.(T)` 就被称作 **type assertion** ；
 
 更准确的说，**如果 T 不是接口类型**，那么 `x.(T)` 将断言 x 的 dynamic type 是否和类型 T 相同；在这种情况下，T 必须实现 x 的（接口）类型，否则类型断言将会失败；因为在这种情况下 x 将无法保存 T 类型的值；**如果 T 是接口类型**，那么 `x.(T)` 将断言 x 的 dynamic type 是否实现了接口 T（可以理解成将 x 的 dynamic type 转换成 T 接口的类型）；
 
@@ -20,9 +20,12 @@ var x interface{} = 7  // x has dynamic type int and value 7
 i := x.(int)           // i has type int and value 7
 
 type I interface { m() }
-var y I
-s := y.(string)        // illegal: string does not implement I (missing method m)
-r := y.(io.Reader)     // r has type io.Reader and y must implement both I and io.Reader
+
+func f(y I) {
+	s := y.(string)        // illegal: string does not implement I (missing method m)
+	r := y.(io.Reader)     // r has type io.Reader and the dynamic type of y must implement both I and io.Reader
+	…
+}
 ```
 
 若 type assertion 被用在赋值（assignment）或初始化（initialization）语句中，则具有如下特殊形式：
@@ -31,6 +34,7 @@ r := y.(io.Reader)     // r has type io.Reader and y must implement both I and i
 v, ok = x.(T)
 v, ok := x.(T)
 var v, ok = x.(T)
+var v, ok T1 = x.(T)
 ```
 
 此时需要增加一个额外的无类型 boolean 变量；变量 ok 为 true 则表明断言成立；否则，表明断言不成立，此时 v 的值将被赋值为类型 T 的零值；**在这种情况下，不会触发运行时崩溃**；
@@ -46,7 +50,7 @@ switch x.(type) {
 }
 ```
 
-每一个 Case 都会使用实际类型 T 去和表达式 x 的 dynamic type 去比较；使用 type assertions 的时候，x 必须为 interface 类型，同时每一个列出在 case 中的 non-interface 类型的 T 都必须实现 x 的类型；在 type switch 中每一个 case 中列出的类型都必须是完全不同的；
+每一个 Case 都会使用实际类型 T 去和表达式 x 的 dynamic type 去比较；和 type assertions 一样，x 必须为 interface 类型，同时每一个列出在 case 中的 non-interface 类型的 T 都必须实现 x 的类型；在 type switch 中每一个 case 中列出的类型都必须是完全不同的；
 
 case 中的 type 可能为 nil ；最多只能有一个 nil case ；
 
