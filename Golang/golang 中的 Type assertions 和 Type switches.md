@@ -101,6 +101,22 @@ if v == nil {
 
 在 type switch 中 fallthrough 语句是不允许使用的；
 
+在 [hoisie/web](https://github.com/hoisie/web) 项目的 server.go 中有如下代码：
+
+```golang
+...
+	switch handler.(type) {
+	case http.Handler:
+		s.routes = append(s.routes, route{r: r, cr: cr, method: method, httpHandler: handler.(http.Handler)})
+	case reflect.Value:
+		fv := handler.(reflect.Value)
+		s.routes = append(s.routes, route{r: r, cr: cr, method: method, handler: fv})
+	default:
+		fv := reflect.ValueOf(handler)
+		s.routes = append(s.routes, route{r: r, cr: cr, method: method, handler: fv})
+	}
+...
+```
 
 
 
