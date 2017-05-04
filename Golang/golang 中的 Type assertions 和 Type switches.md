@@ -104,7 +104,13 @@ if v == nil {
 在 [hoisie/web](https://github.com/hoisie/web) 项目的 server.go 中有如下代码：
 
 ```golang
-...
+func (s *Server) addRoute(r string, method string, handler interface{}) {
+	cr, err := regexp.Compile(r)
+	if err != nil {
+		s.Logger.Printf("Error in route regex %q\n", r)
+		return
+	}
+
 	switch handler.(type) {
 	case http.Handler:
 		s.routes = append(s.routes, route{r: r, cr: cr, method: method, httpHandler: handler.(http.Handler)})
@@ -115,7 +121,7 @@ if v == nil {
 		fv := reflect.ValueOf(handler)
 		s.routes = append(s.routes, route{r: r, cr: cr, method: method, handler: fv})
 	}
-...
+}
 ```
 
 
