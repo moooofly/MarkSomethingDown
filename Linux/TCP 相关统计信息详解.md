@@ -124,10 +124,10 @@ root@vagrant-ubuntu-trusty:~] $
 
 | 名称 | 含义 |
 | --- | --- |
-| RtoAlgorithm | 用于计算 RTO 的算法，默认为 1 ，RTO 算法与 RFC2698 一致 |
-| RtoMin |  限定 RTO 的最小值，默认值为 1/5HZ，即 **200ms** |
-| RtoMax | 限定 RTO 的最大值，默认值为 120HZ，即 **120s** |
-| MaxConn | TCP 流数量的上限，协议栈本身并不会限制 TCP 连接总数，默认值为 -1 |
+| RtoAlgorithm | The algorithm used to determine the timeout value used for retransmitting unacknowledged octets. <br><br> 用于计算 RTO 的算法，默认为 1 ，RTO 算法与 RFC2698 一致 |
+| RtoMin | The minimum value permitted by a TCP implementation for the retransmission timeout, measured in milliseconds. More refined semantics for objects of this type depend upon the algorithm used to determine the retransmission timeout. In particular, when the timeout algorithm is ``rsre '' (3), an object of this type has the semantics of the LBOUND quantity described in RFC 793. <br><br> 限定 RTO 的最小值，默认值为 1/5HZ，即 **200ms** |
+| RtoMax | The maximum value permitted by a TCP implementation for the retransmission timeout, measured in milliseconds. More refined semantics for objects of this type depend upon the algorithm used to determine the retransmission timeout. In particular, when the timeout algorithm is ``rsre'' (3), an object of this type has the semantics of the UBOUND quantity described in RFC 793. <br><br> 限定 RTO 的最大值，默认值为 120HZ，即 **120s** |
+| MaxConn | The limit on the total number of TCP connections the entity can support. In entities where the maximum number of connections is dynamic, this object should contain the value -1. <br><br> TCP 流数量的上限，协议栈本身并不会限制 TCP 连接总数，默认值为 -1 |
 
 ### 建链统计
 
@@ -137,11 +137,11 @@ root@vagrant-ubuntu-trusty:~] $
 
 | 名称 | 含义 |
 | --- | --- |
-| ActiveOpens | 主动建链次数，对应 CLOSE => SYN-SENT 次数； <br> 在 `tcp_connect()` 函数中计数； <br> 相当于 SYN 包的发送次数（但不包含重传次数） |
-| PassiveOpens | 被动建链次数，RFC 原意对应 LISTEN => SYN-RECV 次数，但 Linux 实现选择在三次握手成功后才加 1 （即在建立 tcp_sock 结构体后） |
-| AttemptFails |  建链失败次数，即如下三项之和 <br> a) SYN-SENT => CLOSE 次数 <br> b) SYN-RECV => CLOSE 次数 <br> c) SYN-RECV => LISTEN 次数 <br><br> 回 CLOSE 部分在 `tcp_done()` 函数中计数 <br> 回 LISTEN 部分在 `tcp_check_req()` 中计数 |
-| EstabResets | 连接被 reset 次数，即如下两项之和 <br> a) ESTABLISHED => CLOSE 次数 <br> b) CLOSE-WAIT => CLOSE 次 <br><br> 在 `tcp_set_state()` 函数中，如果之前的状态是TCP_CLOSE_WAIT 或 TCP_ESTABLISHED 就加 1 |
-| CurrEstab | 处于 ESTABLISHED 和 CLOSE-WAIT 状态的 TCP 流数 <br> 在 `tcp_set_state()` 中进行处理 <br> 实现体现的是进入 ESTABLISHED 之后，进入 CLOSE 之前的 TCP 流数 |
+| ActiveOpens | The number of times TCP connections have made a direct transition to the SYN-SENT state from the CLOSED state. <br><br> 主动建链次数，对应 CLOSE => SYN-SENT 次数； <br> 在 `tcp_connect()` 函数中计数； <br> 相当于 SYN 包的发送次数（但不包含重传次数） |
+| PassiveOpens | The number of times TCP connections have made a direct transition to the SYN-RCVD state from the LISTEN state. <br><br> 被动建链次数，RFC 原意对应 LISTEN => SYN-RECV 次数，但 Linux 实现选择在三次握手成功后才加 1 （即在建立 tcp_sock 结构体后） |
+| AttemptFails | The number of times TCP connections have made a direct transition to the CLOSED state from either the SYN-SENT state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the LISTEN state from the SYN-RCVD state. <br><br> 建链失败次数，即如下三项之和 <br> a) SYN-SENT => CLOSE 次数 <br> b) SYN-RECV => CLOSE 次数 <br> c) SYN-RECV => LISTEN 次数 <br><br> 回 CLOSE 部分在 `tcp_done()` 函数中计数 <br> 回 LISTEN 部分在 `tcp_check_req()` 中计数 |
+| EstabResets | The number of times TCP connections have made a direct transition to the CLOSED state from either the ESTABLISHED state or the CLOSE-WAIT state. <br><br> 连接被 reset 次数，即如下两项之和 <br> a) ESTABLISHED => CLOSE 次数 <br> b) CLOSE-WAIT => CLOSE 次 <br><br> 在 `tcp_set_state()` 函数中，如果之前的状态是TCP_CLOSE_WAIT 或 TCP_ESTABLISHED 就加 1 |
+| CurrEstab | The number of TCP connections for which the current state is either ESTABLISHED or CLOSE- WAIT. <br><br> 处于 ESTABLISHED 和 CLOSE-WAIT 状态的 TCP 流数 <br> 在 `tcp_set_state()` 中进行处理 <br> 实现体现的是进入 ESTABLISHED 之后，进入 CLOSE 之前的 TCP 流数 |
 
 ### 数据包统计
 
@@ -153,13 +153,13 @@ root@vagrant-ubuntu-trusty:~] $
 
 | 名称 | 含义 |
 | --- | --- |
-| InSegs | 所有收到的 TCP 包，即使是个错误包 <br>     在 `tcp_v4_rcv()` 和 `tcp_v6_rcv()` 中计数 |
-| OutSegs | 所有发送出去的 TCP 包，包括 <br><br> a) 新数据包 <br> b) 重传数据包 <br> c) syn 包 <br> d) synack 包 <br> e) reset 包 <br><br> `tcp_v4_send_reset()` 中统计 reset 包 <br> `tcp_v4_send_ack()` 中统计 SYN-RECV 和 TIME-WAIT 状态下发送的 ACK 包 <br> `tcp_v6_send_response()` 中统计 ipv6 相应数据 <br> `tcp_make_synack()` 中统计发送的 SYNACK 包 <br> `tcp_transmit_skb()` 中统计所有的其他包 |
-| RetransSegs | 所有重传出去的 TCP 包 <br><br> `tcp_v4_rtx_synack()` 和 `tcp_v6_rtx_synack()` 中统计重传的 SYNACK 包 <br> `tcp_retransmit_skb()` 中统计其他重传包 |
-| InErrs |  所有收到的有问题的 TCP 包数量，比如 checksum 有问题 <br><br> `tcp_validate_incoming()` 中统计 seq 有问题的包 <br> `tcp_rcv_established()`、`tcp_v4_do_rcv()`、`tcp_v4_rcv()`、`tcp_v6_do_rcv()`、`tcp_v6_rcv()` 中根据 checksum 来判断出错误包 |
-| OutRsts | 发送的带 RST 标记的 TCP 包数量 <br><br> 在 `tcp_v4_send_reset()`、`tcp_send_active_reset()`、`tcp_v6_send_response()` 中统计 |
+| InSegs | The total number of segments received, including those received in error. This count includes segments received on currently established connections. <br><br> 所有收到的 TCP 包，即使是个错误包 <br>  在 `tcp_v4_rcv()` 和 `tcp_v6_rcv()` 中计数 |
+| OutSegs | The total number of segments sent, including those on current connections but excluding those containing only retransmitted octets. <br><br> 所有发送出去的 TCP 包，包括 <br><br> a) 新数据包 <br> b) 重传数据包 <br> c) syn 包 <br> d) synack 包 <br> e) reset 包 <br><br> `tcp_v4_send_reset()` 中统计 reset 包 <br> `tcp_v4_send_ack()` 中统计 SYN-RECV 和 TIME-WAIT 状态下发送的 ACK 包 <br> `tcp_v6_send_response()` 中统计 ipv6 相应数据 <br> `tcp_make_synack()` 中统计发送的 SYNACK 包 <br> `tcp_transmit_skb()` 中统计所有的其他包 |
+| RetransSegs | The total number of segments retransmitted - that is, the number of TCP segments transmitted containing one or more previously transmitted octets. <br><br> 所有重传出去的 TCP 包 <br><br> `tcp_v4_rtx_synack()` 和 `tcp_v6_rtx_synack()` 中统计重传的 SYNACK 包 <br> `tcp_retransmit_skb()` 中统计其他重传包 |
+| InErrs | The total number of segments received in error (for example, bad TCP checksums). <br><br> 所有收到的有问题的 TCP 包数量，比如 checksum 有问题 <br><br> `tcp_validate_incoming()` 中统计 seq 有问题的包 <br> `tcp_rcv_established()`、`tcp_v4_do_rcv()`、`tcp_v4_rcv()`、`tcp_v6_do_rcv()`、`tcp_v6_rcv()` 中根据 checksum 来判断出错误包 |
+| OutRsts | The number of TCP segments sent containing the RST flag. <br><br> The number of TCP segments sent containing the RST flag <br><br> 发送的带 RST 标记的 TCP 包数量 <br><br> 在 `tcp_v4_send_reset()`、`tcp_send_active_reset()`、`tcp_v6_send_response()` 中统计 |
 | InCsumErrors | 收到的 checksum 有问题的数据包数量 <br><br> 属于 3.10 相对于 2.6.32 新增的内容，算是细化 InErrs 统计，InErrs 中应该只有*小部分*属于该类型 |
-| EmbryonicRsts | 在 SYN-RECV 状态收到带 RST/SYN 标记的包个数 |
+| EmbryonicRsts | number of resets received for embryonic SYN_RECV sockets <br> 在 SYN-RECV 状态收到带 RST/SYN 标记的包个数 |
 
 ### Syncookies 相关
 
@@ -167,9 +167,9 @@ syncookies 一般不会被触发，只有在 `tcp_max_syn_backlog` 队列被占�
 
 | 名称 | 含义 |
 | --- | --- |
-| SyncookiesSent | 使用 syncookie 技术发送的 syn/ack 包个数 |
-| SyncookiesRecv | 收到携带有效 syncookie 信息包个数 |
-| SyncookiesFailed | 收到携带无效 syncookie 信息包个数 |
+| SyncookiesSent | SYN cookies sent <br><br> An application wasn't able to accept a connection fast enough, so the kernel couldn't store an entry in the queue for this connection. Instead of dropping it, it sent a cookie to the client <br><br> 使用 syncookie 技术发送的 syn/ack 包个数 |
+| SyncookiesRecv | SYN cookies received <br><br> After sending a cookie, it came back to us and passed the check. <br><br> 收到携带有效 syncookie 信息包个数 |
+| SyncookiesFailed | Num of invalid SYN cookies received <br><br> After sending a cookie, it came back to us but looked invalid <br><br> 收到携带无效 syncookie 信息包个数 |
 
 > 注：syncookies 机制是为应对 syn flood 攻击而被提出来的。
 
@@ -182,9 +182,9 @@ TIME-WAIT 状态是 TCP 协议状态机中的重要一环，服务器设备一�
 
 | 名称 | 含义 |
 | --- | --- |
-| TW | 经过正常时间（`TCP_TIMEWAIT_LEN`）结束 TW 状态的 socket 数量 |
-| TWRecycled | TIMEWAIT socket 被复用的次数；只有在 `sysctl_tcp_tw_reuse` 开启时，才可能加 1 |
-| TWKilled | 经过更短时间结束 TW 状态的 socket 数量；只有在 `net.ipv4.tcp_tw_recycle` 开启时，调度 TW timer 时才可能用更短的 timeout 值 |
+| TW | number of TCP sockets finished time wait in **fast** timer <br> 经过正常时间（`TCP_TIMEWAIT_LEN`）结束 TW 状态的 socket 数量 |
+| TWRecycled | number of time wait sockets recycled by time stamp <br> TIME-WAIT socket 被复用的次数；只有在 `sysctl_tcp_tw_reuse` 开启时，才可能加 1 |
+| TWKilled | number of TCP sockets finished time wait in **slow** timer <br> 经过更短时间结束 TW 状态的 socket 数量；只有在 `net.ipv4.tcp_tw_recycle` 开启时，调度 TW timer 时才可能用更短的 timeout 值 |
 | TCPTimeWaitOverflow | 如果没有内存分配 TIMEWAIT 结构体，则加 1 |
 
 ### RTO 相关
@@ -228,12 +228,12 @@ RTO 超时对 TCP 性能的影响是巨大的，因此关心 RTO 超时的次数
 
 | 名称 | 含义 |
 | --- | --- |
-| TCPFastOpenActive | 主动发送的、带 TFO cookie 的 SYN 包个数 |
-| TCPFastOpenActiveFail | 基于 TFO 主动建链失败次数 |
-| TCPFastOpenPassive | 收到带 TFO cookie 的 SYN 包个数 |
-| TCPFastOpenPassiveFail | 基于 TFO 被动建链失败次数 |
-| TCPFastOpenListenOverflow | TFO 请求数超过 listener queue 设置上限，则加 1 |
-| TCPFastOpenCookieReqd | 收到一个请求 TFO cookies 的 SYN 包时，则加 1 |
+| TCPFastOpenActive | number of successful outbound TFO connections <br><br> 主动发送的、带 TFO cookie 的 SYN 包个数 |
+| TCPFastOpenActiveFail | number of SYN-ACK packets received that did not acknowledge data sent in the SYN packet and caused a retransmissions without SYN data. Note that the original SYN packet contained a cookie + data, this is not the number of connections to servers that didn’t support TFO <br><br> 基于 TFO 主动建链失败的次数 |
+| TCPFastOpenPassive | number of successful inbound TFO connections <br><br> 收到带 TFO cookie 的 SYN 包个数 |
+| TCPFastOpenPassiveFail | number of inbound SYN packets with TFO cookie that was invalid <br><br> 基于 TFO 被动建链，但由于 cookie 无效而失败的次数 |
+| TCPFastOpenListenOverflow | number of inbound SYN packets that will have TFO disabled because the socket has exceeded the max queue length <br><br> TFO 请求数超过 listener queue 设置上限，则加 1 |
+| TCPFastOpenCookieReqd | number of inbound SYN packets requesting TFO with TFO set but no cookie <br><br> 收到一个请求 TFO cookies 的 SYN 包时，则加 1 |
 
 ### MD5
 
@@ -253,9 +253,9 @@ DelayedACK 是内核中默认支持的，但即使使用 DelayedACKs ，每收�
 
 | 名称 | 含义 |
 | --- | --- |
-| DelayedACKs | 调用 tcp_send_ack() 的次数，无论发送是否成功 <br><br> 触发点：tcp_delack_timer() |
-| DelayedACKLocked | delay ACK 定时器因为 user 已经锁住而无法发送 ACK 的次数 <br><br> 触发点：tcp_delack_timer() |
-| DelayedACKLost | a) 当输入包不在接收窗口内，或者 PAWS 失败后，计数器加 1 ；触发点：tcp_validate_incoming()->tcp_send_dupack() <br> b) 输入包的结束序列号 < RCV_NXT 时，加 1 ；触发点：tcp_data_queue() |
+| DelayedACKs | number of delayed acks sent <br><br> We waited for another packet to send an ACK, but didn't see any, so a timer ended up sending a delayed ACK. <br><br> 调用 tcp_send_ack() 的次数，无论发送是否成功 <br><br> 触发点：tcp_delack_timer() |
+| DelayedACKLocked | number of delayed acks further delayed because of locked socket <br><br> We wanted to send a delayed ACK but failed because the socket was locked. So the timer was reset. <br><br> delay ACK 定时器因为 user 已经锁住而无法发送 ACK 的次数 <br><br> 触发点：tcp_delack_timer() |
+| DelayedACKLost | Quick ack mode was activated %u times <br><br> We sent a delayed and duplicated ACK because the remote peer retransmitted a packet, thinking that it didn't get to us. <br><br> a) 当输入包不在接收窗口内，或者 PAWS 失败后，计数器加 1 ；触发点：tcp_validate_incoming()->tcp_send_dupack() <br> b) 输入包的结束序列号 < RCV_NXT 时，加 1 ；触发点：tcp_data_queue() |
 | TCPSchedulerFailed | 在 delay ACK 处理功能内，如果 prequeue 中仍有数据，计数器就加 1 <br> 加入到 prequeue ，本来是期待着 userspace（使用 tcp_recvmsg() 之类的系统调用）尽快处理之。若其中仍有数据，则可能隐含着 userspace 行为不佳 <br><br> 触发点：tcp_delack_timer() |
 
 ### DSACK
@@ -276,8 +276,8 @@ DSACKOldSent + DSACKOfoSent 可以当做是发送出的 DSACK 信息的次数，
 | TCPDSACKOfoSent | 如果收到的重复数据包序号比 rcv_nxt 大，则是一个乱序的重复数据包，增加 ofosent |
 | TCPDSACKRecv | 收到的 old dsack 信息次数，判断 old 的方法：dsack 序号小于 ACK 号 |
 | TCPDSACKOfoRecv | 收到的 Ofo dsack 信息次数 |
-| TCPDSACKIgnoredOld | 当一个 dsack block 被判定为无效，且设置过 undo_marker ，则加 1 |
-| TCPDSACKIgnoredNoUndo | 当一个 dsack block 被判定为无效，且未设置 undo_marker ，则加 1 |
+| TCPDSACKIgnoredOld | We got a duplicate SACK while retransmitting so we discarded it. <br><br> 当一个 dsack block 被判定为无效，且设置过 undo_marker ，则加 1 |
+| TCPDSACKIgnoredNoUndo | We got a duplicate SACK and discarded it. <br><br> 当一个 dsack block 被判定为无效，且未设置 undo_marker ，则加 1 |
 
 ### Reorder
 
@@ -285,13 +285,12 @@ DSACKOldSent + DSACKOfoSent 可以当做是发送出的 DSACK 信息的次数，
 
 不过下面四个计数器为互斥关系，最少见的应该是 TCPRenoReorder ，毕竟 SACK 已经被广泛部署使用了。
 
-
 | 名称 | 含义 |
 | --- | --- |
-| TCPFACKReorder | 如果在需要更新时判断支持 FACK ，则加 1 |
-| TCPSACKReorder | 如果仅支持 SACK ，则该计数器加 1 |
-| TCPRenoReorder | 如果被不支持 SACK 的 dupack 确认后，需要更新 reorder 值，则加 1 |
-| TCPTSReorder | 如果是被一个 partial ack 确认后需要更新 reorder 值，则加 1 |
+| TCPFACKReorder | We detected re-ordering using FACK <br> Forward ACK, the highest sequence number known to have been received by the peer when using SACK. FACK is used during congestion control |
+| TCPSACKReorder | We detected re-ordering using SACK |
+| TCPRenoReorder | We detected re-ordering using fast retransmit |
+| TCPTSReorder | We detected re-ordering using the timestamp option |
 
 > 关于 partial ack 的完整内容可参考 [RFC6582](https://tools.ietf.org/html/rfc6582) ；
 
@@ -303,8 +302,8 @@ DSACKOldSent + DSACKOfoSent 可以当做是发送出的 DSACK 信息的次数，
 
 | 名称 | 含义 |
 | --- | --- |
-| TCPRenoRecovery | 进入 Recovery 阶段的次数，对端不支持 SACK 选项 |
-| TCPSackRecovery | 进入 Recovery 阶段的次数，对端支持 SACK 选项 |
+| TCPRenoRecovery | A packet was lost and we recovered after a fast retransmit |
+| TCPSackRecovery | A packet was lost and we recovered by using selective acknowledgements |
 | TCPRenoRecoveryFail | 先进入 Recovery 阶段，然后又 RTO 的次数，对端不支持 SACK 选项 |
 | TCPSackRecoveryFail | 先进入 Recovery 阶段，然后又 RTO 的次数，对端支持 SACK 选项 |
 
@@ -316,12 +315,13 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 
 | 名称 | 含义 |
 | --- | --- |
-| TCPAbortOnData | 如果在 FIN_WAIT_1 和 FIN_WAIT_2 状态下收到后续数据，或 TCP_LINGER2 设置小于 0 ，则计数器加 1 |
-| TCPAbortOnClose | 如果调用 `tcp_close()` 关闭 socket 时，recv buffer 中还有数据，则加 1 ，此时会主动发送一个 reset 包给对端 |
-| TCPAbortOnMemory | 如果 orphan socket 数量或者 `tcp_memory_allocated` 超过上限，则加 1 ；一般值为 0 |
-| TCPAbortOnTimeout | 因各种计时器 (RTO/PTO/keepalive) 的重传次数超过上限，而关闭连接时，计数器加 1 |
-| TCPAbortOnLinger | `tcp_close()`中，因 tp->linger2 被设置小于 0 ，导致 FIN_WAIT_2 立即切换到 CLOSE 状态的次数；一般值为 0 |
-| TCPAbortFailed | 如果在准备发送 reset 时，分配 SKB 或者发送 SKB 失败，则加 1 ；一般值为 0 |
+| TCPAbortOnSyn | We received an unexpected SYN so we sent a RST to the peer |
+| TCPAbortOnData | We were in FIN_WAIT1 yet we received a data packet with a sequence number that's beyond the last one for this connection, so we RST'ed. <br><br> 如果在 FIN_WAIT_1 和 FIN_WAIT_2 状态下收到后续数据，或 TCP_LINGER2 设置小于 0 ，则计数器加 1 |
+| TCPAbortOnClose | We received data but the user has closed the socket, so we have no wait of handing it to them, so we RST'ed. <br><br> 如果调用 `tcp_close()` 关闭 socket 时，recv buffer 中还有数据，则加 1 ，此时会主动发送一个 reset 包给对端 |
+| TCPAbortOnMemory | This is Really Bad. It happens when there are too many orphaned sockets (not attached a FD) and the kernel has to drop a connection. Sometimes it will send a reset to the peer, sometimes it wont. <br><br> 如果 orphan socket 数量或者 `tcp_memory_allocated` 超过上限，则加 1 ；一般值为 0 |
+| TCPAbortOnTimeout | The connection timed out really hard. <br><br> 因各种计时器 (RTO/PTO/keepalive) 的重传次数超过上限，而关闭连接时，计数器加 1 |
+| TCPAbortOnLinger | We killed a socket that was closed by the application and lingered around for long enough. <br><br> `tcp_close()`中，因 tp->linger2 被设置小于 0 ，导致 FIN_WAIT_2 立即切换到 CLOSE 状态的次数；一般值为 0 |
+| TCPAbortFailed | We tried to send a reset, probably during one of the TCPABort* situations above, but we failed e.g. because we couldn't allocate enough memory (very bad). <br><br> 如果在准备发送 reset 时，分配 SKB 或者发送 SKB 失败，则加 1 ；一般值为 0 |
 
 ### reset 相关
 
@@ -335,36 +335,36 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 
 | 名称 | 含义 |
 | --- | --- |
-| PruneCalled | 慢速路径中，如果不能将数据直接复制到 user space ，需要加入到 sk_receive_queue 前，会检查 receiver side memory 是否允许，如果 rcv_buf 不足就可能 prune ofo queue 。此时计数器加 1 |
-| RcvPruned | 慢速路径中，如果不能将数据直接复制到 user space ，需要加入到 sk_receive_queue 前，会检查 receiver side memory 是否允许，如果 rcv_buf 不足就可能 prune receive queue ，如果 prune 失败了，此计数器加 1 |
-| OfoPruned | 慢速路径中，如果不能将数据直接复制到 user space ，需要加入到 sk_receive_queue 前，会检查 receiver side memory 是否允许，如果 rcv_buf 不足就可能 prune ofo queue 。此时计数器加 1 |
-| TCPMemoryPressures | tcp_enter_memory_pressure() 在从“非压力状态”切换到“有压力状态”时计数器加 1 ；<br><br> 触发点：<br> a) tcp_sendmsg() <br> b) tcp_sendpage() <br> c) tcp_fragment() <br> d) tso_fragment() <br> e) tcp_mtu_probe() <br> f) tcp_data_queue() |
+| PruneCalled | packets **pruned** from **receive queue** because of socket buffer overrun <br> 慢速路径中，如果不能将数据直接复制到 user space ，需要加入到 sk_receive_queue 前，会检查 receiver side memory 是否允许，如果 rcv_buf 不足就可能 prune ofo queue 。此时计数器加 1 |
+| RcvPruned | _obsolete: 2.2.0 doesn't do that anymore_ <br> packets **pruned** from **receive queue** <br><br> If the kernel is really really desperate and cannot give more memory to this socket even after dropping the ofo queue, it will simply discard the packet it received. This is Really Bad. <br><br> 慢速路径中，如果不能将数据直接复制到 user space ，需要加入到 sk_receive_queue 前，会检查 receiver side memory 是否允许，如果 rcv_buf 不足就可能 prune receive queue ，如果 prune 失败了，此计数器加 1 |
+| OfoPruned | packets **dropped** from **out-of-order queue** because of socket buffer overrun <br><br> When a socket is using too much memory (rmem), the kernel will first discard any out-of-order packet that has been queued (with SACK). <br><br> 慢速路径中，如果不能将数据直接复制到 user space ，需要加入到 sk_receive_queue 前，会检查 receiver side memory 是否允许，如果 rcv_buf 不足就可能 prune ofo queue 。此时计数器加 1 |
+| TCPMemoryPressures | Number of times a socket was put in "memory pressure" due to a non fatal memory allocation failure (reduces the send buffer size etc). <br><br> tcp_enter_memory_pressure() 在从“非压力状态”切换到“有压力状态”时计数器加 1 ；<br><br> 触发点：<br> a) tcp_sendmsg() <br> b) tcp_sendpage() <br> c) tcp_fragment() <br> d) tso_fragment() <br> e) tcp_mtu_probe() <br> f) tcp_data_queue() |
 
 
 ### PAWS
 
 | 名称 | 含义 |
 | --- | --- |
-| PAWSPassive | 三路握手最后一个 ACK 的 PAWS 检查失败次数 <br><br> 触发点：tcp_v4_conn_request() |
-| PAWSActive | 在发送 SYN 后，接收到 ACK ，但 PAWS 检查失败的次数 <br><br> 触发点：tcp_rcv_synsent_state_process() |
-| PAWSEstab | 输入包 PAWS 失败次数 <br><br> 触发点： <br> a) tcp_validate_incoming() <br> b) tcp_timewait_state_process() <br> c) tcp_check_req() |
+| PAWSPassive | number of **passive** connections rejected because of time stamp <br> 三路握手最后一个 ACK 的 PAWS 检查失败次数 <br><br> 触发点：tcp_v4_conn_request() |
+| PAWSActive | number of **active** connections rejected because of time stamp <br> 在发送 SYN 后，接收到 ACK ，但 PAWS 检查失败的次数 <br><br> 触发点：tcp_rcv_synsent_state_process() |
+| DelayedACKLocked | number of packets rejects in established connections because of timestamp <br> 输入包 PAWS 失败次数 <br><br> 触发点： <br> a) tcp_validate_incoming() <br> b) tcp_timewait_state_process() <br> c) tcp_check_req() |
 
 
 ### Listen 相关
 
 | 名称 | 含义 |
 | --- | --- |
-| ListenOverflows | 三路握手最后一步完全之后，Accept queue 队列超过上限时加 1 <br><br> 触发点：tcp_v4_syn_recv_sock() |
-| ListenDrops | 任何原因导致的失败后加 1，包括：Accept queue 超限，创建新连接，继承端口失败等 <br><br> 触发点：tcp_v4_syn_recv_sock() |
+| ListenOverflows | number of times the listen queue of a socket overflowed <br><br> We completed a 3WHS but couldn't put the socket on the accept queue, so we had to discard the connection. <br><br> 三路握手最后一步完全之后，Accept queue 队列超过上限时加 1 <br><br> 触发点：tcp_v4_syn_recv_sock() |
+| ListenDrops | number of SYNs to LISTEN sockets ignored <br><br> We couldn't accept a connection because one of: we had no route to the destination, we failed to allocate a socket, we failed to allocate a new local port bind bucket. Note: this counter also include all the increments made to ListenOverflows <br><br> 任何原因导致的失败后加 1，包括：Accept queue 超限，创建新连接，继承端口失败等 <br><br> 触发点：tcp_v4_syn_recv_sock() |
 
 ### undo 相关
 
 | 名称 | 含义 |
 | --- | --- |
-| TCPFullUndo | Recovery 状态时，接收到全部的确认（snd_una >= high_seq）后且已经 undo 完成（undo_retrans == 0）的次数 <br><br> tcp_ack() -> tcp_fastretrans_alert() -> tcp_try_undo_recovery() |
-| TCPPartialUndo | Recovery 状态时，接收到到部分确认（snd_una < high_seq）时但已经 undo 完成（undo_retrans == 0）的次数 <br><br> tcp_ack() -> tcp_fastretrans_alert() -> tcp_undo_partial() |
-| TCPDSACKUndo | Disorder 状态下，undo 完成（undo_retrans == 0）的次数 <br><br> tcp_ack() -> tcp_fastretrans_alert() -> tcp_try_undo_dsack() |
-| TCPLossUndo | Loss 状态时，接收到到全部确认（snd_una >= high_seq）后且已经 undo 完成（undo_retrans == 0）的次数 <br><br> tcp_ack() -> tcp_fastretrans_alert() -> tcp_try_undo_loss() |
+| TCPFullUndo | We detected some erroneous retransmits and undid our CWND reduction <br><br> Recovery 状态时，接收到全部的确认（snd_una >= high_seq）后且已经 undo 完成（undo_retrans == 0）的次数 <br><br> tcp_ack() -> tcp_fastretrans_alert() -> tcp_try_undo_recovery() |
+| TCPPartialUndo | We detected some erroneous retransmits, a partial ACK arrived while we were fast retransmitting, so we were able to partially undo some of our CWND reduction <br><br> Recovery 状态时，接收到到部分确认（snd_una < high_seq）时但已经 undo 完成（undo_retrans == 0）的次数 <br><br> tcp_ack() -> tcp_fastretrans_alert() -> tcp_undo_partial() |
+| TCPDSACKUndo | We detected some erroneous retransmits, a D-SACK arrived and ACK'ed all the retransmitted data, so we undid our CWND reduction <br><br> Disorder 状态下，undo 完成（undo_retrans == 0）的次数 <br><br> tcp_ack() -> tcp_fastretrans_alert() -> tcp_try_undo_dsack() |
+| TCPLossUndo | We detected some erroneous retransmits, a partial ACK arrived, so we undid our CWND reduction <br><br> Loss 状态时，接收到到全部确认（snd_una >= high_seq）后且已经 undo 完成（undo_retrans == 0）的次数 <br><br> tcp_ack() -> tcp_fastretrans_alert() -> tcp_try_undo_loss() |
 
 ### 快速路径与慢速路径
 
@@ -381,7 +381,7 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 | 名称 | 含义 |
 | --- | --- |
 | TCPSACKReneging | 如果 snd_una（输入 skb->ack）之后的具有最小开始序号 skb（即 sk_write_queue 中的第一个 skb）中有 TCPCB_SACKED_ACKED 标志，此时加 1 ，这说明接收者已经丢掉了之前它已经 SACK 过的数据 <br><br> 触发点：tcp_clean_rtx_queue() |
-| TCPSACKDiscard | 非法 SACK 块（不包括 D-SACK）计数，即 SACK 中的序号太旧 <br><br> 触发点：tcp_sacktag_write_queue() |
+| TCPSACKDiscard | We got a completely invalid SACK block and discarded it. <br><br> 非法 SACK 块（不包括 D-SACK）计数，即 SACK 中的序号太旧 <br><br> 触发点：tcp_sacktag_write_queue() |
 | TCPSackShifted | 在 tcp_sacktag_walk() 时，一个 SACK 可能会导致切割某 skb ，新切出来的 skb 放到被切的 skb 之后。根据 SACK 的观点，如果“旧的 skb”（变小了）能够与它之前的 skb 合并，本计数器，就加 1 。这个合并过程，叫作 shift <br><br> tcp_ack()->tcp_sacktag_write_queue()->tcp_sacktag_walk()->tcp_shift_skb_data()->tcp_shifted_data() |
 | TCPSackMerged | 在上面介绍的 shift 过程中，如果发现分割之后的 skb 被它之前的 skb 完全“吃掉”，本计数器加 1 <br><br> tcp_ack()->tcp_sacktag_write_queue()->tcp_sacktag_walk()->tcp_shift_skb_data()->tcp_shifted_data() |
 | TCPSackShiftFallback | 与上相反，如果不能 shift ，本计数器加 1 。原因可能如下：<br> a) 不支持GSO <br> b) prev skb 不完全是 paged 的 <br> c) SACK 的序号已经 ACK 过 <br> d) 等等 <br><br> tcp_ack()->tcp_sacktag_write_queue()->tcp_sacktag_walk()->tcp_shift_skb_data() |
@@ -391,15 +391,15 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 
 | 名称 | 含义 |
 | --- | --- |
-| OutOfWindowIcmps | 接收到了 ICMP ，但 ICMP 中的 TCP 头序号不在接收窗口之内的次数；<br><br> 有两个可能情况：<br> 1) LISTEN 状态时，序号不等于 ISN ；<br> 2) 其他状态时，序号不在 SND_UNA..SND_NXT 之间 <br><br> 触发点：tcp_v4_err() |
-| LockDroppedIcmps | 接收到 ICMP 错误报文，但 tcp socket 被 user 锁住 <br><br> 触发点：tcp_v4_err() |
+| OutOfWindowIcmps | number of ICMP packets dropped because they were **out-of-window** <br> 接收到 ICMP ，但由于 ICMP 中的 TCP 头序号不在接收窗口之内而导致被丢弃的数量（待确认） <br><br> 有两个可能情况：<br> 1) LISTEN 状态时，序号不等于 ISN ；<br> 2) 其他状态时，序号不在 SND_UNA..SND_NXT 之间 <br><br> 触发点：tcp_v4_err() |
+| LockDroppedIcmps | number of ICMP packets dropped because **socket was locked** <br> 接收到 ICMP 报文，但由于 socket 被 user 锁住的原因而丢弃的数量 <br><br> 触发点：tcp_v4_err() |
 | ArpFilter | 与 TCP 无关，接收到 ARP packet 时做一次输出路由查找（sip, tip），如果找到的路由项的 device 与输入 device 的不同，计数器加 1 <br><br> ArpFilter    arp_rcv() -> NETFILTER(ARP_IN) -> arp_process() |
 | TCPPrequeued | tcp_recvmsg() 发现可以从 prequeue 接收到报文，计数器加 1（不是每个 skb 加 1）<br><br>    tcp_recvmsg() -> tcp_prequeue_process() |
 | TCPDirectCopyFromBacklog | 如果有数据在 softirq 里面直接从 backlog queue 中复制到 userland memory 上，则计数器加 1 <br><br> 触发点：tcp_recvmsg() |
 | TCPDirectCopyFromPrequeue | 如果有数据在这个 syscall 里直接从 prequeue 中复制到 userland memory 上，计数器加 1 <br><br> 触发点：tcp_recvmsg() |
 | TCPPrequeueDropped | 如果因为内存不足（ucopy.memory < sk->rcv_buf）而加入到 prequeue 失败，重新由 backlog 处理，计数器加 1 <br><br> tcp_v4_rcv() -> tcp_prequeue() |
 | TCPRcvCollapsed | 每当合并 sk_receive_queue(ofo_queue) 中的连续报文时，计数器加 1 <br><br> 触发点：<br> a) tcp_prune_queue() -> tcp_collapse() -> tcp_collapse_one() <br> b) tcp_prune_ofo_queue() -> tcp_collapse()  |
-| TCPBacklogDrop | 如果 socket 被 user 锁住，后退一步，内核会把包加到 sk_backlog_queue ，但如果因为 sk_rcv_buf 不足的原因入队失败，计数器加 1 <br><br> tcp_v4_rcv() |
+| TCPBacklogDrop | We received something but had to drop it because the socket's receive queue was full. <br><br> 如果 socket 被 user 锁住，后退一步，内核会把包加到 sk_backlog_queue ，但如果因为 sk_rcv_buf 不足的原因入队失败，计数器加 1 <br><br> tcp_v4_rcv() |
 | TCPMinTTLDrop | 在接收到 TCP 报文或者 TCP 相关的 ICMP 报文时，检查 IP TTL ，如果小于 socket option 设置的一个阀值，就丢包。这个功能是 RFC5082 (The Generalized TTL Security Mechanism, GTSM) 规定的，使用 GTSM 的通信双方，都将 TTL 设置成最大值 255 ，双方假定了解之间的链路情况，这样可以通过检查最小 TTL 值隔离攻击 <br><br> tcp_v4_err() / tcp_v4_rcv() |
 | TCPDeferAcceptDrop | 如果启用 TCP_DEFER_ACCEPT ，这个计数器统计被丢掉的“Pure ACK”的个数。TCP_DEFER_ACCEPT 允许 listener 只有在连接上有数据时才创建新的 socket ，以抵御 syn-flood 攻击 <br><br> tcp_check_req() |
 | IPReversePathFilter | 反向路径过滤掉的 IP 分组数量：要么反向路由查找失败，要么是找到的输出接口与输入接口不同 <br><br> ip_rcv_finish() -> ip_route_input_noref() |
@@ -423,8 +423,8 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 | TCPFromZeroWindowAdv |  |
 | TCPToZeroWindowAdv |  |
 | TCPWantZeroWindowAdv |  |
-| TCPSynRetrans |  |
-| TCPOrigDataSent |  |
+| TCPSynRetrans | number of SYN and SYN/ACK retransmits to break down retransmissions into SYN, fast-retransmits, timeout retransmits, etc. |
+| TCPOrigDataSent | number of outgoing packets with original data (excluding retransmission but including data-in-SYN). This counter is different from TcpOutSegs because TcpOutSegs also tracks pure ACKs. TCPOrigDataSent is more useful to track the TCP retransmission rate. |
 | TCPHystartTrainDetect |  |
 | TCPHystartTrainCwnd |  |
 | TCPHystartDelayDetect |  |
@@ -436,23 +436,27 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 
 ## IpExt
 
-InNoRoutes 
-InTruncatedPkts 
-InMcastPkts 
-OutMcastPkts 
-InBcastPkts 
-OutBcastPkts 
-InOctets 
-OutOctets 
-InMcastOctets 
-OutMcastOctets 
-InBcastOctets 
-OutBcastOctets 
-InCsumErrors 
-InNoECTPkts 
-InECT1Pkts 
-InECT0Pkts 
-InCEPkts
+> TODO
+
+| 名称 | 含义 |
+| --- | --- | 
+| InNoRoutes |  |
+| InTruncatedPkts |  |
+| InMcastPkts |  |
+| OutMcastPkts |  |
+| InBcastPkts |  |
+| OutBcastPkts |  |
+| InOctets |  |
+| OutOctets |  |
+| InMcastOctets |  |
+| OutMcastOctets |  |
+| InBcastOctets |  |
+| OutBcastOctets |  |
+| InCsumErrors |  |
+| InNoECTPkts |  |
+| InECT1Pkts |  |
+| InECT0Pkts |  |
+| InCEPkts |  |
 
 
 ----------
@@ -467,5 +471,9 @@ InCEPkts
 - [TCP SNMP counters三](http://blog.chinaunix.net/uid-20043340-id-3017972.html)
 - [netstat -s输出解析(一)](http://perthcharles.github.io/2015/11/09/wiki-rfc2012-snmp-proc/)
 - [netstat -st输出解析(二)](http://perthcharles.github.io/2015/11/10/wiki-netstat-proc/)
+- [How To Read `netstat -s` Output](http://cromwell-intl.com/networking/netstat-s.html)
+- [net-tools](https://sourceforge.net/p/net-tools/code/ci/v1.60/tree/statistics.c) 源码
+- [Investigating Linux Network Issues with netstat and nstat](https://perfchron.com/2015/12/26/investigating-linux-network-issues-with-netstat-and-nstat/)
+- [TCPCollector](https://github.com/BrightcoveOS/Diamond/wiki/collectors-TCPCollector)
 
 
