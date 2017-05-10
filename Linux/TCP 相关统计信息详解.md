@@ -196,7 +196,7 @@ RTO 超时对 TCP 性能的影响是巨大的，因此关心 RTO 超时的次数
 
 | 名称 | 含义 |
 | --- | --- |
-| TCPTimeouts | a) 在 RTO timer 中，从 CWR/Open 状态下第一次超时的次数，其余状态不计入这个计数器；<br> b) SYN-ACK 的超时次数。 |
+| TCPTimeouts | a) 在 RTO timer 中，从 CWR/Open 状态下第一次超时的次数，其余状态不计入这个计数器；<br> b) SYN-ACK 的超时次数 |
 | TCPSpuriousRTOs | 通过 F-RTO 机制发现的虚假超时个数 |
 | TCPLossProbes |  Probe Timeout(PTO) 导致发送 Tail Loss Probe (TLP) 包的次数 |
 | TCPLossProbeRecovery | 丢失包刚好被 TLP 探测包修复的次数 |
@@ -217,7 +217,7 @@ RTO 超时对 TCP 性能的影响是巨大的，因此关心 RTO 超时的次数
 | TCPLostRetransmit | 丢失的重传 SBK 数量，没有 TSO 时，等于丢失的重传包数量 |
 | TCPFastRetrans | 成功快速重传的 SKB 数量 |
 | TCPForwardRetrans | 成功 ForwardRetrans 的 SKB 数量，ForwardRetrans 重传的序号高于 retransmit_high 的数据 |
-| TCPSlowStartRetrans | 成功在 Loss 状态发送的重传 SKB 数量，而且这里仅记录非 RTO 超时进入 Loss 状态下的重传数量；目前找到的一种非 RTO 进入 Loss 状态的情况就是：`tcp_check_sack_reneging()` 函数发现接收端违反(renege)了之前的 SACK 信息时，会进入 Loss 状态 |
+| TCPSlowStartRetrans | 成功在 Loss 状态发送的、重传 SKB 数量，而且这里仅记录非 RTO 超时进入 Loss 状态下的重传数量；目前找到的一种非 RTO 进入 Loss 状态的情况就是：`tcp_check_sack_reneging()` 函数发现接收端违反(renege)了之前的 SACK 信息时，会进入 Loss 状态 |
 | TCPRetransFail | 尝试 FastRetrans、ForwardRetrans、SlowStartRetrans 重传失败的次数 |
 
 ### FastOpen
