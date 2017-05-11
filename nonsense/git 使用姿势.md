@@ -123,7 +123,6 @@ git push -u origin master
 
 # 本地新建分支后 push 到 github repo
 
-
 创建并切换分支
 
 ```shell
@@ -135,6 +134,7 @@ git checkout -b new_branch
 
 ```shell
 git push -u
+git push --set-upstream origin new_branch
 ```
 
 > 上面命令隐含了 `--set-upstream-to` 动作；
@@ -147,8 +147,36 @@ git push -u
 git branch --set-upstream-to=origin/new_branch new_branch
 ```
 
-# 重命名 github repo 中的远程分支名
+# 将远端 github repo 里的指定分支拉取到本地（本地不存在的分支）
 
+当想要从远端仓库里拉取一条本地不存在的分支时，可以执行
+
+```
+git checkout -b local_branch_name origin/remote_branch_name
+```
+
+将会自动创建一个新的名为 local_branch_name 的本地分支，并与指定的远程分支 origin/remote_branch_name 关联起来。
+
+如果出现提示：
+
+```
+fatal: Cannot update paths and switch to branch 'aaa' at the same time.
+Did you intend to checkout 'origin/bbb' which can not be resolved as commit?
+```
+
+需要先执行
+
+```
+git fetch
+```
+
+再执行
+
+```
+git checkout -b local_branch_name origin/remote_branch_name
+```
+
+# 重命名 github repo 中的远程分支名
 
 当在本地执行过如下命令后，你将会创建一个本地分支 old_branch 并且关联到远程的 old_branch 分支上；
 
@@ -213,7 +241,7 @@ git push -u
 
 # 删除不存在对应远程分支的本地分支
 
-一种情况：提交 PR 后，master 分支在合并完成后会删除对应的 PR 分支，而提交 PR 的人的本地分支会看到如下提示信息；
+一种情况：提交 PR 后，远端 master 分支在 PR 合并完成后，一般会直接删除对应的 PR 分支，而提交 PR 的人在本地会看到如下提示信息；
 
 ```shell
 ➜  redis_dissector_for_wireshark git:(master)  git branch -a  -- 该命令看不出问题
@@ -241,8 +269,8 @@ git push -u
 > remote 分支 revert 处于 stale 状态（过时）
 
 两种解决方法：
-- 使用 `git remote prune origin` 可以将其从本地版本库中去除；
-- 更简单的方法是使用 `git fetch -p` 命令，在 fetch 之后删除掉没有与远程分支对应的本地分支；
+- 使用 `git remote prune origin` 将对应的分支关联信息从本地版本库中去除；
+- 更简单的方法是使用 `git fetch -p` 命令，在 fetch 之后，自动删除掉没有与远程分支对应的本地分支；
 
 输出结果如下
 
