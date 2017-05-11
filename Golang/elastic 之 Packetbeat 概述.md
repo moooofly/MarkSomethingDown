@@ -85,6 +85,6 @@ Packetbeat 和 Logstash 可以使用相同的 Elasticsearch 和 Kibana 实例；
 - **Kibana** 提供 UI 供查询和展示；
 - **Logstash** 用于插入数据到 Elasticsearch 中（可选）；
 
-> **Elastic Stack** 的安装详见 [Getting Started with Beats and the Elastic Stack](https://www.elastic.co/guide/en/beats/libbeat/5.0/getting-started.html) ；
+> **Elastic Stack** 的安装详见 [Getting Started with Beats and the Elastic Stack](https://github.com/moooofly/MarkSomethingDown/blob/master/Golang/Elastic%20Stack%20%E5%AE%89%E8%A3%85.md) ；
 
 在完成 **Elastic Stack** 安装后，则可进行 Packetbeat 的安装、配置和运行，详见 [Getting Started With Packetbeat](https://www.elastic.co/guide/en/beats/packetbeat/5.0/packetbeat-getting-started.html) ；
