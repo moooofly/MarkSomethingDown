@@ -55,9 +55,9 @@ total 9568
 
 > 如何把这些 csv 文件转换为 elasticsearch 中的文档呢
 
-### 数据导入
+## 数据导入
 
-下面通过 filebbieat 进行上述 csv 文件内容导入；
+下面通过 `filebeat` 进行上述 csv 文件内容导入；
 
 配置文件如下
 
@@ -342,7 +342,7 @@ curl -u elastic:changeme -XPUT http://localhost:9200/_ingest/pipeline/airquality
 ➜  ~
 ```
 
-在 filebeat.yml 中，将 pipeline 设定好
+在 `filebeat.yml` 中，将 pipeline 设定好
 
 ```
 output.elasticsearch:
@@ -512,3 +512,4 @@ content-length: 3875
 }
 ➜  ~
 ```
+
