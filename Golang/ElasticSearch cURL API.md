@@ -4,13 +4,13 @@
 
 ### 增
 
-```
+```shell
 curl -u <usrname>:<passwd> -XPOST http://xxx/<_index>/<_type> -d '{<JSON>}'
 ```
 
 ### 删
 
-```
+```shell
 # 删除整个 _index 
 curl -u <usrname>:<passwd> -XDELETE http://xxx/<_index>
 
@@ -26,7 +26,7 @@ curl -u <usrname>:<passwd> -XDELETE http://xxx/<_index_regex>
 
 ### 查
 
-```
+```shell
 # 获取指定 _index 下 _type 中 _id 对应内容
 curl -u <usrname>:<passwd> -XGET http://xxx/<_index>/<_type>/<_id>
 
@@ -39,7 +39,7 @@ curl -u <usrname>:<passwd> -XGET http://xxx/<_index>/<_type>/<_id>?fields=<field
 
 ### 改
 
-```
+```shell
 # 全量提交
 curl -u <usrname>:<passwd> -XPOST http://xxx/<_index>/<_type>/<_id> -d '{<JSON>}'
 
@@ -53,7 +53,7 @@ curl -u <usrname>:<passwd> -XPOST http://xxx/<_index>/<_type>/<_id>/_update -d '
 
 ### 搜索
 
-```
+```shell
 # 全文搜索（针对 _source 中包含的全部 fields）
 curl -u <usrname>:<passwd> -XGET http://xxx/<_index>/<_type>/_search?q=<key>
 
@@ -117,29 +117,27 @@ GET /_search?size=5&from=5
 
 ### 增
 
-```
+```shell
 curl -u <usrname>:<passwd> -XPUT http://xxx/<_index>/_mapping -d '{<JSON>}'
 ```
 
 ### 删
 
-```
-curl -u <usrname>:<passwd> -XDELETE
-http://xxx/<_index>/_mapping/<_type>
+```shell
+curl -u <usrname>:<passwd> -XDELETE http://xxx/<_index>/_mapping/<_type>
 ```
 
 > 注意：写入数据会自动添加映射，但删除数据不会删除数据的映射；存在一种特例：若删除整个索引 <_index> ，则映射将同时被删除；
 
 ### 查
 
-```
-curl -u <usrname>:<passwd> -XGET
-http://xxx/<_index>/_mapping/<_type>
+```shell
+curl -u <usrname>:<passwd> -XGET http://xxx/<_index>/_mapping/<_type>
 ```
 
 ### 改
 
-```
+```shell
 curl -u <usrname>:<passwd> -XPUT http://xxx/<_index>/_mapping/<_type> -d '{<JSON>}'
 ```
 
