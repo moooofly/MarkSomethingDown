@@ -64,6 +64,19 @@ curl -u <usrname>:<passwd> -XGET http://xxx/<_index>/<_type>/_search?q=<fieldN>:
 curl -u <usrname>:<passwd> -XGET http://xxx/<_index>/<_type>/_search?q=<fieldN>:"<key>"
 ```
 
+另外，如下两种形式相互等价
+
+```
+curl -u <usrname>:<passwd> -XGET http://xxx/<_index>/<_type>/_search
+```
+
+等价于
+
+```
+curl -u <usrname>:<passwd> -XGET http://xxx/<_index>/_search?type=<_type>
+```
+
+
 ### 聚合
 
 略
@@ -142,4 +155,74 @@ curl -u <usrname>:<passwd> -XPUT http://xxx/<_index>/_mapping/<_type> -d '{<JSON
 ```
 
 > 注意：更新只对新字段有效，已经生成的字段映射是不可变更的；如果需要变更，则需要使用 `reindex` 方法解决；
+
+
+## 针对模版（template）操作
+
+
+### 增
+
+```
+curl -XPUT 'localhost:9200/_template/template_1?pretty' -H 'Content-Type: application/json' -d'
+{
+  "template": "te*",
+  "settings": {
+    "number_of_shards": 1
+  },
+  "mappings": {
+    "type1": {
+      "_source": {
+        "enabled": false
+      },
+      "properties": {
+        "host_name": {
+          "type": "keyword"
+        },
+        "created_at": {
+          "type": "date",
+          "format": "EEE MMM dd HH:mm:ss Z YYYY"
+        }
+      }
+    }
+  }
+}
+'
+```
+
+### 删
+
+```
+curl -XDELETE 'localhost:9200/_template/template_1?pretty'
+```
+
+### 查
+
+```
+# 查询单个 index template
+curl -XGET 'localhost:9200/_template/template_1?pretty'
+
+# 使用通配符匹配多个 index template
+curl -XGET 'localhost:9200/_template/temp*?pretty'
+
+# 直接指定多个 index template 名
+curl -XGET 'localhost:9200/_template/template_1,template_2?pretty'
+
+# 获取全部 index template 列表
+curl -XGET 'localhost:9200/_template?pretty'
+
+# 仅确定目标 index template 是否存在
+curl -XHEAD 'localhost:9200/_template/template_1?pretty'
+```
+
+### 获取指定字段
+
+```
+curl -XGET 'localhost:9200/_template/template_1?filter_path=*.version&pretty'
+```
+
+
+
+
+
+
 
