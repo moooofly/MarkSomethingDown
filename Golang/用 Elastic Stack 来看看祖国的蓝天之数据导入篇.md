@@ -234,6 +234,8 @@ curl -u elastic:changeme -XGET http://localhost:9200/_ingest/pipeline/_simulate\
 ➜  ~
 ```
 
+![ingest and pipeline - 1](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/ingest%20and%20pipeline%20-%201.png "ingest and pipeline - 1")
+
 通过下面的 api 创建一个名为 airquality 的 pipeline
 
 ```
@@ -341,6 +343,8 @@ curl -u elastic:changeme -XPUT http://localhost:9200/_ingest/pipeline/airquality
 {"acknowledged":true}%
 ➜  ~
 ```
+
+![ingest and pipeline - 2](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/ingest%20and%20pipeline%20-%202.png "ingest and pipeline - 2")
 
 在 `filebeat.yml` 中，将 pipeline 设定好
 
