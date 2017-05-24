@@ -15,7 +15,7 @@ Metricbeat 是一个专门用来获取**服务器**或**应用服务**内部运�
 - Couchbase Module
 - Docker Module
 - HAProxy Module
-- kafka Module
+- Kafka Module
 - MongoDB Module
 - MySQL Module
 - Nginx Module
@@ -31,7 +31,7 @@ Metricbeat 是一个专门用来获取**服务器**或**应用服务**内部运�
 
 上面这些描述可能还不够吸引人，我们可以 Kibana 上看一下 Metricbeat 基于 Golang 扩展模块收集数据的可视化展示；
 
-![](https://elasticsearch.cn/uploads/article/20170303/cf48f9fadac9658da4d65b1fb4a082dc.png)
+![Golang GC example - 1](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Golang%20GC%20example%20-%201.png "Golang GC example - 1")
 
 上图解读：
 
@@ -191,7 +191,7 @@ output.elasticsearch:
 
 除了可以监控默认提供的内存信息外，如果你还有一些内部业务指标想要暴露出来，也是可以通过 `expvar` 实现。一个简单示例如下：
 
-```
+```golang
 var inerInt int64 = 1024
 pubInt := expvar.NewInt("your_metric_key")
 pubInt.Set(inerInt)
@@ -202,7 +202,7 @@ pubInt.Add(2)
 
 首先，启动的时候需要通过指定 `pprof` 参数设置 pprof http server 地址：
 
-```
+```shell
 ./metricbeat -httpprof="127.0.0.1:6060" -e -v
 ```
 
@@ -241,11 +241,11 @@ Timelion 表达式：
 
 效果如下：
 
-![](https://elasticsearch.cn/uploads/article/20170304/207c81786640b7cc68870595ce409393.png)
+![Golang GC example - 2](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Golang%20GC%20example%20-%202.png "Golang GC example - 2")
 
 从上图可以看到，发往 Elasticsearch 的消息很稳定，没有出现丢消息的情况，同时关于 Metricbeat 的内存情况，我们打开导入的 Dashboard 查看：
 
-![](https://elasticsearch.cn/uploads/article/20170304/0cecc27ec508e0ccf025b0730bb404b2.png)
+![Golang GC example - 3](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Golang%20GC%20example%20-%203.png "Golang GC example - 3")
 
 
 
