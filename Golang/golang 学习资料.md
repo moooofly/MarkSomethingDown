@@ -1,9 +1,5 @@
 # golang 学习资料
 
-标签（空格分隔）： golang
-
----
-
 > 原文地址：[这里](http://www.wxdroid.com/index.php/2095.html)
 
 ## 一：学习 Golang 的原因
@@ -40,11 +36,19 @@
 
     讲解比较深入，但是语言组织比较繁琐，其实不是很建议买，作者现在在写第二版本。
 
-- 《[Go学习笔记](https://github.com/qyuhen/book)》
+- 《[Go学习笔记](https://book.douban.com/subject/26832468/)》
 
-    雨痕的学习笔记还是很不错的，对内存布局和源码有深入的介绍，之前看过他的《Python学习笔记》也是很不错的。
+    雨痕的学习笔记还是很不错的，对内存布局和源码有深入的介绍，之前看过他的《Python学习笔记》也是很不错的，已开源（[地址](https://github.com/qyuhen/book)）。
 
 ## 四： 其他
+
+- [Go语言标准库](http://books.studygolang.com/The-Golang-Standard-Library-by-Example/)
+
+    以示例驱动的方式讲解 Golang 的标准库；
+
+- [Golang 101 hacks](https://nanxiao.gitbooks.io/golang-101-hacks/content/)
+
+    This is an ongoing rudimentary Go programming language tutorial, and it will be updated non-periodically.
 
 - [Go 语言学习历程](http://blog.csdn.net/hittata/article/details/42387297)
 
@@ -53,6 +57,8 @@
 - [awesome-go](https://github.com/avelino/awesome-go)
 
     Go语言的库和框架收集，开发时可以参考减少查找的时间。
+
+- [Go语言实战](https://book.douban.com/subject/27015617/)
 
 
 
