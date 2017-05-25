@@ -4,8 +4,8 @@
 
 ![Kibana 未导入 Index Pattern 前](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Kibana%20%E6%9C%AA%E5%AF%BC%E5%85%A5%20Index%20Pattern%20%E5%89%8D.png "Kibana 未导入 Index Pattern 前")
 
-- 每一种加载到 Elasticsearch 中的数据集都具有一种 index pattern ；
-- **index pattern** 就是能够匹配多个 index 的、带有可选通配符（wildcards）的字符串；
+- 每一种加载到 Elasticsearch 的数据集都具有（符合）一种 index pattern ；
+- **index pattern** 就是能够匹配多种 index 的、带有可选通配符（wildcards）的字符串；
 
     举例：针对常规的日志处理场景，一种比较典型的 index 名字将具有 `YYYY.MM.DD` 格式的日期，相应的，针对 5 月的 index pattern 看起来类似 `logstash-2015.05*` ；
 
@@ -16,12 +16,12 @@
 ![Configure an Index Pattern](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Configure%20an%20Index%20Pattern.jpeg "Configure an Index Pattern")
 
 
-- 为了使用 Kibana ，你必须通过配置一个或多个 index patterns 告诉它你想要使用哪些 Elasticsearch indices ；
+- 成功使用 Kibana 的前提是你必须配置一个或多个 index pattern ；index pattern 用于确定将要针对哪些 Elasticsearch indices 运行查询和分析；
 - Kibana 会查找匹配指定 pattern 的 index 名字；pattern 中出现的星号 (*) 用于匹配零个或多个字符； 
 - index pattern 也可以简单的设置为单独一个 index 的名字；
 - 若想在 index 名字中使用 event time ，可以在 pattern 中使用 [] 将静态文本括起来，之后再指定日期格式；例如 `[logstash-]YYYY.MM.DD` 能够匹配 `logstash-2015.01.31` 和 `logstash-2015-02-01` ；
 - 在你浏览 Discover 页面时，设置成默认的 index pattern 将会被自动加载；Kibana 会在默认 pattern 左侧显示一个星星；你所创建的首个 pattern 自动被指定为默认 pattern ；
-- 当你添加了一个 index mapping 后，Kibana 会自动扫描（scans）匹配 pattern 的 indices 以变显示（新的）index fields 列表；你也可以重新加载 index fields 列表以便获取任意新加的 fields ；
+- 当你添加了一个 index mapping 后，Kibana 会自动扫描（scans）匹配 pattern 的 indices 以便显示（新的）index fields 列表；你也可以重新加载 index fields 列表以便获取任意新加的 fields ；
 
 
 参考：

@@ -143,7 +143,7 @@ filebeat git:(5.3) ✗ cat data_for_test/Beijing_2016_HourlyPM25_created20170201
 
 ## Ingest Node
 
-`Ingest Node` 可以在数据写入 elasticsearch 之前对其做 预处理（后续介绍）。
+`Ingest Node` 用于数据写入 elasticsearch 前对其做**预处理**（后续介绍）。
 
 **数据预处理**是通过指定一个 `pipeline` 做到的，一个 `pipeline` 由一组 `processor` 组成。`processor` 是最小的处理单元，比如**删除字段**、**设定字段类型**、**设定 Id**、**大小写转换**等等。我们这里用 `Grok processor` 来解析 message 中的数据。
 
@@ -516,4 +516,12 @@ content-length: 3875
 }
 ➜  ~
 ```
+
+------
+
+## 小节
+
+- 创建 ingest node pipeline 前可以先进行 simulate 模拟；
+- ingest node pipeline 是创建在 elasticsearch 上的；
+- 当 beat 想要使用 ingest node pipeline 功能时，需要在 `output.elasticsearch` 下配置 `pipeline: "xxx"`（xxx 为所创建的 pipeline 名字）；
 

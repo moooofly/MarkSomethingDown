@@ -1,6 +1,6 @@
-# golang 学习资料
+# Golang 学习资料
 
-> 原文地址：[这里](http://www.wxdroid.com/index.php/2095.html)
+> 原文地址：[这里](http://www.wxdroid.com/index.php/2095.html)（有增删）
 
 ## 一：学习 Golang 的原因
 
@@ -28,9 +28,11 @@
 
     这个资料对进阶有指导意义。
 
-- 《[Effective Go](http://www.hellogcc.org/effective_go.html)》
+- 《[Effective Go](https://golang.org/doc/effective_go.html)》
 
-    文档对如何编写清晰，符合语言规范的Go代码，给出了一些建议
+    文档对如何编写清晰，符合语言规范的Go代码，给出了一些建议；
+    中文翻译下载地址：[这里](http://www.kancloud.cn/kancloud/effective)
+    中文翻译在线地址：[这里](http://www.chingli.com/coding/effective-go/)
 
 - 《[Go并发编程实战](https://book.douban.com/subject/26244729/)》
 
