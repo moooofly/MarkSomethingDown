@@ -12,22 +12,29 @@ POST /<_index>/<_type>
 ### 删
 
 ```shell
-# 删除整个 _index （删库）
+# 删除整个 _index （删指定库）
 DELETE /<_index>
 
 # 基于通配方式删除所有匹配的 _index （删所有匹配库）
 DELETE /<_index_regex>
 
-# 删除指定 _index 下的指定 _type （删表）
+# 删除指定 _index 下的指定 _type （删指定表）
+# FIXME: 失败
 DELETE /<_index>/<_type>
 
 # 基于通配方式删除指定 _index 下所有匹配 _type （删所有匹配表）
+# FIXME: 失败
 DELETE /<_index>/<_type_regex>
+```
 
+> 注意：上述四种删除，会导致相应 mapping 同时被删除；
+
+```
 # 删除单条数据 （删行）
 DELETE /<_index>/<_type>/<_id>
 
 ## 在不删除 index 和 type 的前提下，清除其中的所有数据
+## FIXME: 失败
 DELETE /<_index>/<_type>/_query
 {
 　　"query" : {
@@ -36,7 +43,6 @@ DELETE /<_index>/<_type>/_query
 }
 ```
 
-> 注意：针对 index 或 index/type 的删除，会导致相应的 mapping 也同时被删除；
 
 ### 查
 
@@ -164,11 +170,15 @@ PUT /<_index>/_mapping
 DELETE /<_index>/_mapping/<_type>
 ```
 
-> 注意：写入数据会自动添加映射，但删除数据不会删除数据的映射；存在一种特例：若删除整个索引 <_index> ，则映射将同时被删除；
+> 注意：**写入数据会自动添加映射，但删除数据不会删除数据的映射**；存在一种特例：若删除整个索引 <_index> ，则映射将同时被删除；
 
 ### 查
 
 ```shell
+# 查询出的内容带有 "_default_" 部分，以及全部 <_type> 对应的部分
+GET /<_index>/_mapping
+
+# 查询出的内容没有 "_default_" 部分，只有 <_type> 对应的部分
 GET /<_index>/_mapping/<_type>
 ```
 
