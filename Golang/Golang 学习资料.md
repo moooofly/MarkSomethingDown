@@ -18,8 +18,8 @@
 
 - 《[The Way To Go](https://book.douban.com/subject/10558892/)》
 
-    中文翻译地址：[极客学院](http://wiki.jikexueyuan.com/project/the-way-to-go/)
-    中文翻译地址：[Unknwon/the-way-to-go_ZH_CN](https://github.com/Unknwon/the-way-to-go_ZH_CN)
+    中文翻译地址：[极客学院](http://wiki.jikexueyuan.com/project/the-way-to-go/)  
+    中文翻译地址：[Unknwon/the-way-to-go_ZH_CN](https://github.com/Unknwon/the-way-to-go_ZH_CN)  
 
 
 - 网易云课堂上面无闻的视频教程也不错，适合喜欢看视频的同学。
@@ -36,9 +36,9 @@
 
 - 《[Effective Go](https://golang.org/doc/effective_go.html)》
 
-    文档对如何编写清晰，符合语言规范的 Go 代码，给出了一些建议；
-    中文翻译下载地址：[这里](http://www.kancloud.cn/kancloud/effective)
-    中文翻译在线地址：[这里](http://www.chingli.com/coding/effective-go/)
+    文档对如何编写清晰，符合语言规范的 Go 代码，给出了一些建议；  
+    中文翻译下载地址：[这里](http://www.kancloud.cn/kancloud/effective)  
+    中文翻译在线地址：[这里](http://www.chingli.com/coding/effective-go/)  
 
 - 《[Go并发编程实战](https://book.douban.com/subject/26244729/)》
 
