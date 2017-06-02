@@ -1,4 +1,11 @@
 
+# 图示
+
+![Git Cheet Sheet](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Git%20Cheat%20Sheet.jpg "Git Cheet Sheet")
+
+![Git 常用命令速查表](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Git%20%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5%E8%A1%A8.png "Git 常用命令速查表")
+
+----
 
 # git tag 操作
 
@@ -474,7 +481,9 @@ vagrant@vagrant-ubuntu-trusty:~/workspace/eleme_project$
 ----------
 
 
-# 问题
+# 其他
+
+- [GitHub秘籍](https://snowdream86.gitbooks.io/github-cheat-sheet/content/zh/index.html)
 
 
 

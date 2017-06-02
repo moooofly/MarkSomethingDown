@@ -1,5 +1,4 @@
 
-
 本文针对 Docker for Mac 进行说明，以下内容整理自《[Getting Started with Docker for Mac](https://docs.docker.com/docker-for-mac/)》
 
 

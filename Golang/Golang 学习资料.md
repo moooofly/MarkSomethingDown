@@ -18,8 +18,12 @@
 
 - 《[The Way To Go](https://book.douban.com/subject/10558892/)》
 
-    中文翻译地址：[极客学院](http://wiki.jikexueyuan.com/project/the-way-to-go/)  
+    中文翻译地址：《[Go 入门指南](http://wiki.jikexueyuan.com/project/the-way-to-go/)》  
     中文翻译地址：[Unknwon/the-way-to-go_ZH_CN](https://github.com/Unknwon/the-way-to-go_ZH_CN)  
+
+- 《[GO 命令教程](https://github.com/hyper0x/go_command_tutorial)》
+
+    对 Go 语言官方提供的标准命令的一个学习笔记；
 
 
 - 网易云课堂上面无闻的视频教程也不错，适合喜欢看视频的同学。
@@ -65,6 +69,10 @@
 - [awesome-go](https://github.com/avelino/awesome-go)
 
     Go语言的库和框架收集，开发时可以参考减少查找的时间。
+
+- [awesome-go-China](https://github.com/hyper0x/awesome-go-China/blob/master/zh_CN/README.md)
+
+    旨在聚合和推广华人创作的优秀 Go 语言项目；
 
 - [Go语言实战](https://book.douban.com/subject/27015617/)
 - [Go 语言学习资料与社区索引](https://github.com/Unknwon/go-study-index)
