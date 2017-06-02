@@ -126,29 +126,29 @@ git push -u origin master
 > 注2：上面用小括号括起来的命令的使用场景为：若在 github 上新建 repo 的时候，顺带创建了 README 或 .gitignore 或 LICENSE 等文件时，则需要先将上述文件拉取到本地；
 > 
 > 注3：上面的 git@github.com:moooofly/your_project_name.git 可以换成 https://github.com/moooofly/your_project_name.git ，还可以使用 https://github.com/moooofly/your_project_name
-
+> 
+> 注4：`remote add` 后就可以进行 pull 了，但仍无法 push ；需要通过 `push -u` 或 `push --set-upstream` 的方式，在 push 的同时建立跟踪关系；
+> 
 
 # 本地新建分支后 push 到 github repo
 
-创建并切换分支
+创建并切换分支（新分支内容为源分支内容的拷贝）
 
 ```shell
 git checkout -b new_branch
 ```
 此时分支信息**仅在本地存在**；
 
-执行下面的命令后，就可以将新建的本地 new_branch 分支中的内容 push 到 github 上对应的 new_branch 分支中，并**建立跟踪关系**；
+**若 github 上尚不存在 new_branch 分支**，则通过执行下面的命令，就可以将新建的本地 new_branch 分支中的内容 push 到 github 上对应的 new_branch 分支上（包含创建行为），并**建立跟踪关系**；
 
 ```shell
 git push -u
 git push --set-upstream origin new_branch
 ```
 
-> 上面命令隐含了 `--set-upstream-to` 动作；
-
 之后就可以在 github 页面中看到对应分支内容了；
 
-若 github 上已经存在 new_branch 分支，想要将本地的某个分支与其建立跟踪关系，可以执行如下命令；
+**若 github 上已经存在 new_branch 分支**，那么你可能只是想要将本地的 new_branch 分支与其建立跟踪关系，可以执行如下命令；
 
 ```shell
 git branch --set-upstream-to=origin/new_branch new_branch
