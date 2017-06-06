@@ -5770,7 +5770,7 @@ GET /_ingest/pipeline/_simulate
         "grok": {
           "field": "query",
           "patterns": [
-            "(%{DATA}) (E:rid=%{DATA:rid})&(rpcid=%{DATA:rpcid})&(appid=%{DATA:appid}):E (%{DATA}) (%{DATA:sql})$"
+            "(%{DATA}) (E:rid=%{DATA:rid})&(rpcid=%{DATA:rpcid})&(appid=%{DATA:appid}):E (%{DATA}) (%{DATA:sql})$", "%{DATA:sql}$"
           ]
         }
       },
@@ -5866,6 +5866,45 @@ GET /_ingest/pipeline/_simulate
           "status": "OK",
           "type": "mysql"
         }
+    },
+    {
+        "_index": "packetbeat-2017.05.16",
+        "_type": "mysql",
+        "_id": "AVw-eqUAbPwJc1ucUhBL",
+        "_score": 1,
+        "_source": {
+          "@timestamp": "2017-05-16T03:14:05.277Z",
+          "beat": {
+            "hostname": "sunfeideMacBook-Pro.local",
+            "name": "sunfeideMacBook-Pro.local",
+            "version": "5.3.3"
+          },
+          "bytes_in": 152,
+          "bytes_out": 77,
+          "client_ip": "10.0.47.31",
+          "client_port": 57094,
+          "client_proc": "",
+          "client_server": "",
+          "ip": "10.0.27.37",
+          "method": "/*",
+          "mysql": {
+            "affected_rows": 0,
+            "error_code": 0,
+            "error_message": "",
+            "insert_id": 0,
+            "iserror": false,
+            "num_fields": 1,
+            "num_rows": 1
+          },
+          "path": ".",
+          "port": 3306,
+          "proc": "",
+          "query": "select @@session.tx_read_only",
+          "responsetime": 0,
+          "server": "",
+          "status": "OK",
+          "type": "mysql"
+        }
     }
   ]
 }
@@ -5895,7 +5934,29 @@ GET /_ingest/pipeline/_simulate
           "status": "OK"
         },
         "_ingest": {
-          "timestamp": "2017-05-26T03:57:43.574Z"
+          "timestamp": "2017-06-06T08:01:24.656Z"
+        }
+      }
+    },
+    {
+      "doc": {
+        "_id": "AVw-eqUAbPwJc1ucUhBL",
+        "_type": "mysql",
+        "_index": "packetbeat-2017.05.16",
+        "_source": {
+          "ip": "10.0.27.37",
+          "query": "select @@session.tx_read_only",
+          "type": "mysql",
+          "sql": "select @@session.tx_read_only",
+          "client_port": 57094,
+          "@timestamp": "2017-05-16T03:14:05.277Z",
+          "port": 3306,
+          "responsetime": 0,
+          "client_ip": "10.0.47.31",
+          "status": "OK"
+        },
+        "_ingest": {
+          "timestamp": "2017-06-06T08:01:24.656Z"
         }
       }
     }
@@ -5913,7 +5974,7 @@ PUT /_ingest/pipeline/query_split
       "grok": {
         "field": "query",
         "patterns": [
-          "(%{DATA}) (E:rid=%{DATA:rid})&(rpcid=%{DATA:rpcid})&(appid=%{DATA:appid}):E (%{DATA}) (%{DATA:sql})$"
+          "(%{DATA}) (E:rid=%{DATA:rid})&(rpcid=%{DATA:rpcid})&(appid=%{DATA:appid}):E (%{DATA}) (%{DATA:sql})$", "%{DATA:sql}$"
         ]
       }
     },
@@ -5975,6 +6036,8 @@ PUT /_ingest/pipeline/query_split
 
 若想仅查到“干净”数据（即后面 grok 过的），则需要在重新导入 mysql 数据前，删除已有数据内容（即 document 内容）；删除后，重新导入 mysql 数据，之后重新执行上面的步骤，就可以看到干净数据了；
 
+> 针对 Elasticsearch 的 CURL 操作详见《[ElasticSearch cURL API](https://github.com/moooofly/MarkSomethingDown/blob/master/Golang/ElasticSearch%20cURL%20API.md)》
+
 
 ----------
 
@@ -6023,3 +6086,6 @@ GET /_template/packetbeat-*
 ```
 (E:rid=%{DATA:rid})&(rpcid=%{DATA:rpcid})&(appid=%{DATA:appid}):E
 ```
+
+> 关于 Grok 的说明详见《[Elastic 之 Grok](https://github.com/moooofly/MarkSomethingDown/blob/master/Golang/Elastic%20%E4%B9%8B%20Grok.md)》
+

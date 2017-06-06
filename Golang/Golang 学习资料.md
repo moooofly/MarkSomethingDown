@@ -8,6 +8,14 @@
 
 ## 二： 入门资料
 
+- 《[How to Write Go Code](https://golang.org/doc/code.html)》
+
+    This document demonstrates the development of a simple Go package and introduces the go tool, the standard way to fetch, build, and install Go packages and commands.
+
+- 《[A Tour of Go](https://tour.golang.org/welcome/1)》
+
+    The tour is interactive. Throughout the tour you will find a series of slides and exercises for you to complete.
+
 - 《[Go语言编程](https://book.douban.com/subject/11577300/)》
 
     七牛许式伟写的书，定位应该是入门的。
