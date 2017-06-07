@@ -101,6 +101,8 @@ sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
 
 # Mac 系统环境变量加载顺序
 
+## bash
+
 - /etc/profile
 - /etc/paths
 - ~/.bash_profile
@@ -111,6 +113,10 @@ sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
 当然 /etc/profile 和 /etc/paths 是**系统级别**的，系统启动就会加载；后面几个是当前**用户级**的环境变量。
 
 ~/.bashrc 没有上述规则，它是 bash shell 打开的时候载入的。
+
+## zsh
+
+参考《[zsh 使用](https://github.com/moooofly/MarkSomethingDown/blob/master/nonsense/zsh%20%E4%BD%BF%E7%94%A8.md)》；
 
 # Mac 上进行 shell 切换
 

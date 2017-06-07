@@ -1,10 +1,6 @@
 # brew 和 brew cask
 
-标签（空格分隔）： brew cask
-
----
-
-# Homebrew 与 Homebrew-Cask 的关系
+## Homebrew 与 Homebrew-Cask 的关系
 
 > - Remember that Homebrew-Cask is an independent project from Homebrew.
 > - Homebrew-Cask is implemented as a subcommand of Homebrew.
@@ -33,7 +29,7 @@
 ----------
 
 
-# Homebrew 相关术语
+## Homebrew 相关术语
 
 | Term           | Description                                                | Example                                                         |
 |----------------|------------------------------------------------------------|-----------------------------------------------------------------|
@@ -50,7 +46,7 @@
 ----------
 
 
-# 提 bug 前的确认工作
+## 提 bug 前的确认工作
 
 在你认为遇到 bug 但找不到解决办法前 make sure you have the latest versions of Homebrew, Homebrew-Cask, and all Taps by running the following commands.
 
@@ -83,7 +79,7 @@ $ brew cleanup; brew cask cleanup; brew update
 ----------
 
 
-# 提 issue 的套路
+## 提 issue 的套路
 
 > Start by searching for your issue before posting a new one. If you find an open issue and have any new information not reported in the original, please add your insights. If you find a closed issue, try the solutions there. If the issue is still not solved, open a new one with your new information and a link back to the old related issue.
 
