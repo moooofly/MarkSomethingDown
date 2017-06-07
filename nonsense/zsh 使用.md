@@ -133,8 +133,8 @@ You should go through [the configuration files of random Github users](https://g
 > 此文讲述如何从 bash 转为 zsh ；
 
 
-- 安装 zsh
-- 安装 oh-my-zsh
+- 安装 `zsh`
+- 安装 `oh-my-zsh`
 
 ```
 # via wget
@@ -280,6 +280,14 @@ export $MANPATH=<...>
 
 其余的，具体情况具体分析。
 
+----------
+
+## TODO list
+
+- [zsh-users/zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
+- [zsh-users/zsh-completions](https://github.com/zsh-users/zsh-completions)
+- [zsh-users/antigen](https://github.com/zsh-users/antigen)
+- [robbyrussell/oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh)
 
 
 ----------
