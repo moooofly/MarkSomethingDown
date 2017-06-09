@@ -67,7 +67,7 @@ type Logger struct {
 type Y struct {
     *Logger
     Name string
-    *log.Logger
+    *log.Logger  // 以指针方式匿名组合log.logger结构
 }
 ```
 
@@ -129,7 +129,7 @@ type Foo struct {
 ```golang
 type Job struct {
     Command string
-    *log.Logger   // 匿名组合log.logger指针
+    *log.Logger   // 以指针方式匿名组合log.logger结构
 }
 ```
 
