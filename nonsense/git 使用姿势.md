@@ -25,15 +25,15 @@ git tag -l '<pattern>'
 
 - 新建标签
 
-    > Git 使用的标签有两种类型：轻量级的（lightweight）和含附注的（annotated）；
+    > Git 使用的标签有两种类型：**轻量级的（lightweight）**和**含附注的（annotated）**；
 
-    - 新建含附注的标签
+    - 新建**含附注的标签**
 
         ```shell
         git tag -a <tag_name> -m "your comment"
         ```
 
-    - 新建基于 GPG 签署的标签
+    - 新建**基于 GPG 签署的标签**
 
         ```shell
         git tag -s <tag_name> -m "your comment"
@@ -41,7 +41,7 @@ git tag -l '<pattern>'
 
         > 签署的目的是为了进行后续验证，防止篡改；
 
-    - 新建轻量级标签
+    - 新建**轻量级标签**
 
         ```shell
         git tag <tag_name>
@@ -129,6 +129,7 @@ git push -u origin master
 > 
 > 注4：`remote add` 后就可以进行 pull 了，但仍无法 push ；需要通过 `push -u` 或 `push --set-upstream` 的方式，在 push 的同时建立跟踪关系；
 > 
+> 注5：上面执行 `git pull origin master` 时可能会报 "fatal: refusing to merge unrelated histories" 错误，此时可以使用 `--allow-unrelated-histories` 选项解决，即 `git pull origin master --allow-unrelated-histories` ；详情参见[这里](https://stackoverflow.com/questions/37937984/git-refusing-to-merge-unrelated-histories/40107973#40107973?newreg=5095f8141c34479ba419f5e8b2d1b415)；
 
 # 本地新建分支后 push 到 github repo
 
