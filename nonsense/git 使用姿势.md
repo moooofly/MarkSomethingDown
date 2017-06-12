@@ -348,8 +348,10 @@ git pull eleme_sre master
 
 将拉取到本地的内容推到名为 origin 的 master 分支，即推到自己的 github 仓库中；
 ```shell
-git push
+git push origin master
 ```
+
+> 上述命令最好写完整，否则容易引起混乱或歧义；
 
 
 ----------
