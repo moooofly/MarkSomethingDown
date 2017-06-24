@@ -1,8 +1,4 @@
-# root 权限问题
-
-标签（空格分隔）： su sudo
-
----
+# root 权限之 su 与 sudo
 
 ## su
 
