@@ -380,9 +380,8 @@ unlink [--dry-run] formula
 
 参考：
 
-- [1](http://www.jianshu.com/p/aadb54eac0a8)
-- [2](http://www.jianshu.com/p/aadb54eac0a8)
-- [3](http://www.jianshu.com/p/aadb54eac0a8)
+- [brew安装指定版本的软件](http://www.jianshu.com/p/aadb54eac0a8)
+
 
 
 # 执行 brew update 时报错如何解决

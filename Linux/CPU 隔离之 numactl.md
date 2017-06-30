@@ -1,19 +1,15 @@
 # CPU 隔离之 numactl
 
-标签（空格分隔）： linux
-
----
-
 ## NUMA 的 wiki 说明
 
 原文地址：[Non-uniform memory access](https://en.wikipedia.org/wiki/Non-uniform_memory_access)
 
 > 主要内容如下：
 >
-> - NUMA 是一种用于多核处理的计算机内存设计架构；
-> - 能够从 NUMA 中获得收益和工作负载的类型密切相关；
-> - NUMA 架构逻辑上源于对 SMP 架构的扩展；
-> - 在一些场景中，NUMA 系统会与软硬件配合进行数据的内存搬移；
+> - NUMA 是一种用于**多核处理**的计算机**内存设计架构**；
+> - 能否从 NUMA 中获得收益**与工作负载的类型密切相关**；
+> - NUMA 架构逻辑上源于**对 SMP 架构的扩展**；
+> - 在一些场景中，NUMA 系统会与软硬件配合**进行数据的内存搬移**；
 
 `Non-uniform memory access (NUMA)` is a computer **memory design** used in multiprocessing, where the memory access time depends on the memory location relative to the processor. Under NUMA, a processor can access its own local memory faster than non-local memory (memory local to another processor or memory shared between processors). **The benefits of NUMA are limited to particular workloads**, notably on servers where the data are often associated strongly with certain tasks or users.
 
