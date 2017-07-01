@@ -158,7 +158,7 @@ Mac 官方解答：[这里](https://support.apple.com/zh-cn/HT204187)；
 参考：[这里](http://www.baifeng.me/apple/macosx/2010/04/1295/)；
 
 
-# mac 下通过 brew 安装 wireshark
+# Mac 下通过 brew 安装 wireshark
 
 安装命令
 
@@ -213,7 +213,7 @@ Built using clang 4.2.1 Compatible Apple LLVM 7.3.0 (clang-703.0.31).
 ```
 
 
-# mac 下如何更新 locate 命令依赖的数据库
+# Mac 下如何更新 locate 命令依赖的数据库
 
 在 CentOS 系统上，更新 `locate` 命令依赖的数据库，只需要执行 `updatedb` 命令；
 
@@ -282,5 +282,9 @@ For zsh completion support, simply run:
 ```shell
 $ brew install zsh-completions
 ```
+
+# Mac 下的 Homebrew 使用
+
+详见《[Homebrew 相关](https://github.com/moooofly/MarkSomethingDown/blob/master/nonsense/Homebrew%20%E7%9B%B8%E5%85%B3.md)》
 
 
