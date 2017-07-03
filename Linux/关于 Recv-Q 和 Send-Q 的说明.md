@@ -36,7 +36,7 @@ root@vagrant-ubuntu-trusty:~] $
 
 在 `netstat` 输出中：
 
-- "`Recv-Q`" and "`Send-Q`" mean receiving queue and sending queue. These should always be zero; if they're not you might have a problem. Packets should not be piling up in either queue. A brief queuing of outgoing packets is normal behavior. If the receiving queue is consistently jamming up, you might be experiencing a denial-of-service attack. If the sending queue does not clear quickly, you might have an application that is sending them out too fast, or the receiver cannot accept them quickly enough.
+- `Recv-Q` means the count of bytes not copied by the user program connected to this socket. `Send-Q` means the count of bytes not acknowledged by the remote host. These should always be zero; if they're not you might have a problem. **Packets should not be piling up in either queue.** A brief queuing of outgoing packets is normal behavior. If the receiving queue is consistently jamming up, you might be experiencing a denial-of-service attack. If the sending queue does not clear quickly, you might have an application that is sending them out too fast, or the receiver cannot accept them quickly enough.
 
 
 在 `ss` 输出中：
@@ -107,8 +107,7 @@ exit_group(0)                           = ?
 源码地址：[linux/net/ipv4/tcp_diag.c](http://elixir.free-electrons.com/linux/v3.19/source/net/ipv4/tcp_diag.c)
 
 ```
-static void tcp_diag_get_info(struct sock *sk, struct inet_diag_msg *r,
-			      void *_info)
+static void tcp_diag_get_info(struct sock *sk, struct inet_diag_msg *r, void *_info)
 {
 	const struct tcp_sock *tp = tcp_sk(sk);
 	struct tcp_info *info = _info;
@@ -117,7 +116,7 @@ static void tcp_diag_get_info(struct sock *sk, struct inet_diag_msg *r,
 		r->idiag_rqueue = sk->sk_ack_backlog;
 		r->idiag_wqueue = sk->sk_max_ack_backlog;
 	} else {
-	    // 等待接收的下一个 tcp 段的序号 - 尚未从内核空间 copy 到用户空间的段最前面的一个序号
+		// 等待接收的下一个 tcp 段的序号 - 尚未从内核空间 copy 到用户空间的段最前面的一个序号
 		r->idiag_rqueue = max_t(int, tp->rcv_nxt - tp->copied_seq, 0);
 		// 已加入发送队列中的 tcp 段的最后一个序号 - 已发送但尚未确认的最早一个序号
 		r->idiag_wqueue = tp->write_seq - tp->snd_una;
