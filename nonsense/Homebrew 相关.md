@@ -271,6 +271,8 @@ brew install pkg-config
 brew install geoip c-ares cmake glib dbus gnutls libgcrypt libsmi qt
 brew install wireshark --with-qt --with-lua --with-libsmi --with-headers
 brew cask install wireshark-chmodbpf
+brew install libevent
+brew install tmux
 ```
 
 
