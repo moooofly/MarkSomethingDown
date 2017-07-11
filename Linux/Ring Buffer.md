@@ -61,3 +61,18 @@ eth0      Link encap:Ethernet  HWaddr 08:00:27:4a:c4:2f
 ## [How can I increase the ring buffer size of my NIC?](https://superuser.com/questions/284677/how-can-i-increase-the-ring-buffer-size-of-my-nic)
 
 The NIC ring buffer maximum size is determined by how much memory is available on the NIC. Typically you do not adjust this setting, this is very much a system administration task and an advanced one at that. 4MB is quite large for a NIC ring buffer. Intel NICs tend to cap at this amount. Broadcom NICs tend to cap at less than one quarter that amount, 1020KB. It is extremely unlikely, unless you have a 10GigE NIC, that you can go above 4096KB in the NIC's internal ring buffer. But we would need the exact model to know for sure as it is a hardware limitation.
+
+
+----------
+
+## [NIC ring buffers](https://www.ibm.com/support/knowledgecenter/en/SSQPD3_2.6.0/com.ibm.wllm.doc/nicringbuffers.html)
+
+Ring buffers on the NIC are important to **handle bursts of incoming packets especially if there is some delay when the hardware interrupt handler schedules the packet receiving software interrupt (softirq)**. NIC ring buffer sizes vary per NIC vendor and NIC grade (that is, server or desktop). By increasing the Rx/Tx ring buffer size as shown below, you can decrease the probability of discarding packets in the NIC during a scheduling delay. The tool used to change ring buffer settings is the Linux utility, `ethtool`.
+
+```
+ethtool -g eth1
+ethtool -G eth1 rx 4096 tx 4096
+ethtool -g eth1
+```
+
+**These settings will be lost after a reboot**. To persist these changes across reboots reference the NIC vendor documentation for the ring buffer parameter(s) to set in the NIC device driver kernel module.

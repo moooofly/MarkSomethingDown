@@ -13,7 +13,7 @@
 针对**发包**：
 
 - sendBuffer：取决于三个内核参数配置情况（详见下面说明）；
-- QDisc：QDisc（queueing discipline ）位于 IP 层和网卡的 Ring Buffer 之间。Ring Buffer 是一个简单的 FIFO 队列，这种设计使网卡的驱动层保持简单和快速。而 QDisc 实现了流量管理的高级功能，包括流量分类，优先级和流量整形。可以使用 tc 命令配置 QDisc 。QDisc 的队列长度由 txqueuelen 设置，和接收数据包的队列长度由内核参数 `net.core.netdev_max_backlog` 控制所不同，txqueuelen 是和网卡关联的，可以通过 `ifconfig` 查看和调整大小；
+- QDisc：QDisc（queueing discipline）位于 IP 层和网卡的 Ring Buffer 之间。Ring Buffer 是一个简单的 FIFO 队列，这种设计使网卡的驱动层保持简单和快速。而 QDisc 实现了流量管理的高级功能，包括流量分类，优先级和流量整形。可以使用 tc 命令配置 QDisc 。QDisc 的队列长度由 txqueuelen 设置，和接收数据包的队列长度由内核参数 `net.core.netdev_max_backlog` 控制所不同，txqueuelen 是和网卡关联的，可以通过 `ifconfig` 查看和调整大小；
 - RingBuffer：`ethtool -g eth0` 输出中的 TX 项就是 RingBuffer 的传输队列大小；
 
 > 
