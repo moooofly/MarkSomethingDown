@@ -15,6 +15,11 @@
 
 # 安装
 
+两种方式：
+
+- 通过 `brew cask install docker` 进行安装（推荐）；
+- 登陆到 [Docker for Mac](https://www.docker.com/docker-mac) 官网下载 Docker.dmg 后安装；
+
 ## 构成 Docker for Mac 的组件
 
 Docker for Mac 安装后，将得到如下组件
@@ -32,9 +37,9 @@ docker-machine --version
 docker ps
 ```
 
-#测试
+# 测试
 
-> 如果 image 无法在本地找到，那么 Docker 将默认从 [Docker Hub](https://hub.docker.com/) 上进行 pull 拉取；
+> 如果目标 image 无法在本地找到，那么 Docker 将默认从 [Docker Hub](https://hub.docker.com/) 上进行 pull 拉取；
 
 ## 测试一（hello world）
 
@@ -70,6 +75,7 @@ For more examples and ideas, visit:
 ```
 
 该例子描述了 `docker run hello-world` 背后的行为：
+
 - 首先由 Docker client 与 Docker daemon 建立联系；
 - 其次 Docker daemon 尝试从 Docker Hub 上拉取名为 "hello-world" 的 image ；
 - 再次 Docker daemon 会基于该 image 创建一个新的 container 用于运行输出 "Hello from Docker!" 的可执行程序；
@@ -79,7 +85,8 @@ For more examples and ideas, visit:
 
 启动一个 Docker 化的 web 服务器（基于 nginx 的 webserver 将使用 80 端口运行于 container 中）
 
-测试步骤
+测试步骤：
+
 ```shell
 docker run -d -p 80:80 --name webserver nginx
 docker ps
@@ -87,7 +94,8 @@ docker stop webserver       ## stop the container
 docker start webserver      ## start the container
 ```
 
-具体执行过程
+具体执行过程：
+
 ```erlang
 ➜  Docker docker run -d -p 80:80 --name webserver nginx
 Unable to find image 'nginx:latest' locally
@@ -134,7 +142,7 @@ docker rm -f webserver      ## stop and remove the running container
 docker images
 ```
 
-> ⚠️ 在一些情况下，很有可能你会希望将一些 image 保留下来，这样就不再需要再次从 Docker Hub 上进行 pull ；
+> ⚠️ 在一些情况下，很有可能你会希望将一些 image 保留下来（会占用磁盘空间），这样就不再需要再次从 Docker Hub 上进行 pull ；
 
 实际结果
 
@@ -161,44 +169,14 @@ docker rmi <imageID>|<imageName>
 > 你可能想要通过命令行接口执行 uninstall 动作，因为存在 app 本身运行不正常，进而无法通过菜单命令直接 uninstall 的情况；
 
 
-# Bash Completion on OS X With Brew
-
-> ⚠️ 本段内容针对 bash 使用；
-
-```shell
-brew install bash-completion
-```
-
-根据提示，将如下内容添加到 ~/.bash_profile 文件中
-
-```shell
-if [ -f $(brew --prefix)/etc/bash_completion ]; then
-    . $(brew --prefix)/etc/bash_completion
-fi
-```
-
-```shell
-brew tap homebrew/completions
-```
-
-为了激活 bash completion ，如下文件需要被拷贝或符号链接到你的 bash_completion.d 目录中；
-
-```shell
-cd /usr/local/etc/bash_completion.d
-ln -s /Applications/Docker.app/Contents/Resources/etc/docker.bash-completion
-ln -s /Applications/Docker.app/Contents/Resources/etc/docker-machine.bash-completion
-ln -s /Applications/Docker.app/Contents/Resources/etc/docker-compose.bash-completion
-```
-
-
 # Q&A
-
 
 ## [Docker Toolbox](https://docs.docker.com/toolbox/overview/)
 
 Docker Toolbox 是一种 installer ，用于在不满足 Docker for Mac 和 Docker for Windows apps 运行要求的、older Mac 和 Windows 系统上，快速安装和启动一套 Docker 环境的工具；
 
 Toolbox 中包含如下 Docker 工具：
+
 - **Docker Machine** for running `docker-machine` commands
 - **Docker Engine** for running the `docker` commands
 - **Docker Compose** for running the `docker-compose` commands
@@ -212,6 +190,7 @@ Toolbox 中包含如下 Docker 工具：
 ## [Docker Machine](https://docs.docker.com/machine/overview/)
 
 Docker Machine 的用处：
+
 - 可以用于在 Mac 或 Windows 上安装和运行 Docker
 - 可以 Provision 和 manage 多个远端 Docker hosts
 - 可以 Provision Swarm clusters
@@ -231,6 +210,7 @@ Docker Machine 令你能够对运行不同 Linux 版本的众多远端 Docker ho
 Docker Machine 允许你将 Docker 运行在 older Mac 或 Windows 系统上；     
 
 Docker Machine 在如下两种场景下被广泛使用：
+
 - I have an older desktop system and want to run Docker on Mac or Windows
 
 > If you work primarily on an older Mac or Windows laptop or desktop that doesn’t meet the requirements for the new Docker for Mac and Docker for Windows apps, then you need Docker Machine in order to “run Docker” (that is, Docker Engine) locally. Installing Docker Machine on a Mac or Windows box with the Docker Toolbox installer provisions a local virtual machine with Docker Engine, gives you the ability to connect it, and run docker commands.
@@ -242,10 +222,10 @@ Docker Machine 在如下两种场景下被广泛使用：
 > Whether your primary system is Mac, Windows, or Linux, you can install Docker Machine on it and use docker-machine commands to provision and manage large numbers of Docker hosts. It automatically creates hosts, installs Docker Engine on them, then configures the docker clients. Each managed host (”machine”) is the combination of a Docker host and a configured client.
 
 
-
 ## [Docker Engine](https://docs.docker.com/engine/understanding-docker/#/what-is-docker-engine)
 
 Docker Engine 属于 client-server 应用模型，主要由以下组件构成：
+
 - A **server** which is a type of long-running program called a daemon process.
 - A **REST API** which specifies interfaces that programs can use to talk to the daemon and instruct it what to do.
 - A command line interface (CLI) **client**  that talks to the daemon (through the REST API wrapper).
@@ -258,7 +238,7 @@ daemon 负责创建和管理各种 Docker 对象，如 **images**, **containers*
 
 ## [Docker Engine v.s. Docker Machine](https://docs.docker.com/machine/overview/#/what-s-the-difference-between-docker-engine-and-docker-machine)
 
-当人们谈起 “Docker” 时，他们通常指的是 Docker Engine， 即由 Docker daemon, REST API 和 CLI 构成 client-server 应用；Docker Engine 接受来自 CLI 的 docker 命令，例如 `docker run <image>`, `docker ps` 和 `docker images` 等；
+当人们谈起 “Docker” 时，他们通常指的是 Docker Engine， 即由 Docker daemon, REST API 和 CLI 构成的 client-server 应用；Docker Engine 接受来自 CLI 的 docker 命令，例如 `docker run <image>`, `docker ps` 和 `docker images` 等；
 
 ![Docker Engine](https://docs.docker.com/machine/img/engine.png)
 
@@ -268,16 +248,14 @@ Docker Machine 是一种可以 provisioning 和 managing 你的 Dockerized hosts
 ![Docker Machine](https://docs.docker.com/machine/img/machine.png)
 
 
-
-
 ## [Docker for Mac](https://docs.docker.com/docker-for-mac/)
 
 使用 HyperKit ；
 
 
 ## [Docker for Mac v.s. Docker Toolbox](https://docs.docker.com/docker-for-mac/docker-toolbox/)
-> 两者之间的影响和共存问题
 
+> 两者之间的影响和共存问题
 
 
 ## [HyperKit](https://github.com/docker/HyperKit/)
@@ -289,5 +267,7 @@ HyperKit 是 Docker For Mac 的核心组件；
 
 
 ### 系统要求
+
 - OS X 10.10.3 Yosemite or later
 - a 2010 or later Mac (i.e. a CPU that supports EPT)
+
