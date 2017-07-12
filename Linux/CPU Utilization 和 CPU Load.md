@@ -4,11 +4,11 @@
 
 > CPU 利用率的正确翻译为 CPU Utilization 不是 CPU Usage ；
 
-cpu utilization 即 cpu 利用率；
+cpu utilization 即 cpu 利用率；就是 CPU 的使用状况，也即一段时间之中，CPU 用于执行任务占用的时间与总的时间的比率。
 
-cpu 利用率的计算是基于 `/proc/stat` 文件中的内容得到的（通过两次抽样值进行计算，抽样间隔自选）；
+cpu 利用率是基于 `/proc/stat` 文件中的内容计算得到的（通过两次抽样值进行计算，抽样间隔自选）；
 
-cpu 利用率可以基于如下公式进行计算（取两个采样点，然后基于差值计算）：
+可以基于如下公式进行计算（取两个采样点，然后基于差值计算）：
 
 ```
 cpu_utilization = [(user_2 + sys_2 + nice_2) - (user_1 + sys_1 + nice_1)] / (total_2 - total_1) * 100;
@@ -45,6 +45,15 @@ SYS_Rate=`expr 100-$SYS_USAGE |bc -l`         ## 此处得到的是 %cpu_utiliza
 
 Disp_SYS_Rate=`expr "scale=3; $SYS_Rate/1" |bc`  ## 取小数点后 3 位
 echo $Disp_SYS_Rate%
+```
+
+查看 CPU 利用率，推荐 Linux 命令如下：
+
+```
+top
+sar -u 1 5
+vmstat -n 1 5
+mpstat -P ALL 1 5
 ```
 
 ## per-process CPU Utilization
@@ -103,11 +112,29 @@ Amount of time that this process's **waited-for children** have been scheduled i
 threadCpuTime = utime + stime
 ```
 
+----------
+
 ## CPU Load Average
 
-cpu load 即 cpu 负载；一般在讨论时会描述成 CPU load average ，即 CPU 平均负载，这样更为准确；
+cpu load 即 cpu 负载；也被称作系统负载；准确的描述为 CPU load average ，即 CPU 平均负载；
 
-**系统 CPU 平均负载**被定义为在特定时间间隔内运行队列（run queue）中的平均进程数（应该说成可调度实体更为准确）。如果一个进程（或线程）满 足以下条件则其就会位于运行队列中：
+**系统（CPU）平均负载**被定义为在特定的一段时间内统计的、可调度实体数量的平均值，具体来说包括：
+
+- 正在 CPU 中运行的调度实体数量（处于 R 状态）；
+- 正在等待 CPU 的调度实体数量；
+- 处于不可中断睡眠的的调度实体数量（处于 D 状态）；
+
+引用 wikipedia 上的一段话：
+
+> An idle computer has a load number of 0 (the idle process isn't counted). Each process __using__ or __waiting__ for CPU (the _ready queue_ or _run queue_) increments the load number by 1. Each process that terminates decrements it by 1. Most UNIX systems count only processes in the __running__ (on CPU) or __runnable__ (waiting for CPU) states. However, Linux also includes processes in uninterruptible sleep states (usually waiting for disk activity), which can lead to markedly different results if many processes remain blocked in I/O due to a busy or stalled I/O system.
+
+关键：Linux 和 UNIX 系统的统计差别；
+
+> On modern UNIX systems, the treatment of threading with respect to load averages varies. Some systems treat threads as processes for the purposes of load average calculation: each thread waiting to run will add 1 to the load. However, other systems, especially systems implementing so-called M:N threading, use different strategies such as counting the process exactly once for the purpose of load (regardless of the number of threads), or counting only threads currently exposed by the user-thread scheduler to the kernel, which may depend on the level of concurrency set on the process. __Linux appears to count each thread separately as adding 1 to the load__.
+
+关键：是否将 thread 当作 process 处理，也存在差别；
+
+如果一个调度实体（进程或线程）满足以下条件，则会位于运行队列中：
 
 - **没有在等待 I/O 操作的结果**；
 - **没有主动进入等待状态（即没有调用 `wait`）**；
@@ -456,4 +483,7 @@ The "**procs_blocked**" line gives the number of processes currently **blocked**
 - [CPU利用率和Load Average的区别](http://www.voidcn.com/blog/chenhaotong/article/p-5996294.html)
 - [Understanding Linux CPU Load - when should you be worried?](http://blog.scoutapp.com/articles/2009/07/31/understanding-load-averages)
 - [理解 Linux 的处理器负载均值（翻译）](https://www.gracecode.com/posts/2973.html)
+- [LINUX系统的CPU使用率和LOAD](http://smilejay.com/2014/06/cpu-utilization-load-in-linux-system/)
+- [Load (computing)](https://en.wikipedia.org/wiki/Load_%28computing%29)
+- [UNIX Load Average Part 1: How It Works](http://www.teamquest.com/import/pdfs/whitepaper/ldavg1.pdf)
 
