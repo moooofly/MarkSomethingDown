@@ -72,7 +72,7 @@ rename-command CONFIG "aaa-bbb-config"
 
 maxclients 50000
 
-# 设置当前实例的内存使用上限（超过该上限时会更具 LRU 策略淘汰相应的 keys）
+# 设置当前实例的内存使用上限（超过该上限时会根据 LRU 策略淘汰相应的 keys）
 maxmemory 2g
 maxmemory-policy allkeys-lru
 
@@ -178,7 +178,7 @@ rename-command CONFIG "ele-super-config"
 
 maxclients 50000
 
-maxmemory 1gb
+maxmemory 2gb
 maxmemory-policy allkeys-lru
 
 # 启用 AOF 持久化
