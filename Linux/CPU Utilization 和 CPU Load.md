@@ -120,13 +120,24 @@ cpu load 即 cpu 负载；也被称作系统负载；准确的描述为 CPU load
 
 **系统（CPU）平均负载**被定义为在特定的一段时间内统计的、可调度实体数量的平均值，具体来说包括：
 
-- 正在 CPU 中运行的调度实体数量（处于 R 状态）；
-- 正在等待 CPU 的调度实体数量；
-- 处于不可中断睡眠的的调度实体数量（处于 D 状态）；
+- 正在 CPU 中运行的（running）调度实体数量（处于 R 状态）；
+- 等待 CPU 调度的（runnable）调度实体数量（处于 R 状态）；
+- （linux 系统中增加）处于不可中断睡眠的的调度实体数量（处于 D 状态）；
+
+对比下面这段内容（本质上是一样的）：
+
+> The **load average** is the sum of the **run queue length** and the number of jobs currently running on the CPUs. 
+> 
+> As the authors explain about the Linux kernel, because both of our test processes are CPU-bound they will be in a **TASK_RUNNING** state. This means they are either:
+> 
+> - **running** i.e., currently executing on the CPU
+> - **runnable** i.e., waiting in the **run_queue** for the CPU
+> 
+> The **Linux kernel** also checks to see if there are any tasks in a short-term sleep state called **TASK_UNINTERRUPTIBLE**. If there are, they are also included in the load average sample. 
 
 引用 wikipedia 上的一段话：
 
-> An idle computer has a load number of 0 (the idle process isn't counted). Each process __using__ or __waiting__ for CPU (the _ready queue_ or _run queue_) increments the load number by 1. Each process that terminates decrements it by 1. Most UNIX systems count only processes in the __running__ (on CPU) or __runnable__ (waiting for CPU) states. However, Linux also includes processes in uninterruptible sleep states (usually waiting for disk activity), which can lead to markedly different results if many processes remain blocked in I/O due to a busy or stalled I/O system.
+> An idle computer has a load number of 0 (the idle process isn't counted). Each process __using__ or __waiting__ for CPU (the _ready queue_ or _run queue_) increments the load number by 1. Each process that terminates decrements it by 1. Most UNIX systems count only processes in the __running__ (on CPU) or __runnable__ (waiting for CPU) states. However, **Linux also includes processes in uninterruptible sleep states** (usually waiting for disk activity), which can lead to markedly different results if many processes remain blocked in I/O due to a busy or stalled I/O system.
 
 关键：Linux 和 UNIX 系统的统计差别；
 
@@ -140,7 +151,7 @@ cpu load 即 cpu 负载；也被称作系统负载；准确的描述为 CPU load
 - **没有主动进入等待状态（即没有调用 `wait`）**；
 - **没有被停止（例如等待终止）**；
 
-cpu 平均负载是从 `/proc/loadavg` 中读取的，该值为所有 cpu 的总体值，计算单个 cpu 的负载平均值时，需要除 cpu 的数量；
+cpu 平均负载是从 `/proc/loadavg` 中读取的，该值为所有 cpu 的总体值，计算单个 cpu 的负载平均值时，需要除 cpu 的数量；内核默认每隔 5 秒钟更新一次 load average 的值；
 
 常规情况
 
@@ -173,6 +184,8 @@ vagrant@vagrant-ubuntu-trusty:~$ cat /proc/loadavg
 4294967293.21 4294967293.36 4294967293.39 4294967294/740 4272
 ```
 
+
+
 ## Q&A
 
 - **如何判断系统是否已经 overload**
@@ -180,6 +193,10 @@ vagrant@vagrant-ubuntu-trusty:~$ cat /proc/loadavg
 > “**有多少核心即为有多少负荷**”法则： 在多核处理中，你的系统均值不应该高于处理器核心的总数量。
 
 对一般的系统来说，可以根据 CPU 数量去判断。如果平均负载始终在 1.2 以下，而你的机器有 2 颗 CPU ，那么基本不会出现 CPU 不够用的情况。一般结论：**Load average 平均要小于 CPU 的数量**；
+
+```
+load average < CPU num * core num * 0.7
+```
 
 - **低 CPU Utilization 的情况下是否会有高 Load Average 情况产生**
 
@@ -477,6 +494,19 @@ The "**procs_blocked**" line gives the number of processes currently **blocked**
 ----------
 
 
+## CPU load v.s. CPU percentage
+
+The state in question is CPU load—not to be confused with CPU percentage. In fact, it is precisely the `CPU load` that is measured, because **load averages do not include any processes or threads waiting on I/O, networking, databases or anything else not demanding the CPU**. It narrowly **focuses on what is actively demanding CPU time**. This differs greatly from the CPU percentage. The `CPU percentage` is the amount of a time interval (that is, the sampling interval) that the system's processes were found to be active on the CPU.
+
+If top reports that your program is taking 45% CPU, 45% of the samples taken by top found your process active on the CPU. The rest of the time your application was in a wait. (It is important to remember that a CPU is a discrete state machine. It really can be at only 100%, executing an instruction, or at 0%, waiting for something to do. There is no such thing as using 45% of a CPU. The CPU percentage is a function of time.) 
+
+The `load averages` differ from `CPU percentage` in two significant ways: 
+
+- load averages __measure the trend__ in CPU utilization not only an instantaneous snapshot, as does percentage, and 
+- load averages include all demand for the CPU not only how much was active at the time of measurement.
+
+----------
+
 
 参考:
 
@@ -486,4 +516,5 @@ The "**procs_blocked**" line gives the number of processes currently **blocked**
 - [LINUX系统的CPU使用率和LOAD](http://smilejay.com/2014/06/cpu-utilization-load-in-linux-system/)
 - [Load (computing)](https://en.wikipedia.org/wiki/Load_%28computing%29)
 - [UNIX Load Average Part 1: How It Works](http://www.teamquest.com/import/pdfs/whitepaper/ldavg1.pdf)
+- [Examining Load Average](http://www.linuxjournal.com/article/9001)
 
