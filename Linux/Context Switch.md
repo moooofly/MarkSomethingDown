@@ -1,5 +1,7 @@
 # Context Switch
 
+![Context_switch](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Context_switch.png "Context_switch")
+
 > In computing, a `context switch` is the process of **storing** and **restoring** the state (more specifically, the `execution context`) of a `process` or `thread` so that execution can be resumed from the same point at a later time. This enables multiple processes to share a single CPU and is an essential feature of a multitasking operating system.
 
 context switch 一般是指 execution context switch ；作用对象为 `process` 或 `thread` ；
