@@ -200,7 +200,7 @@ load average < CPU num * core num * 0.7
 
 - **低 CPU Utilization 的情况下是否会有高 Load Average 情况产生**
 
-首先需要理解**占有时间 (occupy)**和**使用时间 (active use)**的区别：可以简单的认为使用时间为 `total - idle` 得到的时间；而占用时间为 `total` ；
+首先需要理解**占有时间** (occupy)和**使用时间** (active use)的区别：可以简单的认为使用时间为 `total - idle` 得到的时间；而占用时间为 `total` ；
 
 当分配时间片以后，是否使用完全取决于使用者，因此完全可能出现低 CPU 利用率、高 Load Average 的情况。由此来看，**仅仅从 CPU 利用率来判断 CPU 是否处于一种超负荷的工作状态还是不够的**，必须结合 load average 来全局的看 CPU 的使用情况和申请情况。
 
