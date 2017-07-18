@@ -122,6 +122,18 @@ For BSD formats and when the stat keyword is used, additional characters may be 
 
 ----------
 
+| 状态 | 状态解释 | 在 linux 内核中的编码 | 在 top 中的显示 |
+| --- | --- | --- | --- |
+| TASK_RUNNING | 运行中 or 就绪 | 0 | R |
+| TASK_INTERRUPTIBLE | 睡眠状态，表示进程被阻塞，但能响应信号，直到被唤醒 | 1 | S |
+| TASK_UNINTERRUPTIBLE | 不可中断等待状态，无法响应信号，该进程等待一个事件的发生或某种系统资源，通常是等待 IO ，如磁盘 IO 、网络 IO ，或其它外设 IO ；如果进程正在等待的 IO 在较长的时间内都没有响应，可能是外设本身出了故障，也可能是挂载的远程文件系统已经不可访问了 | 2 | D |
+| __TASK_STOPPED | 暂停状态，进程收到暂停信号后停止运行 | 4 | T |
+| __TASK_TRACED | 跟踪状态，类似于 __TASK_STOPPED ，都代表进程暂停下来 | 8 | t |
+| EXIT_ZOMBIE | 僵尸状态，此时进程不能被调度，但是 PCB 未被释放 | 16 | Z |
+| EXIT_DEAD | 死亡状体，表示一个已终止的进程，其 PCB 已被释放 | 32 | X |
+
+----------
+
 
 参考：
 
