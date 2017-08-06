@@ -217,13 +217,56 @@ Built using clang 4.2.1 Compatible Apple LLVM 7.3.0 (clang-703.0.31).
 
 在 CentOS 系统上，更新 `locate` 命令依赖的数据库，只需要执行 `updatedb` 命令；
 
-在 Mac OS X 系统中，则需要执行如下命令
-```shell
+在 Mac OS X 系统中，首次使用 `locate` 命令时，会出现如下信息
+
+```
+➜  ~ locate spellfile.vim
+
+WARNING: The locate database (/var/db/locate.database) does not exist.
+To create the database, run the following command:
+
+  sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.locate.plist
+
+Please be aware that the database can take some time to generate; once
+the database has been created, this message will no longer appear.
+
+➜  ~
+➜  ~ ll /var/db/locate.database
+ls: /var/db/locate.database: No such file or directory
+➜  ~
+```
+
+说明：
+
+- `locate` 命令默认使用 `/var/db/locate.database` 数据库尚不存在；
+- 可以通过命令进行创建；
+- 执行完上述命令后，需要一点点时间才能创建好数据库；
+
+从 man 手册中可知，和 `locate` 相关的文件有
+
+- `/var/db/locate.database` 为 `locate` 使用的默认 database ；
+- `/usr/libexec/locate.updatedb` 为用于更新 locate database 的脚本；
+- `/System/Library/LaunchDaemons/com.apple.locate.plist` 为负责定时进行 database rebuild 工作的 Job ；
+
+在 `locate.updatedb` 的 man 手册中可以看到
+
+```
+The locate.updatedb utility updates the database used by locate.  It is typically run once a week by the /System/Library/LaunchDaemons/com.apple.locate.plist job.
+```
+
+其中指出，`locate.updatedb` 更新数据库的默认频率为一周一次；
+
+因此，会经常需要用如下命令进行手动更新：
+
+```
 sudo /usr/libexec/locate.updatedb
 ```
-> 注意：如果在执行上述命令时出现权限问题，则可以尝试切到根目录 / 下执行该命令；
 
-locate 命令依赖的数据库位于 `/var/db/locate.database` ；
+更进一步，为上述命令配置个别名就更好了～
+
+```
+alias updatedb="sudo /usr/libexec/locate.updatedb"
+```
 
 
 # .DS_Store 文件是干什么的？如何禁止？
