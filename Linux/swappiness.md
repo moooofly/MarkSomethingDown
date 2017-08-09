@@ -8,7 +8,7 @@ The default value is 60.
 
 ## [Swappiness](https://en.wikipedia.org/wiki/Swappiness)
 
-> Swappiness is a Linux kernel parameter that controls the relative weight given to **[swapping out](https://en.wikipedia.org/wiki/Virtual_memory#Address_space_swapping) of [runtime memory](https://en.wikipedia.org/wiki/Memory_footprint)**, as opposed to **dropping [pages](https://en.wikipedia.org/wiki/Page_(computer_memory)) from the system [page cache](https://en.wikipedia.org/wiki/Page_cache)**. Swappiness can be set to values between 0 and 100 inclusive. A low value causes the kernel to avoid swapping; a higher value causes the kernel to try to use swap space. The default value is 60; **setting it higher** will increase performance of "hot" processes at the cost of making a return to inactive "cold" ones take a long pause, while **setting it lower** (even 0) may decrease response latency. Systems with more than adequate RAM for any expected task may want to drastically lower the setting.
+Swappiness is a Linux kernel parameter that controls the relative weight given to **[swapping out](https://en.wikipedia.org/wiki/Virtual_memory#Address_space_swapping) of [runtime memory](https://en.wikipedia.org/wiki/Memory_footprint)**, as opposed to **dropping [pages](https://en.wikipedia.org/wiki/Page_(computer_memory)) from the system [page cache](https://en.wikipedia.org/wiki/Page_cache)**. Swappiness can be set to values between 0 and 100 inclusive. A low value causes the kernel to avoid swapping; a higher value causes the kernel to try to use swap space. The default value is 60; **setting it higher** will increase performance of "hot" processes at the cost of making a return to inactive "cold" ones take a long pause, while **setting it lower** (even 0) may decrease response latency. Systems with more than adequate RAM for any expected task may want to drastically lower the setting.
 
 | Value | Strategy |
 | -- | -- |
@@ -65,6 +65,7 @@ swap 对于操作系统来比较重要，当物理内存不足时，可以 swap 
 ```
 # 系统重启后会失效
 echo {bestvalue} > /proc/sys/vm/swappiness
+
 # 系统重启后仍有效
 echo vm.swappiness={bestvalue} >> /etc/sysctl.conf
 ```

@@ -12,11 +12,11 @@ Virtual memory 按 pages 进行划分；在 X86 架构上，每一个 virtual me
 
 ## Kernel Memory Paging
 
-`Memory paging` 是一种常规活动，不要和 `memory swapping` 搞混淆；Memory paging 是指将 memory 按照**一定的时间间隔**、**同步（synching）**到 disk 的过程；只要时间运行长了，应用就会逐渐消耗光所有的 memory ；在某些时间点上，kernel 必须**扫描**（scan）memory 并**回收**（reclaim）不再使用的 pages ，以便其能够分配给其它应用使用； 
+Memory `paging` 是一种常规活动，不要和 memory `swapping` 搞混淆；Memory `paging` 是指将 memory 按照**一定的时间间隔**、**同步（synching）**到 disk 的过程；只要时间运行长了，应用就会逐渐消耗光所有的 memory ；在某些时间点上，kernel 必须**扫描**（scan）memory 并**回收**（reclaim）不再使用的 pages ，以便其能够分配给其它应用使用； 
 
 ## The Page Frame Reclaim Algorithm (PFRA)
 
-PFRA 负责**释放**（freeing）memory ；PFRA 根据 page 类型选择要释放的 memory pages ；Page 类型包括：
+PFRA 负责**释放内存** ；PFRA 根据 page 类型选择要释放的 memory pages ；Page 类型包括：
 
 - **Unreclaimable** – locked, kernel, reserved pages
 - **Swappable** – anonymous memory pages
@@ -42,7 +42,7 @@ PFRA 中存在两个主要的 functions ；即 `kswapd` kernel 线程和 “`Low
 > - If the page is **modified** and backed by a filesystem, it writes the contents of the page to **disk**.
 > - If the page is **modified** and not backed up by any filesystem (**anonymous**), it writes the contents of the page to the **swap device**. 
 
-`kswapd` 根据 page 的状态和特点，采取如下行动：
+`kswapd` 根据 page 的状态和特点，采取如下行动（回收对象）：
 
 - 如果 page 未被修改，则将其放回 **free list** 中；
 - 如果 page 被修改了，并且对应了文件系统中的文件，则将该 page 的内容写入 **disk** ；
@@ -65,7 +65,7 @@ PFRA 中存在两个主要的 functions ；即 `kswapd` kernel 线程和 “`Low
 
 > The `pdflush` daemon is responsible for **synchronizing** any pages associated with a file on a filesystem back to **disk**. In other words, when a file is modified in memory, the `pdflush` daemon writes it back to disk. 
 
-pdflush 负责将与 file 相关的 page 同步到 disk 上；
+**`pdflush` 负责将与 file 相关的 page 同步到 disk 上**；
 
 > The `pdflush` daemon starts synchronizing **dirty pages** back to the filesystem when 10% of the pages in memory are dirty. This is due to a kernel tuning parameter called `vm.dirty_background_ratio`.
 
@@ -105,9 +105,9 @@ Virtual memory 性能监控由以下行为构成：
 
 首先，它们存在的目的不同，`kswapd` 的作用是**管理内存**，`pdflush` 的作用是**同步内存和磁盘**；
 
-因为数据写入磁盘前可能会缓存在内存，而这些缓存真正写入磁盘通常由如下三个原因驱使：
+数据写入磁盘前可能会被缓存在内存中，通常在满足如下三个原因的情况下，这些缓存才真正写入磁盘：
 
-- **用户要求**缓存马上写入磁盘；
+- **用户要求**缓存马上写入磁盘（`sync()` or `fsync()`）；
 - **缓存过多**，超过一定阀值，需要写入磁盘；
 - **内存吃紧**，需要将缓存写入磁盘以腾出地方；
 
@@ -115,7 +115,7 @@ Virtual memory 性能监控由以下行为构成：
 
 它们相同的地方都是**定期被唤醒**，都是以**守护进程（内核进程）**的形式存在；**`kswapd` 试图保证内存永远都是可满足用户要求的**，为了实现这种承诺，它必须采取一定的策略；**`pdflush` 试图保证内存和磁盘的数据是同步的**，不会因为缓存的原因使内存和磁盘的数据不同步，从而造成数据丢失或者损坏，为了实现这种承诺，它同样也要采取一定的策略。
 
-**那么它们之间的交叉点在何处呢？**比如，在用户所要求的内存不能被满足，或者空闲内存的数量已经低于某一个值的时候，`kswapd` 被唤醒，它必须为用户的要求提供服务，因此试图换出一部分正在使用的内存，使之成为空闲内存以供用户使用；这时，**磁盘缓存 (disk caches)** 也是正在被使用的内存；因此，`kswapd` 需要将它们换出，这里的换出和匿名页面被换到**交换分区 (swap device)** 是一样的概念，**将磁盘缓存换到哪里呢？**当然哪里来哪里去了。**linux 不区分匿名页面对应的交换分区和真实文件的磁盘缓存对应的磁盘文件分区**，实际上在将匿名页面写到交换分区的时候，也是按照写文件的形式进行的，读源代码的时候就会发现有一个 `address_space_operations` 结构体，里面的 `readpage` 和 `writepage` 就是读写页面的回调函数，**linux 的这个实现方式表明，写匿名页面和写 ext2 的缓存页面没有本质的区别**，仅仅换一下那几个 `address_space_operations` 里面的回调函数就行。因此 `kswapd` 也会将磁盘缓存回写到磁盘，和 `pdflush` 所作的工作一样，这就是它们交叉的地方，当然如果 `kswapd` 已经将页面写入了磁盘，就会清除掉页面的脏标志；这样，在 `pdflush` 扫描脏页的时候就不会二次**回写**了。 
+**那么它们之间的交叉点在何处呢？**比如，在用户所要求的内存不能被满足，或者空闲内存的数量已经低于某一个值的时候，`kswapd` 被唤醒，它必须为用户的要求提供服务，因此试图换出一部分正在使用的内存，使之成为空闲内存以供用户使用；这时，**磁盘缓存 (disk caches 或直接描述为 file buffer cache 更容易理解)** 也是正在被使用的内存；因此，`kswapd` 需要将它们换出，这里的换出和匿名页面被换到**交换分区 (swap device)** 是一样的概念，**将磁盘缓存换到哪里呢？**当然哪里来哪里去了。**linux 不区分匿名页面对应的交换分区和真实文件的磁盘缓存对应的磁盘文件分区**，实际上在将匿名页面写到交换分区的时候，也是按照写文件的形式进行的，读源代码的时候就会发现有一个 `address_space_operations` 结构体，里面的 `readpage` 和 `writepage` 就是读写页面的回调函数，**linux 的这个实现方式表明，写匿名页面和写 ext2 的缓存页面没有本质的区别**，仅仅换一下那几个 `address_space_operations` 里面的回调函数就行。因此 `kswapd` 也会将磁盘缓存回写到磁盘，和 `pdflush` 所作的工作一样，这就是它们交叉的地方，当然如果 `kswapd` 已经将页面写入了磁盘，就会清除掉页面的脏标志；这样，在 `pdflush` 扫描脏页的时候就不会二次**回写**了。 
 
 既然 `kswapd` 和 `pdflush` 有联系，那么**联系它们的纽带是什么？**当然是内核中的 LRU 链表了；本来需要通过 `pdflush` 写入磁盘的页面，也许会通过 `kswapd` 写入，**如何让 `kswapd` 看到 `pdflush` 负责的页面呢？**实际上 linux 并没有刻意关注这个事情，内核那么复杂，如果这么细致的考虑问题谁都会发疯的。因此 linux 采用了更加宏伟的方式，就是将事情抽象，不再操心什么回写啊，内存释放之类的细节，而是抽象出了**内存管理**和**缓存管理**这些个模块，然后模块和模块之间建立一个耦合点，也可以理解成一个接口，这个东西就是 LRU 链表；**linux 规定，凡是想纳入内存管理范畴的内存物理页面都要加入 LRU 链表**，而 `kswapd` 就是内存管理的执行者，它操作的正是这个链表，这样它就不需要别的什么了，只需要告诉大家，你想让我管理，别让我去找你，你自己加入 LRU 链表吧，就这样而已。缓存管理模块当然想加入内存管理，因此所有的磁盘缓存页面都在加入缓存的同时加入了 LRU 链表，这样**缓存管理的执行者 `pdflush`** 和**内存管理的执行者 `kswapd`** 就不需要直接交互商量事情了，一个 LRU 链表解除了它们的耦合。 
 
@@ -159,18 +159,19 @@ The basic operation of `kswapd` remains the same. Once woken, it calls `balance_
 
 物理内存（RAM）和 SWAP 的这种交换过程称为**页面交换（Paging）**；值得注意的是 paging 和 swapping 是两个完全不同的概念，国内很多参考书把这两个概念混为一谈，`swapping` 也翻译成交换，**在操作系统里是指把某程序完全交换到硬盘以腾出内存给新程序使用**，和 `paging` **只交换程序的部分（页面）**是两个不同的概念。纯粹的 swapping 在现代操作系统中已经很难看到了，因为把整个程序交换到硬盘的办法既耗时又费力而且没必要，现代操作系统基本都是 paging 或者 paging/swapping 混合，swapping 最初是在 Unix system V 上实现的。
 
-kswapd 是内核回收内存的线程，即便内核不使能（创建）SWAP 分区，kswapd 还是要跑，因为还有 file buffer cache 相关的内存需要进行回收；
+**`kswapd` 是内核回收内存的线程，即便不使能（创建）SWAP 分区，`kswapd` 还是要跑，因为还有 file buffer cache 相关的内存需要进行回收**；
 
-系统每过一定时间就会唤醒 kswapd 看看内存是否紧张，如果不紧张，则睡眠；
+系统每过一定时间就会唤醒 `kswapd` 看看内存是否紧张，如果不紧张，则睡眠；
 
-内存不足的时候，kswapd 和 pdflush 共同负责把数据写回硬盘并释放内存。
+内存不足的时候，`kswapd` 和 `pdflush` 共同负责把数据写回硬盘并释放内存。
 
-kswapd 回收对象：
+`kswapd` 的回收目标对象：
 
-- anonymous pages
+- **anonymous pages**
 即匿名页，属于某个进程但是又和任何文件无关联，不能被同步到硬盘上，内存不足的时候由 kswapd 负责将它们写到交换分区并释放内存；
 
-- file buffer cache
+- **file buffer cache**
+即和文件相关的 pages ；
 
 针对上述两种对象的回收倾向性，可以通过调整 `vm.swappiness` 进行控制。swappiness 默认为 60 ，即更倾向回收 file buffer cache ；
 
@@ -225,7 +226,7 @@ Inactive(file):   306764 kB
 root@vagrant-ubuntu-trusty:~] $
 ```
 
-the page replacement policy is frequently said to be a Least Recently Used (LRU)-based algorithm but this is not strictly speaking true as the lists are not strictly maintained in LRU order. The LRU in Linux consists of two lists called the `active_list` and `inactive_list`. The objective is for the `active_list` to contain the working set of all processes and the `inactive_list` to contain reclaim canditates. As all reclaimable pages are contained in just two lists and pages belonging to any process may be reclaimed, rather than just those belonging to a faulting process, the replacement policy is a global one.
+the **page replacement policy** is frequently said to be a `Least Recently Used (LRU)`-based algorithm but this is not strictly speaking true as the lists are not strictly maintained in LRU order. The LRU in Linux consists of two lists called the `active_list` and `inactive_list`. The objective is for the `active_list` to contain the working set of all processes and the `inactive_list` to contain reclaim canditates. As all reclaimable pages are contained in just two lists and pages belonging to any process may be reclaimed, rather than just those belonging to a faulting process, the replacement policy is a global one.
 
 the LRU lists consist of two lists called `active_list` and `inactive_list`. They are declared in `mm/page_alloc.c` and are protected by the `pagemap_lru_lock` spinlock. They, broadly speaking, store the “**hot**” and “**cold**” pages respectively, or in other words, the `active_list` contains all the working sets in the system and `inactive_list` contains reclaim canditates.
 

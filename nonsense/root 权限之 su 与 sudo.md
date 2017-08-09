@@ -379,7 +379,11 @@ The quick easy answer was
 >If you disable the sudo password for your account, you will seriously compromise the security of your computer. Anyone sitting at your unattended, logged in account will have complete root access, and remote exploits become much easier for malicious crackers.
 
 
+----------
 
+## 相关链接
+
+- [su, sudo, and environment](https://blog.shichao.io/2013/03/29/su_sudo_and_environment.html)
 
 
 
