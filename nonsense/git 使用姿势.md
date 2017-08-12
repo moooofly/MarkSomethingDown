@@ -119,6 +119,80 @@ being redirected to the login form.
 - [AngularJS Git Commit Message Conventions](https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#heading=h.uyo6cb12dt6w)
 
 
+----------
+
+
+# git merge v.s. git rebase 
+
+> 原文参考：[这里](http://blog.csdn.net/wh_19910525/article/details/7554489)
+
+假设分支初始状态为
+
+![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/git%20merge%20vs%20git%20rebase%20-%201.jpg)
+
+之后，我们在 mywork 分支上进行一些修改，生成两个提交 (commit) ；与此同时，其他人也在 origin 分支上做了一些修改，并且生成了两个提交；
+
+![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/git%20merge%20vs%20git%20rebase%20-%202.jpg)
+
+这就意味着 origin 和 mywork 这两个分支各自"前进"了，即它们"分叉"了。
+
+## git merge
+
+通过 `git merge` 合并的效果如下：
+
+```
+$ git checkout mywork
+$ git merge origin
+```
+
+![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/git%20merge%20vs%20git%20rebase%20-%203.jpg)
+
+实际效果为：使用 pull 命令把 origin 分支上的修改拉下来，并 mywork 分支上的修改进行合并；结果看起来就像一个新的“合并的提交” (merge commit) ；
+
+> 在 mywork 分支历史中能看到 merge 相关信息；
+
+## git rebase
+
+通过 `git rebase` 合并的效果如下：
+
+```
+$ git checkout mywork
+$ git rebase origin
+```
+
+![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/git%20merge%20vs%20git%20rebase%20-%204.jpg)
+
+实际效果为：rebase 命令会将 mywork 分支里的每个提交 (commit) 取消掉（和 origin 分叉之后的），并把它们临时保存为 ".git/rebase" 目录下补丁 (patch) ，之后将 mywork 分支更新为最新的 origin 分支，最后再把保存的那些补丁应用到 mywork 分支上。
+
+当 mywork 分支更新完成之后，它会指向最新创建的 C6' 提交 (commit) ，而之前那些老的提交 (C5, C6) 会被丢弃。如果运行垃圾收集命令，之前那些被丢弃的提交会被删除；
+
+> 让 mywork 分支历史看起来像没有经过任何合并一样；
+
+## 对比
+
+若执行 `git rebase` 时遇到冲突，则 git 会停止 rebase 过程并让你去解决冲突，在解决之后，需要通过 `git add` 命令更新相应内容的索引，之后无需执行 `git commit`，只需执行 `git rebase --continue` 继续应用余下的补丁；在任何时候，你都可以用 `git rebase --abort` 命令终止 rebase 行为，令 mywork 分支会回退到 rebase 开始前的状态。
+
+若执行 `git merge` 时遇到冲突，则xxx；
+
+**时间顺序问题**：
+
+当我们使用 `git log` 查看 commit 信息时，会发现两种命令下 commit 顺序会有所不同。
+
+![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/git%20merge%20vs%20git%20rebase%20-%206.jpg)
+
+假设
+
+- C3 提交于 9:00AM
+- C5 提交于 10:00AM
+- C4 提交于 11:00AM
+- C6 提交于 12:00AM
+
+基于 `git merge` 合并后看到的 commit 顺序（从新到旧）是：`C7,C6,C4,C5,C3,C2,C1` ；
+
+基于 `git rebase` 合并后看到的 commit 顺序（从新到旧）是：`C7,C6',C5',C4,C3,C2,C1` ；
+
+因为 C6' 提交只是 C6 提交的克隆，C5' 提交只是 C5 提交的克隆；因此从用户角度看，就是 `C7,C6,C5,C4,C3,C2,C1` ；
+
 
 # git tag 操作
 
@@ -136,7 +210,7 @@ git tag -l '<pattern>'
 
 > 模式为正则表达式；
 
-- 新建标签
+- 新建标签（基于当前提交点）
 
     > Git 使用的标签有两种类型：**轻量级的（lightweight）**和**含附注的（annotated）**；
 
@@ -174,11 +248,11 @@ git tag -v <tag-name>
 
 > 需要有签署者的公钥，存放在 keyring 中（即导入），才能验证；
 
-- 后期（补）加注标签
+- 后期（补）加注标签（只想某个特定提交）
 
 ```shell
-git log --pretty=oneline           # 查看提交历史，确定某次提交的哈希值
-git tag -a <tag_name> <hashValue>  # 可以只给出哈希值的前几位
+git log --pretty=oneline                       # 查看提交历史，确定某次提交的哈希值
+git tag -a <tag_name> <hashValue> -m "comment" # 可以只给出哈希值的前几位
 ```
 
 - 将标签推送到远端仓库
