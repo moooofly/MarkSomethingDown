@@ -342,12 +342,29 @@ git push --set-upstream origin new_branch
 git branch --set-upstream-to=origin/new_branch new_branch
 ```
 
+# 基于 git clone 直接获取远端仓库指定分支代码
+
+`git clone` 默认会把远程仓库整个给 clone 下来，但只会在本地默认创建一个 master 分支；
+
+`git clone` 可以使用 -b 参数指定目标分支。实际上，-b 参数不仅支持分支名，还支持 tag 名等。
+
+```
+git clone <remote-addr:repo.git> -b <branch-or-tag-or-commit>
+```
 
 # 将远端 github repo 里的指定分支拉取到本地（本地不存在的分支）
+
+> 前提：已经通过 `git clone` 获取远程仓库；
 
 当想要从远端仓库里拉取一条本地不存在的分支时，可以执行
 
 ```
+# 查看所有分支（包括隐藏的）
+git branch -av
+or
+git branch -r  // better way
+
+# 在本地新建（可设置为同名）分支，并切换到该分支
 git checkout -b local_branch_name origin/remote_branch_name
 ```
 
