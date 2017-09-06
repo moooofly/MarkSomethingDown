@@ -9,6 +9,40 @@
 ----------
 
 
+# 拉取远程特定分支上的内容
+
+有时候我们需要得到其它人的代码仓库，将别人的修改与自己的修改进行合并；
+
+相关命令如下
+
+```
+git remote -v
+git remote add <name_this_remote> <remote_address>
+git checktout <dst_branch>
+git fetch <name_this_remote>
+git merge <name_this_remote>/<dst_branch>
+```
+
+# 如何撤销错误的 merge 结果
+
+假设你要 merge 远程分支 A 的内容，结果不小心 merge 了分支 B 上的内容；
+
+```
+git checktout <dst_branch>
+git fetch <name_this_remote>
+git merge <name_this_remote>/B
+
+# 此时可能会有一堆冲突要你解决，如果确定是一次错误 merge ，则按如下步骤操作
+
+git reflog  # 确定错误 merge 之前当前 branch 所在 commit 对应 hash 值
+git reset --hard <hash>
+```
+
+
+
+----------
+
+
 # 如何在 git 中写出好的 commit 说明
 
 > 原文地址：[这里](https://ruby-china.org/topics/15737)
