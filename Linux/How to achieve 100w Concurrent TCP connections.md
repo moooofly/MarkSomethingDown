@@ -89,6 +89,19 @@ net.core.somaxconn = 262144
 ```
 
 
+> 辅助命令
+
+```
+grep conntrack /proc/slabinfo
+cat /proc/sys/net/netfilter/nf_conntrack_count
+ss -s
+cat /proc/net/sockstat|grep -E "TCP:|sockets:"
+cat /proc/sys/fs/file-nr
+free -m
+netstat -n | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'
+```
+
+
 ----------
 
 
