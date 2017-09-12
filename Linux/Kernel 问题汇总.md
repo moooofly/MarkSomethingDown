@@ -1,22 +1,22 @@
 # Kernel 问题汇总
 
-- "err kenerl: INFO: task `<process>`:`<pid>` blocked for more than 120 seconds"
+- "INFO: task `<process>`:`<pid>` blocked for more than 120 seconds"
 - "unable to handle kernel NULL pointer dereference at 0000000000000010"
 - "kernel: EPT: Misconfiguration"
 
 
 ----------
 
-## "err kenerl: INFO: task `<process>`:`<pid>` blocked for more than 120 seconds"
+## "INFO: task `<process>`:`<pid>` blocked for more than 120 seconds"
 
 ### 故障信息
 
-在 `/var/log/message`、`/var/log/kern.log` 和 `dmesg` 中均报出如下
+在 `/var/log/message`、`/var/log/kern.log` 和 `dmesg` 中均报出如下（不同 distro 可能有所不同）
 
 模式
 
 ```
-err kenerl: INFO: task <process>:<pid> blocked for more than 120 seconds
+err kernel: INFO: task <process>:<pid> blocked for more than 120 seconds
 ```
 
 具体
@@ -102,6 +102,8 @@ fsfreeze -f /data1
 - 通过 dmesg 观察系统日志可以看到 120s 相关打印；
 
 > 对应测试过程中 4 次调用 `fsfreeze -f`
+> 
+> 以下内容取自 Linux 4.4.0-87-generic x86_64 Ubuntu 16.04.3 LTS
 
 ```
 ...
