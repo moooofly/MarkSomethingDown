@@ -80,6 +80,23 @@ bond 的配置实在很简单，但是配置不好，很容易造成严重的网
 ------
 
 
+Linux bonding 模式中：
+
+- 模式 0 （balance-rr）存在收发乱序问题；
+- 模式 2（balance-xor）仅仅基于二层作为定义域的hash算法对带宽的利用不充分；
+- 模式 5（balance-tlb）属于单向均衡；
+
+> 具体 Linux Bonding 模式及选择信息可以参见：[Documentation/networking/bonding.txt](https://www.kernel.org/doc/Documentation/networking/bonding.txt) ；
+
+Linux Bonding 模式一共有 7 种，基于带宽利用率考量一般会选择模式 4 （802.3ad）；802.3ad 模式是业界标准，通过创建一个聚合组，确保组内所有链路的速率和工作模式一致；
+
+802.3ad 有三种 xmit_hash_policy 可供选择，默认缺省是 **layer2** ，还有 **layer2+3** 和 **layer3+4** 可选，参考 IBM 知识库、基于负载分配的最优性选择 layer3+4 方式。具体参见《[针对结合方式 Round-robin 策略（方式 0）、balance-xor（方式 2）和 802.3ad（方式 4）的交换机端口链路聚集和均衡算法](https://www.ibm.com/support/knowledgecenter/zh/ST5Q4U_1.5.0/com.ibm.storwize.v7000.unified.150.doc/mng_t_pub_netw_bondingmodes2_4.html)》；
+
+
+
+------
+
+
 ## mode 4 模式下的 bond 示例
 
 - 配置 1
