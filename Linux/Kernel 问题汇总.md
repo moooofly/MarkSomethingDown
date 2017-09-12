@@ -1,7 +1,298 @@
 # Kernel 问题汇总
 
+- "err kenerl: INFO: task `<process>`:`<pid>` blocked for more than 120 seconds"
 - "unable to handle kernel NULL pointer dereference at 0000000000000010"
 - "kernel: EPT: Misconfiguration"
+
+
+----------
+
+## "err kenerl: INFO: task `<process>`:`<pid>` blocked for more than 120 seconds"
+
+### 故障信息
+
+在 `/var/log/message`、`/var/log/kern.log` 和 `dmesg` 中均报出如下
+
+模式
+
+```
+err kenerl: INFO: task <process>:<pid> blocked for more than 120 seconds
+```
+
+具体
+
+```
+2017-06-30 16:25:43.012 err kernel: [261108.341940] INFO: task kworker/u113:10:666 blocked for more than 120 seconds.
+2017-06-30 16:25:43.186 err kernel: [261108.523796] INFO: task jbd2/sdb-8:45757 blocked for more than 120 seconds.
+2017-06-30 16:25:43.317 err kernel: [261108.655818] INFO: task java:47487 blocked for more than 120 seconds.
+2017-06-30 16:25:43.477 err kernel: [261108.821962] INFO: task java:47489 blocked for more than 120 seconds.
+```
+
+### 系统信息
+
+配合监控系统查看：
+
+- cached 指标
+- dirty 指标
+- disk write requests (write_ios) / disk write ticks (write_ticks) / disk write bytes (write_sectors) 指标
+
+> 结合上述指标可以看到：
+> 
+> - 在故障时间段，磁盘写入出现**断崖式下跌**，基本可以认为**磁盘无法写入**。基于以上分析，怀疑为该主机在故障时间点出现**只读情况**，cached 中脏数据无法刷入磁盘；
+> - 在故障时间段，cached 占用持续增加直至最大，dirty 在某个时间点后变为直线，并且一直保持固定大小，可以理解为不再刷新到磁盘；
+
+
+### 故障原因
+
+- 如果 `<process>`是**第三方应用程序**，则有可能是程序资源消耗过快，导致系统脏数据回收不及时。一般此种情况为警告，可以忽略；
+- 如果 `<process>` 为 **Linux 内核程序**，此消息通常意味着系统正在经历磁盘或内存拥堵，系统可用资源匮乏；
+- **硬件的故障**也有可能会导致此信息出现，比如磁盘损坏、I/O 异常等情况；
+
+在没有故障当时的 `kcore` 的情况下，无法确认故障时的具体问题点，只能根据当时监控情况分析并尝试复现问题。
+
+> 何为 kcore ：
+> 
+> /proc/kcore is like an "alias" for the memory in your computer. Its
+size is the same as the amount of RAM you have, and if you read it as
+a file, the kernel does memory reads.
+
+
+> 查阅 redhat 相关资料，
+"INFO: task `<process>`:`<pid>`` blocked for more than 120 seconds" 是 kernel 在 2.6.18-194 后用于发现任务超过 120s 处于 D-state (Uninterruptible Sleep (UN)) 引入的。出现该状态往往是由于**系统磁盘或者内存阻塞**导致（日志第二条也直接与设备相关）。
+
+### 故障模拟
+
+思路：
+
+- 挂载磁盘磁盘分区，创建文件系统为 ext4 ；
+- 挂载后进行写入操作，随后让设备无法写入，查看日志情况（需要等待 120s）；
+
+
+1. 创建分区并挂载
+
+```
+fdisk xxx
+mount -t ext4 xxx
+```
+
+2. 查看挂载情况
+
+```
+# df -h
+...
+/dev/sdb1 459G 73M 435G 1% /data1
+```
+
+3. 使用 dd 持续向该目录写入数据
+
+```
+while true; do dd if=/dev/zero of=/data1/test_dd bs=1024 count=100; done
+```
+
+4. 使用 fsfreeze 禁止写入
+
+```
+fsfreeze -f /data1
+```
+
+观察系统运行情况
+
+- dd 写入 hang 住；
+- 系统内存中缓冲不断增加，且为写缓冲脏数据；
+- 通过 dmesg 观察系统日志可以看到 120s 相关打印；
+
+> 对应测试过程中 4 次调用 `fsfreeze -f`
+
+```
+...
+[494886.031776] INFO: task rs:main Q:Reg:9724 blocked for more than 120 seconds.
+[494886.031915]       Not tainted 4.4.0-87-generic #110-Ubuntu
+[494886.031988] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[494886.032081] rs:main Q:Reg   D ffff880818267dc8     0  9724      1 0x00000000
+[494886.032086]  ffff880818267dc8 ffff8808159d2a80 ffff88081bf43800 ffff88081addd400
+[494886.032089]  ffff880818268000 ffff880814ede2c0 ffff880814ede2d8 00000000000000a2
+[494886.032092]  00000000000000a2 ffff880818267de0 ffffffff8183dda5 ffff88081addd400
+[494886.032096] Call Trace:
+[494886.032103]  [<ffffffff8183dda5>] schedule+0x35/0x80
+[494886.032106]  [<ffffffff81840c50>] rwsem_down_read_failed+0xe0/0x140
+[494886.032110]  [<ffffffff81393eee>] ? common_file_perm+0x6e/0x1a0
+[494886.032114]  [<ffffffff81407e44>] call_rwsem_down_read_failed+0x14/0x30
+[494886.032117]  [<ffffffff810caa75>] ? percpu_down_read+0x35/0x50
+[494886.032121]  [<ffffffff8121216c>] __sb_start_write+0x2c/0x40
+[494886.032124]  [<ffffffff8120f5e4>] vfs_write+0x184/0x1a0
+[494886.032127]  [<ffffffff8120e49f>] ? do_sys_open+0x1bf/0x2a0
+[494886.032129]  [<ffffffff812101c5>] SyS_write+0x55/0xc0
+[494886.032132]  [<ffffffff81841eb2>] entry_SYSCALL_64_fastpath+0x16/0x71
+[494886.032136] INFO: task bash:9768 blocked for more than 120 seconds.
+[494886.032221]       Not tainted 4.4.0-87-generic #110-Ubuntu
+[494886.032311] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[494886.032408] bash            D ffff8808197e3be8     0  9768   9737 0x00000004
+[494886.032411]  ffff8808197e3be8 80000007f13b4865 ffff88081bf41c00 ffff880818470e00
+[494886.032414]  ffff8808197e4000 ffff880814ede2c0 ffff880814ede2d8 ffff8808197e3dd0
+[494886.032417]  00000000ffffff9c ffff8808197e3c00 ffffffff8183dda5 ffff880818470e00
+[494886.032420] Call Trace:
+[494886.032423]  [<ffffffff8183dda5>] schedule+0x35/0x80
+[494886.032425]  [<ffffffff81840c50>] rwsem_down_read_failed+0xe0/0x140
+[494886.032428]  [<ffffffff81407e44>] call_rwsem_down_read_failed+0x14/0x30
+[494886.032430]  [<ffffffff810caa75>] ? percpu_down_read+0x35/0x50
+[494886.032432]  [<ffffffff8121216c>] __sb_start_write+0x2c/0x40
+[494886.032436]  [<ffffffff81230924>] mnt_want_write+0x24/0x50
+[494886.032439]  [<ffffffff8121e7ba>] path_openat+0xd5a/0x1330
+[494886.032441]  [<ffffffff810cb061>] ? __raw_callee_save___pv_queued_spin_unlock+0x11/0x20
+[494886.032443]  [<ffffffff8121ff81>] do_filp_open+0x91/0x100
+[494886.032446]  [<ffffffff810cb061>] ? __raw_callee_save___pv_queued_spin_unlock+0x11/0x20
+[494886.032448]  [<ffffffff8122d948>] ? __alloc_fd+0xc8/0x190
+[494886.032451]  [<ffffffff8120e418>] do_sys_open+0x138/0x2a0
+[494886.032454]  [<ffffffff8120e59e>] SyS_open+0x1e/0x20
+[494886.032456]  [<ffffffff81841eb2>] entry_SYSCALL_64_fastpath+0x16/0x71
+[494886.032459] INFO: task dd:8811 blocked for more than 120 seconds.
+[494886.032539]       Not tainted 4.4.0-87-generic #110-Ubuntu
+[494886.032616] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[494886.032708] dd              D ffff880813fd3be8     0  8811   9499 0x00000000
+[494886.032711]  ffff880813fd3be8 ffff88083ffe06c0 ffffffff81e11500 ffff8800bbb38e00
+[494886.032714]  ffff880813fd4000 ffff880814ede2c0 ffff880814ede2d8 ffff880813fd3dd0
+[494886.032717]  00000000ffffff9c ffff880813fd3c00 ffffffff8183dda5 ffff8800bbb38e00
+[494886.032720] Call Trace:
+[494886.032722]  [<ffffffff8183dda5>] schedule+0x35/0x80
+[494886.032725]  [<ffffffff81840c50>] rwsem_down_read_failed+0xe0/0x140
+[494886.032727]  [<ffffffff81407e44>] call_rwsem_down_read_failed+0x14/0x30
+[494886.032729]  [<ffffffff810caa75>] ? percpu_down_read+0x35/0x50
+[494886.032731]  [<ffffffff8121216c>] __sb_start_write+0x2c/0x40
+[494886.032733]  [<ffffffff81230924>] mnt_want_write+0x24/0x50
+[494886.032736]  [<ffffffff8121e7ba>] path_openat+0xd5a/0x1330
+[494886.032739]  [<ffffffff811cd735>] ? page_add_file_rmap+0x25/0x60
+[494886.032742]  [<ffffffff8118f6b9>] ? unlock_page+0x69/0x70
+[494886.032744]  [<ffffffff8121ff81>] do_filp_open+0x91/0x100
+[494886.032746]  [<ffffffff810cb061>] ? __raw_callee_save___pv_queued_spin_unlock+0x11/0x20
+[494886.032748]  [<ffffffff8122d948>] ? __alloc_fd+0xc8/0x190
+[494886.032751]  [<ffffffff8120e418>] do_sys_open+0x138/0x2a0
+[494886.032753]  [<ffffffff8120e59e>] SyS_open+0x1e/0x20
+[494886.032756]  [<ffffffff81841eb2>] entry_SYSCALL_64_fastpath+0x16/0x71
+[494886.032758] INFO: task sshd:8848 blocked for more than 120 seconds.
+[494886.032840]       Not tainted 4.4.0-87-generic #110-Ubuntu
+[494886.032914] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[494886.033007] sshd            D ffff880813fffdc8     0  8848   8818 0x00000004
+[494886.033010]  ffff880813fffdc8 0000000000000007 ffff88081bf46200 ffff880816928e00
+[494886.033013]  ffff880814000000 ffff880814ede2c0 ffff880814ede2d8 0000000000000180
+[494886.033016]  0000562c5fdf2a8c ffff880813fffde0 ffffffff8183dda5 ffff880816928e00
+[494886.033019] Call Trace:
+[494886.033021]  [<ffffffff8183dda5>] schedule+0x35/0x80
+[494886.033024]  [<ffffffff81840c50>] rwsem_down_read_failed+0xe0/0x140
+[494886.033026]  [<ffffffff81393eee>] ? common_file_perm+0x6e/0x1a0
+[494886.033028]  [<ffffffff81407e44>] call_rwsem_down_read_failed+0x14/0x30
+[494886.033030]  [<ffffffff810caa75>] ? percpu_down_read+0x35/0x50
+[494886.033032]  [<ffffffff8121216c>] __sb_start_write+0x2c/0x40
+[494886.033035]  [<ffffffff8120f5e4>] vfs_write+0x184/0x1a0
+[494886.033037]  [<ffffffff812101c5>] SyS_write+0x55/0xc0
+[494886.033040]  [<ffffffff81841eb2>] entry_SYSCALL_64_fastpath+0x16/0x71
+[#13#root@sre-net-test-1 ~]$
+```
+
+`/var/log/messagens` 中的信息如下
+
+```
+...
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032081] rs:main Q:Reg   D ffff880818267dc8     0  9724      1 0x00000000
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032086]  ffff880818267dc8 ffff8808159d2a80 ffff88081bf43800 ffff88081addd400
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032089]  ffff880818268000 ffff880814ede2c0 ffff880814ede2d8 00000000000000a2
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032092]  00000000000000a2 ffff880818267de0 ffffffff8183dda5 ffff88081addd400
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032096] Call Trace:
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032103]  [<ffffffff8183dda5>] schedule+0x35/0x80
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032106]  [<ffffffff81840c50>] rwsem_down_read_failed+0xe0/0x140
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032110]  [<ffffffff81393eee>] ? common_file_perm+0x6e/0x1a0
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032114]  [<ffffffff81407e44>] call_rwsem_down_read_failed+0x14/0x30
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032117]  [<ffffffff810caa75>] ? percpu_down_read+0x35/0x50
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032121]  [<ffffffff8121216c>] __sb_start_write+0x2c/0x40
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032124]  [<ffffffff8120f5e4>] vfs_write+0x184/0x1a0
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032127]  [<ffffffff8120e49f>] ? do_sys_open+0x1bf/0x2a0
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032129]  [<ffffffff812101c5>] SyS_write+0x55/0xc0
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032132]  [<ffffffff81841eb2>] entry_SYSCALL_64_fastpath+0x16/0x71
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032408] bash            D ffff8808197e3be8     0  9768   9737 0x00000004
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032411]  ffff8808197e3be8 80000007f13b4865 ffff88081bf41c00 ffff880818470e00
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032414]  ffff8808197e4000 ffff880814ede2c0 ffff880814ede2d8 ffff8808197e3dd0
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032417]  00000000ffffff9c ffff8808197e3c00 ffffffff8183dda5 ffff880818470e00
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032420] Call Trace:
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032423]  [<ffffffff8183dda5>] schedule+0x35/0x80
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032425]  [<ffffffff81840c50>] rwsem_down_read_failed+0xe0/0x140
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032428]  [<ffffffff81407e44>] call_rwsem_down_read_failed+0x14/0x30
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032430]  [<ffffffff810caa75>] ? percpu_down_read+0x35/0x50
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032432]  [<ffffffff8121216c>] __sb_start_write+0x2c/0x40
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032436]  [<ffffffff81230924>] mnt_want_write+0x24/0x50
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032439]  [<ffffffff8121e7ba>] path_openat+0xd5a/0x1330
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032441]  [<ffffffff810cb061>] ? __raw_callee_save___pv_queued_spin_unlock+0x11/0x20
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032443]  [<ffffffff8121ff81>] do_filp_open+0x91/0x100
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032446]  [<ffffffff810cb061>] ? __raw_callee_save___pv_queued_spin_unlock+0x11/0x20
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032448]  [<ffffffff8122d948>] ? __alloc_fd+0xc8/0x190
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032451]  [<ffffffff8120e418>] do_sys_open+0x138/0x2a0
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032454]  [<ffffffff8120e59e>] SyS_open+0x1e/0x20
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032456]  [<ffffffff81841eb2>] entry_SYSCALL_64_fastpath+0x16/0x71
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032708] dd              D ffff880813fd3be8     0  8811   9499 0x00000000
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032711]  ffff880813fd3be8 ffff88083ffe06c0 ffffffff81e11500 ffff8800bbb38e00
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032714]  ffff880813fd4000 ffff880814ede2c0 ffff880814ede2d8 ffff880813fd3dd0
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032717]  00000000ffffff9c ffff880813fd3c00 ffffffff8183dda5 ffff8800bbb38e00
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032720] Call Trace:
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032722]  [<ffffffff8183dda5>] schedule+0x35/0x80
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032725]  [<ffffffff81840c50>] rwsem_down_read_failed+0xe0/0x140
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032727]  [<ffffffff81407e44>] call_rwsem_down_read_failed+0x14/0x30
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032729]  [<ffffffff810caa75>] ? percpu_down_read+0x35/0x50
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032731]  [<ffffffff8121216c>] __sb_start_write+0x2c/0x40
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032733]  [<ffffffff81230924>] mnt_want_write+0x24/0x50
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032736]  [<ffffffff8121e7ba>] path_openat+0xd5a/0x1330
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032739]  [<ffffffff811cd735>] ? page_add_file_rmap+0x25/0x60
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032742]  [<ffffffff8118f6b9>] ? unlock_page+0x69/0x70
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032744]  [<ffffffff8121ff81>] do_filp_open+0x91/0x100
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032746]  [<ffffffff810cb061>] ? __raw_callee_save___pv_queued_spin_unlock+0x11/0x20
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032748]  [<ffffffff8122d948>] ? __alloc_fd+0xc8/0x190
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032751]  [<ffffffff8120e418>] do_sys_open+0x138/0x2a0
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032753]  [<ffffffff8120e59e>] SyS_open+0x1e/0x20
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.032756]  [<ffffffff81841eb2>] entry_SYSCALL_64_fastpath+0x16/0x71
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033007] sshd            D ffff880813fffdc8     0  8848   8818 0x00000004
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033010]  ffff880813fffdc8 0000000000000007 ffff88081bf46200 ffff880816928e00
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033013]  ffff880814000000 ffff880814ede2c0 ffff880814ede2d8 0000000000000180
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033016]  0000562c5fdf2a8c ffff880813fffde0 ffffffff8183dda5 ffff880816928e00
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033019] Call Trace:
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033021]  [<ffffffff8183dda5>] schedule+0x35/0x80
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033024]  [<ffffffff81840c50>] rwsem_down_read_failed+0xe0/0x140
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033026]  [<ffffffff81393eee>] ? common_file_perm+0x6e/0x1a0
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033028]  [<ffffffff81407e44>] call_rwsem_down_read_failed+0x14/0x30
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033030]  [<ffffffff810caa75>] ? percpu_down_read+0x35/0x50
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033032]  [<ffffffff8121216c>] __sb_start_write+0x2c/0x40
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033035]  [<ffffffff8120f5e4>] vfs_write+0x184/0x1a0
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033037]  [<ffffffff812101c5>] SyS_write+0x55/0xc0
+Sep 12 11:38:25 sre-net-test-1 kernel: [494886.033040]  [<ffffffff81841eb2>] entry_SYSCALL_64_fastpath+0x16/0x71
+```
+
+
+5. 使用 fsfreeze 允许写入
+
+```
+fsfreeze -u /data1
+```
+
+
+### 解决方案
+
+- Redhat 建议首先检查硬件是否故障，其次是第三方应用程序；
+- 如果无法排除硬件和软件故障，但希望快速发现此类问题并剔除对应节点，则可以设置 `kernel.hung_task_panic = 1` ；设置后，再次出现此类问题时，系统将抛出 kernel panic 并立刻重启。RedHat 不建议设置为 1 ，具体说明见附件；
+- 如果仅仅是想降低 hang 住的时间，可以设置 `kernel.hung_task_timeout_secs=20` , 这样 hang 住的时间就降低到 20 秒，但并不保证 20 秒后不会继续 hang 住。
+
+### 其它
+
+```
+$sysctl -a|grep hung
+kernel.hung_task_check_count = 4194304
+kernel.hung_task_panic = 0
+kernel.hung_task_timeout_secs = 120
+kernel.hung_task_warnings = 6
+```
+
+- [RHEL 5, 6, or 7 host reboots on its own when all storage paths fail and 'kernel.hung_task_panic = 1'](https://access.redhat.com/solutions/1428623)
+- [Why does kernel.hung_task_panic = 1 not trigger a system panic in RHEL?](https://access.redhat.com/solutions/2721611)
+- [How do I confirm that the 'kernel.hung_task_panic' parameter works?](https://access.redhat.com/solutions/728253)
+- [How do I use hung task check in RHEL](https://access.redhat.com/solutions/60572#CAUTIONS)
+- [System becomes unresponsive with message "INFO: task <process>:<pid> blocked for more than 120 seconds".](https://access.redhat.com/solutions/31453)
+
+
 
 
 ----------
