@@ -3,9 +3,293 @@
 - "INFO: task `<process>`:`<pid>` blocked for more than 120 seconds"
 - "unable to handle kernel NULL pointer dereference at 0000000000000010"
 - "kernel: EPT: Misconfiguration"
+- "Kernel panic - not syncing: Fatal hardware error!"
 
 
 ----------
+
+
+## "Kernel panic - not syncing: Fatal hardware error!"
+
+### 故障信息
+
+```
+[root@sh-talos-hmaster2-128-101.elenet.me 127.0.0.1-2016-10-26-21:22:34]# crash /usr/lib/debug/lib/modules/2.6.32-504.el6.x86_64/vmlinux vmcore
+
+crash 6.1.0-5.el6
+Copyright (C) 2002-2012  Red Hat, Inc.
+Copyright (C) 2004, 2005, 2006, 2010  IBM Corporation
+Copyright (C) 1999-2006  Hewlett-Packard Co
+Copyright (C) 2005, 2006, 2011, 2012  Fujitsu Limited
+Copyright (C) 2006, 2007  VA Linux Systems Japan K.K.
+Copyright (C) 2005, 2011  NEC Corporation
+Copyright (C) 1999, 2002, 2007  Silicon Graphics, Inc.
+Copyright (C) 1999, 2000, 2001, 2002  Mission Critical Linux, Inc.
+This program is free software, covered by the GNU General Public License,
+and you are welcome to change it and/or distribute copies of it under
+certain conditions.  Enter "help copying" to see the conditions.
+This program has absolutely no warranty.  Enter "help warranty" for details.
+
+GNU gdb (GDB) 7.3.1
+Copyright (C) 2011 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-unknown-linux-gnu"...
+
+      KERNEL: /usr/lib/debug/lib/modules/2.6.32-504.el6.x86_64/vmlinux
+    DUMPFILE: vmcore  [PARTIAL DUMP]
+        CPUS: 32
+        DATE: Wed Oct 26 21:20:43 2016
+      UPTIME: 18 days, 06:59:05
+LOAD AVERAGE: 2.03, 1.93, 1.68
+       TASKS: 1003
+    NODENAME: sh-talos-hmaster2-128-101.elenet.me
+     RELEASE: 2.6.32-504.el6.x86_64
+     VERSION: #1 SMP Wed Oct 15 04:27:16 UTC 2014
+     MACHINE: x86_64  (2594 Mhz)
+      MEMORY: 95.6 GB
+       PANIC: "Kernel panic - not syncing: Fatal hardware error!"
+         PID: 0
+     COMMAND: "swapper"
+        TASK: ffffffff81a8d020  (1 of 32)  [THREAD_INFO: ffffffff81a00000]
+         CPU: 0
+       STATE: TASK_RUNNING (PANIC)
+
+crash>
+crash>
+crash> bt
+PID: 0      TASK: ffffffff81a8d020  CPU: 0   COMMAND: "swapper"
+ #0 [ffff880028207cc0] machine_kexec at ffffffff8103b68b
+ #1 [ffff880028207d20] crash_kexec at ffffffff810c9852
+ #2 [ffff880028207df0] panic at ffffffff815292c3
+ #3 [ffff880028207e70] ghes_notify_nmi at ffffffff8131c171
+ #4 [ffff880028207ea0] notifier_call_chain at ffffffff81530075
+ #5 [ffff880028207ee0] atomic_notifier_call_chain at ffffffff815300da
+ #6 [ffff880028207ef0] notify_die at ffffffff810a4eae
+ #7 [ffff880028207f20] do_nmi at ffffffff8152dd69
+ #8 [ffff880028207f50] nmi at ffffffff8152d600
+    [exception RIP: native_safe_halt+11]
+    RIP: ffffffff81040f8b  RSP: ffffffff81a01ea8  RFLAGS: 00000246
+    RAX: 0000000000000000  RBX: 0000000000000000  RCX: 0000000000000000
+    RDX: 0000000000000000  RSI: 0000000000000001  RDI: ffffffff81ded228
+    RBP: ffffffff81a01ea8   R8: 0000000000000000   R9: 0000000000000000
+    R10: 00059d5266138f4b  R11: 0000000000000000  R12: ffffffff81c09ec0
+    R13: 0000000000000000  R14: ffffffffffffffff  R15: ffffffff81de9000
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+--- <NMI exception stack> ---
+ #9 [ffffffff81a01ea8] native_safe_halt at ffffffff81040f8b
+#10 [ffffffff81a01eb0] default_idle at ffffffff8101687d
+#11 [ffffffff81a01ed0] cpu_idle at ffffffff81009fc6
+crash>
+crash> log
+...
+{1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 1
+{1}[Hardware Error]: event severity: fatal
+{1}[Hardware Error]:  Error 0, type: fatal
+{1}[Hardware Error]:   section_type: PCIe error
+{1}[Hardware Error]:   port_type: 4, root port
+{1}[Hardware Error]:   version: 1.16
+{1}[Hardware Error]:   command: 0x0547, status: 0x4010
+{1}[Hardware Error]:   device_id: 0000:00:03.0
+{1}[Hardware Error]:   slot: 0
+{1}[Hardware Error]:   secondary_bus: 0x04
+{1}[Hardware Error]:   vendor_id: 0x8086, device_id: 0x2f08
+{1}[Hardware Error]:   class_code: 040000
+{1}[Hardware Error]:   bridge: secondary_status: 0x0000, control: 0x0003
+Kernel panic - not syncing: Fatal hardware error!
+Pid: 0, comm: swapper Not tainted 2.6.32-504.el6.x86_64 #1
+Call Trace:
+ <NMI>  [<ffffffff815292bc>] ? panic+0xa7/0x16f
+ [<ffffffff8131c171>] ? ghes_notify_nmi+0x241/0x250
+ [<ffffffff81530075>] ? notifier_call_chain+0x55/0x80
+ [<ffffffff815300da>] ? atomic_notifier_call_chain+0x1a/0x20
+ [<ffffffff810a4eae>] ? notify_die+0x2e/0x30
+ [<ffffffff8152dd69>] ? do_nmi+0x1e9/0x340
+ [<ffffffff8152d600>] ? nmi+0x20/0x30
+ [<ffffffff81040f8b>] ? native_safe_halt+0xb/0x10
+ <<EOE>>  [<ffffffff8101687d>] ? default_idle+0x4d/0xb0
+ [<ffffffff81009fc6>] ? cpu_idle+0xb6/0x110
+ [<ffffffff8151061a>] ? rest_init+0x7a/0x80
+ [<ffffffff81c2af8f>] ? start_kernel+0x424/0x430
+ [<ffffffff81c2a33a>] ? x86_64_start_reservations+0x125/0x129
+ [<ffffffff81c2a453>] ? x86_64_start_kernel+0x115/0x124
+crash>
+```
+
+同样，可以在 `vmcore-dmesg.txt` 的最后可以看到上述信息
+
+```
+...
+<0>{1}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 1
+<0>{1}[Hardware Error]: event severity: fatal
+<0>{1}[Hardware Error]:  Error 0, type: fatal
+<0>{1}[Hardware Error]:   section_type: PCIe error
+<0>{1}[Hardware Error]:   port_type: 4, root port
+<0>{1}[Hardware Error]:   version: 1.16
+<0>{1}[Hardware Error]:   command: 0x0547, status: 0x4010
+<0>{1}[Hardware Error]:   device_id: 0000:00:03.0
+<0>{1}[Hardware Error]:   slot: 0
+<0>{1}[Hardware Error]:   secondary_bus: 0x04
+<0>{1}[Hardware Error]:   vendor_id: 0x8086, device_id: 0x2f08
+<0>{1}[Hardware Error]:   class_code: 040000
+<0>{1}[Hardware Error]:   bridge: secondary_status: 0x0000, control: 0x0003
+<0>Kernel panic - not syncing: Fatal hardware error!
+<4>Pid: 0, comm: swapper Not tainted 2.6.32-504.el6.x86_64 #1
+<4>Call Trace:
+<4> <NMI>  [<ffffffff815292bc>] ? panic+0xa7/0x16f
+<4> [<ffffffff8131c171>] ? ghes_notify_nmi+0x241/0x250
+<4> [<ffffffff81530075>] ? notifier_call_chain+0x55/0x80
+<4> [<ffffffff815300da>] ? atomic_notifier_call_chain+0x1a/0x20
+<4> [<ffffffff810a4eae>] ? notify_die+0x2e/0x30
+<4> [<ffffffff8152dd69>] ? do_nmi+0x1e9/0x340
+<4> [<ffffffff8152d600>] ? nmi+0x20/0x30
+<4> [<ffffffff81040f8b>] ? native_safe_halt+0xb/0x10
+<4> <<EOE>>  [<ffffffff8101687d>] ? default_idle+0x4d/0xb0
+<4> [<ffffffff81009fc6>] ? cpu_idle+0xb6/0x110
+<4> [<ffffffff8151061a>] ? rest_init+0x7a/0x80
+<4> [<ffffffff81c2af8f>] ? start_kernel+0x424/0x430
+<4> [<ffffffff81c2a33a>] ? x86_64_start_reservations+0x125/0x129
+<4> [<ffffffff81c2a453>] ? x86_64_start_kernel+0x115/0x124
+```
+
+### 系统信息
+
+```
+[root@sh-talos-hmaster2-128-101.elenet.me ~]# uname -a
+Linux sh-talos-hmaster2-128-101.elenet.me 2.6.32-504.el6.x86_64 #1 SMP Wed Oct 15 04:27:16 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux
+[root@sh-talos-hmaster2-128-101.elenet.me ~]#
+[root@sh-talos-hmaster2-128-101.elenet.me ~]# lsb_release -a
+LSB Version:    :base-4.0-amd64:base-4.0-noarch:core-4.0-amd64:core-4.0-noarch
+Distributor ID: CentOS
+Description:    CentOS release 6.6 (Final)
+Release:    6.6
+Codename:   Final
+[root@sh-talos-hmaster2-128-101.elenet.me ~]#
+[root@sh-talos-hmaster2-128-101.elenet.me ~]# lscpu
+Architecture:          x86_64
+CPU op-mode(s):        32-bit, 64-bit
+Byte Order:            Little Endian
+CPU(s):                32
+On-line CPU(s) list:   0-31
+Thread(s) per core:    2
+Core(s) per socket:    8
+Socket(s):             2
+NUMA node(s):          2
+Vendor ID:             GenuineIntel
+CPU family:            6
+Model:                 63
+Stepping:              2
+CPU MHz:               2594.075
+BogoMIPS:              5187.60
+Virtualization:        VT-x
+L1d cache:             32K
+L1i cache:             32K
+L2 cache:              256K
+L3 cache:              20480K
+NUMA node0 CPU(s):     0-7,16-23
+NUMA node1 CPU(s):     8-15,24-31
+[root@sh-talos-hmaster2-128-101.elenet.me ~]#
+```
+
+### 故障原因
+
+网络接口光衰异常，导致网络传输速率异常；
+
+关键路径：
+
+```
+Kernel panic - not syncing: Fatal hardware error! -->
+device_id: 0000:00:03.0 -->
+lspci -tv -->
+Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection -->
+SFI/SFP+ -->
+ethtool -m | grep power
+```
+
+相关输出
+
+```
+# lspci -tv
+-+-[0000:ff]-+-08.0  Intel Corporation Xeon E5 v3/Core i7 QPI Link 0
+...
+ \-[0000:00]-+-00.0  Intel Corporation Xeon E5 v3/Core i7 DMI2
+             +-01.0-[01]----00.0  LSI Logic / Symbios Logic MegaRAID SAS-3 3108 [Invader]
+             +-02.0-[02]--+-00.0  Intel Corporation I350 Gigabit Network Connection
+             |            \-00.1  Intel Corporation I350 Gigabit Network Connection
+             +-02.2-[03]--
+             +-03.0-[04]--+-00.0  Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection
+             |            \-00.1  Intel Corporation 82599ES 10-Gigabit SFI/SFP+ Network Connection
+...
+# ethtool --version
+ethtool version 3.15
+# ethtool -m enp2s0f0|grep power
+    Laser output power                        : 0.5832 mW / -2.34 dBm   -- 1
+    Receiver signal average optical power     : 0.5730 mW / -2.42 dBm   -- 2
+    Laser output power high alarm             : Off
+    Laser output power low alarm              : Off
+    Laser output power high warning           : Off
+    Laser output power low warning            : Off
+    Laser rx power high alarm                 : Off
+    Laser rx power low alarm                  : Off
+    Laser rx power high warning               : Off
+    Laser rx power low warning                : Off
+    Laser output power high alarm threshold   : 1.2589 mW / 1.00 dBm
+    Laser output power low alarm threshold    : 0.1175 mW / -9.30 dBm
+    Laser output power high warning threshold : 0.7943 mW / -1.00 dBm
+    Laser output power low warning threshold  : 0.1862 mW / -7.30 dBm
+    Laser rx power high alarm threshold       : 1.2589 mW / 1.00 dBm
+    Laser rx power low alarm threshold        : 0.0646 mW / -11.90 dBm
+    Laser rx power high warning threshold     : 0.7943 mW / -1.00 dBm
+    Laser rx power low warning threshold      : 0.1023 mW / -9.90 dBm
+```
+
+主要关注上面 1 和 2 两个和光衰相关的值；若 "Receiver signal average optical power" 小于 -7 dbm 则视为有光衰问题；
+
+
+### 解决方案
+
+确定为华为 PCI-e 万兆网卡故障，更换万兆网卡；
+
+- 更换对应设备（例如 eth0）的光纤线缆（有 bond 用户影响较小）；
+- 升级 centos 6.8 的 ethtool 程序版本（低版本 ethtool 无法检测光衰）；
+
+检查步骤：
+
+- 检测是否为光纤线问题（通过更换光纤线配合 ethtool 进行光衰检测）；
+- 检测是否为光模块问题（通过更换故障网口的光模块进行测试验证）；
+- 检测是否为万兆交换机连接问题（通过更换万兆交换机端的对应光纤连接口进行测试验证）；
+
+
+### 其它
+
+> 可以通过 `iperf` 和 `iptraf` 进行测速；
+
+测试服务端
+
+```
+iperf -s
+```
+
+测试客户端
+
+```
+iperf -c <dst_ip>
+```
+
+在不同机器组合上，进行多组测试；
+
+使用 iptraf 工具进行测速比较观察；
+
+
+> 10G 模块经历了从 300Pin ，XENPAK，X2，XFP 的发展，最终实现了用和 SFP 一样的尺寸传输 10G 的信号，这就是 SFP+ 。SFP 凭借其小型化低成本等优势满足了设备对光模块高密度的需求，从 2002 年标准推了，到 2010 年已经取代 XFP 成为 10G 市场主流。
+
+
+
+----------
+
+
 
 ## "INFO: task `<process>`:`<pid>` blocked for more than 120 seconds"
 
@@ -388,16 +672,33 @@ NUMA node1 CPU(s):     6-11,18-23
 
 ### 故障原因
 
-（取自这里：[RHBA-2016:2966 - Bug Fix Advisory]()）：
+（取自这里：[RHBA-2016:2966 - Bug Fix Advisory](https://access.redhat.com/errata/RHBA-2016:2966)）：
 
 > * Previously, a "NULL pointer dereference" problem in the pick_next_task_fair()
 function occurred. This update fixes the bug by applying a set of patches on the
 Completely Fair Scheduler (CFS) group scheduling. As a result, the "NULL pointer
 dereference" problem no longer occurs. (BZ#1373820)
 
+Cgroup created inside throttled group must inherit current throttle_count. Broken throttle_count allows to nominate throttled entries as a next buddy, later this leads to null pointer dereference in pick_next_task_fair().
+
 ### 解决方案
 
 升级内核到 kernel-3.10.0-327.44.2 以上可解决；
+
+
+### 其它
+
+- [Inside the Linux 2.6 Completely Fair Scheduler](https://www.ibm.com/developerworks/library/l-completely-fair-scheduler/)
+- [Process scheduler](http://myaut.github.io/dtrace-stap-book/kernel/sched.html)
+- [Per-entity load tracking](https://lwn.net/Articles/531853/)
+- [CFS bandwidth control](https://lwn.net/Articles/428230/)
+- [bug fix mail list](https://marc.info/?l=linux-kernel&m=146658385207269&w=2)
+- kernel bug fix commit: 094f469172e00d6ab0a3130b0e01c83b3cf3a98d
+- kernel related commit: 
+    - 5aface53d1a0ef7823215c4078fca8445995d006
+    - 18f649ef344127ef6de23a5a4272dbe2fdb73dde
+    - 8e5bfa8c1f8471aa4a2d30be631ef2b50e10abaf
+    - f7b8a47da17c9ee4998f2ca2018fcc424e953c0e
 
 
 
