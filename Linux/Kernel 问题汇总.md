@@ -1,9 +1,264 @@
 # Kernel 问题汇总
 
+- "Kernel panic - not syncing: Hard LOCKUP"
 - "INFO: task `<process>`:`<pid>` blocked for more than 120 seconds"
 - "unable to handle kernel NULL pointer dereference at 0000000000000010"
 - "kernel: EPT: Misconfiguration"
 - "Kernel panic - not syncing: Fatal hardware error!"
+
+
+----------
+
+
+## "Kernel panic - not syncing: Hard LOCKUP"
+
+### 故障信息
+
+在 vmcore-dmesg.txt 中有如下输出
+
+```
+[2704379.696670] IPv6: ADDRCONF(NETDEV_CHANGE): veth8b9af39: link becomes ready
+[2704379.696698] dockermesos: port 7(veth8b9af39) entered forwarding state
+[2704379.696704] dockermesos: port 7(veth8b9af39) entered forwarding state
+[2704379.950037] dockermesos: port 7(veth8b9af39) entered disabled state
+[2704379.980383] dockermesos: port 7(veth8b9af39) entered disabled state
+[2704379.980606] device veth8b9af39 left promiscuous mode
+[2704379.980613] dockermesos: port 7(veth8b9af39) entered disabled state
+[2704380.002151] XFS (dm-9): Unmounting Filesystem
+（上面的日志和内核问题无关）
+[2704411.028804] ------------[ cut here ]------------
+[2704411.028815] WARNING: at net/sched/sch_generic.c:297 dev_watchdog+0x276/0x280()
+[2704411.028817] NETDEV WATCHDOG: enp2s0f1 (ixgbe): transmit queue 6 timed out
+[2704411.028818] Modules linked in: binfmt_misc veth nf_conntrack_netlink nfnetlink iptable_filter xt_conntrack nf_nat xfs tcp_diag inet_diag dm_thin_pool dm_persistent_data dm_bio_prison dm_bufio libcrc32c bridge stp llc ipmi_si ipmi_devintf ipmi_msghandler bonding dm_mirror dm_region_hash dm_log dm_mod intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crc32_pclmul ghash_clmulni_intel aesni_intel lrw gf128mul glue_helper ablk_helper cryptd i2c_i801 i2c_core pcspkr iTCO_wdt iTCO_vendor_support sb_edac edac_core shpchp mei_me lpc_ich mei acpi_power_meter ip_tables ext4 mbcache jbd2 sd_mod crc_t10dif crct10dif_generic crct10dif_pclmul crct10dif_common crc32c_intel ahci ixgbe libahci mdio libata ptp pps_core megaraid_sas dca fjes sg nf_conntrack
+[2704411.028859] CPU: 23 PID: 0 Comm: swapper/23 Tainted: G    B          ------------   3.10.0-514.26.2.el7.x86_64 #1
+[2704411.028860] Hardware name: Huawei RH1288 V3/BC11HGSC0, BIOS 3.57 02/26/2017
+[2704411.028861]  ffff88203f043d88 5f237ad32f0df3b0 ffff88203f043d40 ffffffff81687133
+[2704411.028863]  ffff88203f043d78 ffffffff81085cb0 0000000000000006 ffff88103afa0000
+[2704411.028865]  ffff88103af9cf40 0000000000000040 0000000000000017 ffff88203f043de0
+[2704411.028867] Call Trace:
+[2704411.028868]  <IRQ>  [<ffffffff81687133>] dump_stack+0x19/0x1b
+[2704411.028879]  [<ffffffff81085cb0>] warn_slowpath_common+0x70/0xb0
+[2704411.028880]  [<ffffffff81085d4c>] warn_slowpath_fmt+0x5c/0x80
+[2704411.028883]  [<ffffffff81597286>] dev_watchdog+0x276/0x280
+[2704411.028886]  [<ffffffff81597010>] ? dev_graft_qdisc+0x80/0x80
+[2704411.028890]  [<ffffffff81095eb6>] call_timer_fn+0x36/0x110
+[2704411.028891]  [<ffffffff81597010>] ? dev_graft_qdisc+0x80/0x80
+[2704411.028894]  [<ffffffff81098ba7>] run_timer_softirq+0x237/0x340
+[2704411.028898]  [<ffffffff8108f63f>] __do_softirq+0xef/0x280
+[2704411.028902]  [<ffffffff8169929c>] call_softirq+0x1c/0x30
+[2704411.028906]  [<ffffffff8102d365>] do_softirq+0x65/0xa0
+[2704411.028908]  [<ffffffff8108f9d5>] irq_exit+0x115/0x120
+[2704411.028910]  [<ffffffff81699f15>] smp_apic_timer_interrupt+0x45/0x60
+[2704411.028912]  [<ffffffff8169845d>] apic_timer_interrupt+0x6d/0x80
+[2704411.028913]  <EOI>  [<ffffffff81060fe6>] ? native_safe_halt+0x6/0x10
+[2704411.028921]  [<ffffffff810347ff>] default_idle+0x1f/0xc0
+[2704411.028923]  [<ffffffff81035146>] arch_cpu_idle+0x26/0x30
+[2704411.028929]  [<ffffffff810e82f5>] cpu_startup_entry+0x245/0x290
+[2704411.028934]  [<ffffffff8104f0da>] start_secondary+0x1ba/0x230
+[2704411.028935] ---[ end trace 711f66d1ee31804f ]---
+[2704411.028938] ixgbe 0000:02:00.1 enp2s0f1: initiating reset due to tx timeout
+[2704411.028958] ixgbe 0000:02:00.1 enp2s0f1: Reset adapter
+[2704411.551817] ixgbe 0000:02:00.1 enp2s0f1: detected SFP+: 6
+[2704411.552004] ixgbe 0000:02:00.1 enp2s0f1: initiating reset to clear Tx work after link loss
+[2704411.584813] ixgbe 0000:02:00.1 enp2s0f1: Reset adapter
+[2704412.612334] NMI watchdog: Watchdog detected hard LOCKUP on cpu 7
+[2704412.612350] Modules linked in:
+[2704412.612531]  binfmt_misc veth nf_conntrack_netlink nfnetlink iptable_filter xt_conntrack nf_nat xfs tcp_diag inet_diag dm_thin_pool dm_persistent_data dm_bio_prison dm_bufio libcrc32c bridge stp llc ipmi_si ipmi_devintf ipmi_msghandler bonding dm_mirror dm_region_hash dm_log dm_mod intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crc32_pclmul ghash_clmulni_intel aesni_intel lrw gf128mul glue_helper ablk_helper cryptd i2c_i801 i2c_core pcspkr iTCO_wdt iTCO_vendor_support sb_edac edac_core shpchp mei_me lpc_ich mei acpi_power_meter ip_tables ext4 mbcache jbd2 sd_mod crc_t10dif crct10dif_generic crct10dif_pclmul crct10dif_common crc32c_intel ahci ixgbe libahci mdio libata ptp pps_core megaraid_sas dca fjes sg nf_conntrack
+[2704412.612570] CPU: 7 PID: 0 Comm: swapper/7 Tainted: G    B   W      ------------   3.10.0-514.26.2.el7.x86_64 #1
+[2704412.612572] Hardware name: Huawei RH1288 V3/BC11HGSC0, BIOS 3.57 02/26/2017
+[2704412.612573] task: ffff880169986dd0 ti: ffff8801699a0000 task.ti: ffff8801699a0000
+[2704412.612575] RIP: 0010:[<ffffffff81060fe6>]  [<ffffffff81060fe6>] native_safe_halt+0x6/0x10
+[2704412.612581] RSP: 0018:ffff8801699a3e98  EFLAGS: 00000286
+[2704412.612582] RAX: 00000000ffffffed RBX: ffff88103fbcd080 RCX: 0100000000000000
+[2704412.612583] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000046
+[2704412.612584] RBP: ffff8801699a3e98 R08: 0000000000000000 R09: 0000000000000000
+[2704412.612585] R10: 0000000000000000 R11: 0000000000000000 R12: 00099b9bb0645f00
+[2704412.612586] R13: ffff88103fbcfde0 R14: f21bf8c4662d3c34 R15: 0000000000000082
+[2704412.612587] FS:  0000000000000000(0000) GS:ffff88103fbc0000(0000) knlGS:0000000000000000
+[2704412.612588] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[2704412.612589] CR2: 00000007480c6820 CR3: 000000202b6e3000 CR4: 00000000003407e0
+[2704412.612590] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[2704412.612591] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[2704412.612592] Stack:
+[2704412.612592]  ffff8801699a3eb8 ffffffff810347ff ffff8801699a0000 ffffffff81ae6300
+[2704412.612594]  ffff8801699a3ec8 ffffffff81035146 ffff8801699a3f20 ffffffff810e82f5
+[2704412.612596]  ffff8801699a3fd8 ffff8801699a0000 f21bf8c4662d3c34 ec27dbe17bf619e7
+[2704412.612597] Call Trace:
+[2704412.612603]  [<ffffffff810347ff>] default_idle+0x1f/0xc0
+[2704412.612605]  [<ffffffff81035146>] arch_cpu_idle+0x26/0x30
+[2704412.612609]  [<ffffffff810e82f5>] cpu_startup_entry+0x245/0x290
+[2704412.612613]  [<ffffffff8104f0da>] start_secondary+0x1ba/0x230
+[2704412.612614] Code: 00 00 00 00 00 55 48 89 e5 fa 5d c3 66 0f 1f 84 00 00 00 00 00 55 48 89 e5 fb 5d c3 66 0f 1f 84 00 00 00 00 00 55 48 89 e5 fb f4 <5d> c3 0f 1f 84 00 00 00 00 00 55 48 89 e5 f4 5d c3 66 0f 1f 84
+（这里是个分界点）
+[2704412.612632] Kernel panic - not syncing: Hard LOCKUP
+[2704412.612820] CPU: 7 PID: 0 Comm: swapper/7 Tainted: G    B   W      ------------   3.10.0-514.26.2.el7.x86_64 #1
+[2704412.613179] Hardware name: Huawei RH1288 V3/BC11HGSC0, BIOS 3.57 02/26/2017
+[2704412.613342]  ffffffff818daacd f21bf8c4662d3c34 ffff88103fbc5b18 ffffffff81687133
+[2704412.613661]  ffff88103fbc5b98 ffffffff8168053a 0000000000000010 ffff88103fbc5ba8
+[2704412.613979]  ffff88103fbc5b48 f21bf8c4662d3c34 ffff88103fbc5ba8 ffffffff818da7d3
+[2704412.614297] Call Trace:
+[2704412.614449]  <NMI>  [<ffffffff81687133>] dump_stack+0x19/0x1b
+[2704412.614620]  [<ffffffff8168053a>] panic+0xe3/0x1f2
+[2704412.614788]  [<ffffffff81085abf>] nmi_panic+0x3f/0x40
+[2704412.614980]  [<ffffffff8112f879>] watchdog_overflow_callback+0xf9/0x100
+[2704412.615174]  [<ffffffff81174d2e>] __perf_event_overflow+0x8e/0x1f0
+[2704412.615365]  [<ffffffff81175974>] perf_event_overflow+0x14/0x20
+[2704412.615555]  [<ffffffff81009d88>] intel_pmu_handle_irq+0x1f8/0x4e0
+[2704412.619641]  [<ffffffff8131a78c>] ? ioremap_page_range+0x27c/0x3e0
+[2704412.619833]  [<ffffffff811bf684>] ? vunmap_page_range+0x1c4/0x310
+[2704412.620024]  [<ffffffff811bf7e1>] ? unmap_kernel_range_noflush+0x11/0x20
+[2704412.620221]  [<ffffffff813ca194>] ? ghes_copy_tofrom_phys+0x124/0x210
+[2704412.620411]  [<ffffffff813ca320>] ? ghes_read_estatus+0xa0/0x190
+[2704412.620607]  [<ffffffff8168ed6b>] perf_event_nmi_handler+0x2b/0x50
+[2704412.620798]  [<ffffffff816901b7>] nmi_handle.isra.0+0x87/0x160
+[2704412.620989]  [<ffffffff816903c3>] do_nmi+0x133/0x410
+[2704412.621176]  [<ffffffff8168f5d3>] end_repeat_nmi+0x1e/0x2e
+[2704412.621362]  [<ffffffff810ce3cf>] ? update_curr+0xf/0x190
+[2704412.621542]  [<ffffffff810ce3cf>] ? update_curr+0xf/0x190
+[2704412.621729]  [<ffffffff810ce3cf>] ? update_curr+0xf/0x190
+[2704412.621914]  <<EOE>>  <IRQ>  [<ffffffff810d042d>] enqueue_entity+0x3d/0xb60
+[2704412.622115]  [<ffffffff810d16f4>] unthrottle_cfs_rq+0xe4/0x170
+[2704412.622307]  [<ffffffff810d1932>] distribute_cfs_runtime+0xf2/0x100
+[2704412.622500]  [<ffffffff810d1acf>] sched_cfs_period_timer+0xcf/0x160
+[2704412.622692]  [<ffffffff810d1a00>] ? sched_cfs_slack_timer+0xc0/0xc0
+[2704412.622882]  [<ffffffff810b4d72>] __hrtimer_run_queues+0xd2/0x260
+[2704412.623071]  [<ffffffff810b5310>] hrtimer_interrupt+0xb0/0x1e0
+[2704412.623259]  [<ffffffff81051037>] local_apic_timer_interrupt+0x37/0x60
+[2704412.623450]  [<ffffffff81699f0f>] smp_apic_timer_interrupt+0x3f/0x60
+[2704412.623635]  [<ffffffff8169845d>] apic_timer_interrupt+0x6d/0x80
+[2704412.623819]  <EOI>  [<ffffffff81060fe6>] ? native_safe_halt+0x6/0x10
+[2704412.624012]  [<ffffffff810347ff>] default_idle+0x1f/0xc0
+[2704412.624197]  [<ffffffff81035146>] arch_cpu_idle+0x26/0x30
+[2704412.624386]  [<ffffffff810e82f5>] cpu_startup_entry+0x245/0x290
+[2704412.624574]  [<ffffffff8104f0da>] start_secondary+0x1ba/0x230
+```
+
+> 补充说明：
+>
+> - 上述内容中出现问号的部分，如 `? update_curr+0xf/0x190` ，可能和 bt 中的输出不完全对应；
+
+
+### 系统信息
+
+```
+[root@xg-mesos-142 ~]# uname -a
+Linux xg-mesos-142 3.10.0-514.26.2.el7.x86_64 #1 SMP Tue Jul 4 15:04:05 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+[root@xg-mesos-142 ~]# lsb_release -a
+LSB Version:    :core-4.1-amd64:core-4.1-noarch
+Distributor ID: CentOS
+Description:    CentOS Linux release 7.3.1611 (Core)
+Release:    7.3.1611
+Codename:   Core
+[root@xg-mesos-142 ~]# lscpu
+Architecture:          x86_64
+CPU op-mode(s):        32-bit, 64-bit
+Byte Order:            Little Endian
+CPU(s):                56
+On-line CPU(s) list:   0-55
+Thread(s) per core:    2
+Core(s) per socket:    14
+Socket(s):             2
+NUMA node(s):          2
+Vendor ID:             GenuineIntel
+CPU family:            6
+Model:                 79
+Model name:            Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz
+Stepping:              1
+CPU MHz:               2899.875
+BogoMIPS:              4794.33
+Virtualization:        VT-x
+L1d cache:             32K
+L1i cache:             32K
+L2 cache:              256K
+L3 cache:              35840K
+NUMA node0 CPU(s):     0-13,28-41
+NUMA node1 CPU(s):     14-27,42-55
+[root@xg-mesos-142 ~]#
+```
+
+网卡信息
+
+```
+[root@xg-mesos-142 ~]# ethtool -i enp2s0f0
+driver: ixgbe
+version: 4.4.0-k-rh7.3
+firmware-version: 0x800003df
+expansion-rom-version:
+bus-info: 0000:02:00.0
+supports-statistics: yes
+supports-test: yes
+supports-eeprom-access: yes
+supports-register-dump: yes
+supports-priv-flags: no
+[root@xg-mesos-142 ~]# ethtool -i enp2s0f1
+driver: ixgbe
+version: 4.4.0-k-rh7.3
+firmware-version: 0x800003df
+expansion-rom-version:
+bus-info: 0000:02:00.1
+supports-statistics: yes
+supports-test: yes
+supports-eeprom-access: yes
+supports-register-dump: yes
+supports-priv-flags: no
+```
+
+
+### 故障原因
+
+- There is a bug that should be fixed by a patch from upstream commit [c06f04c70489b9deea3212af8375e2f0c2f0b184](https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git/commit/?id=c06f04c70489b9deea3212af8375e2f0c2f0b184).
+- `distribute_cfs_runtime()` intentionally only hands out enough runtime to bring each `cfs_rq` to 1 ns of runtime, expecting the `cfs_rqs` to then take the runtime they need only once they actually get to run. However, if they get to run sufficiently quickly, the period timer is still in `distribute_cfs_runtime()` and no runtime is available, causing them to throttle. Then distribute has to handle them again, and this can go on until distribute has handed out all of the runtime 1ns at a time, which takes far too long.
+- **Hard lockup occurs due to an infinite loop encountered in `distribute_cfs_runtime()`**.
+
+> Our engineering team is working on this bug on the private rhbz#1399391.
+
+
+### 解决方案
+
+- Issue has been fixed in kernel-3.10.0-693.el7.x86_64.rpm via [https://access.redhat.com/errata/RHSA-2017:1842](https://access.redhat.com/errata/RHSA-2017:1842)
+
+
+### 其它
+
+信息补充：
+
+Hard LOCKUP 是因为中断被禁掉了（关中断），长时间（默认应该是 5秒）没有打开，这时 NMI 会中断当前进程；
+
+所以关键在于：目标进程为什么长时间关闭中断，可能的一种情况：有进程拿了锁，忘记放锁，而另一个线程调用 spin_lock_irqsave() ，该函数会先关闭中断再去申请锁，如果一直拿不到锁，就会触发NMI watchdog 中断行为；
+
+问题分析办法：基于 crash 工具对所有进程栈执行 foreach bt，看是否有进程处于锁内的情况，如果有，分析为什么长时间没有放锁；如果没有进程在锁内，则需要遍历代码，查找所有使用该锁的地方，看是否有忘记放锁的流程。
+
+对于 Hard LOCKUP 而言，是指在关中断情况下发生死锁（大多数情况都是在硬中断中），不一定是真的死锁，实际中如果关中断时间太长 ，就会触发 hard panic。
+
+Soft LOCKUP 是由于抢占被长时间关闭，系统无法正常调度其他进程。这时 NMI watchdog 会中断该线程；
+
+soft LOCKUP 其实就是在没有关中断的情况下发生了 lockup，由于在没有关闭硬中断的情况下，正常的话时钟中断应该会被及时响应，时钟中断的处理函数会触发 kernel watchdog 更新时间戳。如果这种情况下系统非常繁忙以至时钟中断都响应不及时，那么将造成 kernel watchdog 时间戳间隔过大，那么他将发出侦测到 soft lockup 的情况。
+
+
+
+相关内核参数设置：
+
+```
+kernel.hardlockup_all_cpu_backtrace = 0
+kernel.hardlockup_panic = 1
+kernel.softlockup_all_cpu_backtrace = 0
+kernel.softlockup_panic = 0
+
+kernel.nmi_watchdog = 1
+kernel.watchdog = 1
+kernel.watchdog_cpumask = 0-55
+kernel.watchdog_thresh = 10
+```
+
+相关链接：
+
+- [panic 流程](https://lp007819.wordpress.com/2012/04/28/%E8%BD%ACpanic-%E6%B5%81%E7%A8%8B/)
+- [Kernel panic - not syncing: Watchdog detected hard LOCKUP on cpu 28](https://bugs.centos.org/view.php?id=11488)
+- [关于panic之LOCKUP](http://www.cnblogs.com/jawfeng/p/4938792.html)
+- [Kernel panic - not syncing: Watchdog detected hard LOCKUP on cpu 1](https://bugs.centos.org/view.php?id=10965)
+- [Kernel panic - not syncing: Hard LOCKUP](https://bugs.centos.org/view.php?id=13497) -- 和我们的问题机器一样的版本
+- [Server crashed](https://www.centos.org/forums/viewtopic.php?t=56511)
+- [Hard lockup occurs due to an infinite loop encountered in distribute_cfs_runtime()](https://access.redhat.com/solutions/2786591)
 
 
 ----------
