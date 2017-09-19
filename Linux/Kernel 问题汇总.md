@@ -1,10 +1,10 @@
 # Kernel 问题汇总
 
 - "Kernel panic - not syncing: Hard LOCKUP"
-- "INFO: task `<process>`:`<pid>` blocked for more than 120 seconds"
-- "unable to handle kernel NULL pointer dereference at 0000000000000010"
-- "kernel: EPT: Misconfiguration"
 - "Kernel panic - not syncing: Fatal hardware error!"
+- "INFO: task `<process>`:`<pid>` blocked for more than 120 seconds"
+- "BUG: unable to handle kernel NULL pointer dereference at 0000000000000010"
+- "kernel: EPT: Misconfiguration"
 
 
 ----------
@@ -220,8 +220,6 @@ supports-priv-flags: no
 
 ### 其它
 
-信息补充：
-
 Hard LOCKUP 是因为中断被禁掉了（关中断），长时间（默认应该是 5秒）没有打开，这时 NMI 会中断当前进程；
 
 所以关键在于：目标进程为什么长时间关闭中断，可能的一种情况：有进程拿了锁，忘记放锁，而另一个线程调用 spin_lock_irqsave() ，该函数会先关闭中断再去申请锁，如果一直拿不到锁，就会触发NMI watchdog 中断行为；
@@ -233,7 +231,6 @@ Hard LOCKUP 是因为中断被禁掉了（关中断），长时间（默认应�
 Soft LOCKUP 是由于抢占被长时间关闭，系统无法正常调度其他进程。这时 NMI watchdog 会中断该线程；
 
 soft LOCKUP 其实就是在没有关中断的情况下发生了 lockup，由于在没有关闭硬中断的情况下，正常的话时钟中断应该会被及时响应，时钟中断的处理函数会触发 kernel watchdog 更新时间戳。如果这种情况下系统非常繁忙以至时钟中断都响应不及时，那么将造成 kernel watchdog 时间戳间隔过大，那么他将发出侦测到 soft lockup 的情况。
-
 
 
 相关内核参数设置：
@@ -839,7 +836,7 @@ kernel.hung_task_warnings = 6
 ----------
 
 
-## "unable to handle kernel NULL pointer dereference at 0000000000000010"
+## "BUG: unable to handle kernel NULL pointer dereference at 0000000000000010"
 
 ### 故障信息
 
