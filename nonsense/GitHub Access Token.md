@@ -52,6 +52,31 @@ X-RateLimit-Reset: 1377013266
 }
 ```
 
+## GitHub API rate limit
+
+```shell
+Error: GitHub API rate limit exceeded for 220.166.254.65. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)
+Try again in 56 minutes 17 seconds, or create an personal access token:
+  https://github.com/settings/tokens
+and then set it as HOMEBREW_GITHUB_API_TOKEN.
+```
+
+解决办法：
+
+- 注册、登录 https://github.com ；
+- 访问 https://github.com/settings/tokens ；
+- 在 `Personal settings -> Personal access tokens` 中点击 "Generate new token" 创建 token ；
+- Make sure to copy your new personal access token now. You won't be able to see it again!
+- Personal access tokens function like ordinary OAuth access tokens. They can be used instead of a password for Git over HTTPS, or can be used to authenticate to the API over Basic Authentication.
+- 在 `~/.bashrc` 中添加 `HOMEBREW_GITHUB_API_TOKEN` 环境变量
+
+```shell
+if [ -f /usr/local/bin/brew ]; then
+    export HOMEBREW_GITHUB_API_TOKEN=xxxxxxxxxx
+fi
+```
+
+
 ## [Creating a personal access token for the command line](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/)
 
 略
