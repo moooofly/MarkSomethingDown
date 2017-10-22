@@ -1,13 +1,27 @@
+# 基于 vagrant + virtualBox + ubuntu 搭建开发环境
 
+## 软件安装
 
-
-# 下载相关文件
+手动安装
 
 - VirtualBox 下载地址：[https://www.virtualbox.org/wiki/Downloads](https://www.virtualbox.org/wiki/Downloads)
 - vagrant 下载地址：[https://www.vagrantup.com/downloads.html](https://www.vagrantup.com/downloads.html)
-- 目标操作系统下载地址：[http://www.vagrantbox.es/](http://www.vagrantbox.es/)
 
-# 环境准备
+自动安装
+
+```
+brew cask install virtualbox
+brew cask install vagrant
+```
+
+
+.box 文件下载：
+
+- [vagrantbox](http://www.vagrantbox.es/)
+- [Ubuntu Cloud Images (RELEASED)](https://cloud-images.ubuntu.com/releases/)
+
+
+## 环境准备
 
 创建目录
 
@@ -16,6 +30,7 @@ mkdir -p /Users/sunfei/workspace/vagrant/ubuntu-14.04-amd64
 ```
 
 将之前下载好的 .box 文件放到上述开发目录中
+
 ```shell
 ➜ ubuntu-14.04-amd64 cp ~/Downloads/ubuntu-14.04-amd64.box ./
 ➜ ubuntu-14.04-amd64 ll
@@ -33,6 +48,7 @@ total 785608
 box: Unpacking necessary files from: file:///Users/sunfei/workspace/vagrant/ubuntu-14.04-amd64/ubuntu-14.04-amd64.box
 ==> box: Successfully added box 'ubuntu-14.04-amd64' (v0) for 'virtualbox'!
 ```
+
 成功添加后，可以通过 `vagrant box list` 查看；
 
 
