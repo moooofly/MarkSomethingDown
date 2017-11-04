@@ -395,11 +395,7 @@ Sublime Text Build 3126
 brew cask install alfred
 ```
 
-问题：
-
-- 该版本是否有限制
-- powerpack 是否需要安装
-- 默认设置调整
+> 注意：该版本为基础的免费版本，不具备强大的工作流（workflow）和剪切板
 
 
 ## 安装 Wireshark
@@ -748,7 +744,59 @@ sudo mtr github.com
 
 
 
-
 ----------
+
+
+## 个性化调整
+
+> 以下内容参考自：[高效 MacBook 工作环境配置](https://zhuanlan.zhihu.com/p/24868436)
+
+- 将 Dock 停靠在屏幕左边
+- 全键盘控制模式
+- 快速锁定屏幕
+- 系统常用快捷键
+- 中文输入法（搜狗输入法）
+- 窗口管理软件 - SizeUp
+- 查找文件和应用程序以及无限想象力 - Alfred
+- 聪明又美丽的日历 -- Fantastical 2
+- 来杯免费咖啡 -- Caffeine
+- 快速切换和打开应用程序 -- Manico
+- 随心所欲的复制粘贴以及无限想象 -- PopClip
+- 增强资源管理器 -- XtraFinder
+- 随心所欲的全键盘控制 - Shortcat
+- 来杯鸡尾酒 -- Bartender
+- 快速进入Shell -- go2shell
+- 快速录屏 -- QuickTimePlayer
+- 好用的截屏工具 -- Snip
+
+
+> 注意：
+> 
+> 在安装来自 xclient.info 上诸如 SizeUp 和 Alfred 等软件时，会提示软件来自“来自身份不明开发者”，其实这是 MAC 新系统启用了新的安全机制导致。默认只信任 Mac App Store 下载的软件和拥有开发者 ID 签名的应用程序。换句话说就是 MAC 系统默认只能安装靠谱渠道（有苹果审核的 Mac App Store）下载的软件或被认可的人开发的软件。
+> 
+> 解决方法有 2 种：
+> 
+> - 最简单的方式：按住 Control 后，再次点击软件图标，即可（最新版本 macOS 上可能还是不行）。
+> - 修改系统配置：系统偏好设置 -> 安全性与隐私 -> 允许从以下位置下载的应用 -> 任何来源
+> 
+> 如果没有“任何来源”这个选项的话（macOS Sierra 10.12），则需要打开终端，执行 `sudo spctl --master-disable` ，执行后，就会出现“任何来源”这个项了；
+
+参考：
+
+- [高效 MacBook 工作环境配置](https://zhuanlan.zhihu.com/p/24868436)
+- [http://xclient.info/](http://xclient.info/?_=3743f2bba50c71acb55f14b5cac819fd)
+- [MAC应用无法打开或文件损坏的处理方法](http://xclient.info/a/74559ea2-7870-b992-ed53-52a9d988e382.html?_=3743f2bba50c71acb55f14b5cac819fd)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
