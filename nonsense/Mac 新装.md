@@ -26,29 +26,15 @@ $ brew install cask
 $ brew cask install iterm2
 ```
 
-## [为 iTerm2 安装一个 Solarized 主题](https://github.com/altercation/solarized/tree/master/iterm2-colors-solarized)
 
-> 可能不需要安装这个
+## ZSH 和 iTerm2 设置
 
-为了使 iTerm2 看起很炫酷，你可以下载 Solarized 主题（配色方案）。
+- 调整 zsh 的 ZSH_THEME 配置（默认即可）；
+- 调整 iTerm2 配色方案 Color Presets ；
+- 调整 Font 和 Non-ASCII Font ；
 
-```
-$ brew install wget
-$ cd ~/Downloads
-$ wget https://raw.githubusercontent.com/altercation/solarized/master/iterm2-colors-solarized/Solarized%20Dark.itermcolors
-$ wget https://raw.githubusercontent.com/altercation/solarized/master/iterm2-colors-solarized/Solarized%20Light.itermcolors
-```
+常见组合：**agnoster 主题 + Solarized 配色方案 + Powerline 字体**
 
-在下载完主题之后，打开 iTerm2 并通过 **iTerm -> Preferences -> Profiles -> Colors -> load presets -> Import** 导入已经下载好的 solarized 主题。
-
-> Open **iTerm 2**, open **Preferences**, click on the "**Profiles**" (formerly Addresses, formerly Bookmarks) icon in the preferences toolbar, then select the "**colors**" tab. Click on the "**load presets**" and select "**import...**". Select the Solarized Light or Dark theme file.
->
-> You have now loaded the Solarized color presets into iTerm 2, but haven't yet applied them. To apply them, simply select an existing profile from the profile list window on the left, or create a new profile. Then select the Solarized Dark or Solarized Light preset from the "Load Presets" drop down.
-
-其他参考：
-
-- [Mac下配置iTerm2+oh-my-zsh](http://ju.outofmemory.cn/entry/154711) 中使用 agnoster 主题 + [solarized 配色方案](http://ethanschoonover.com/solarized) + [powerline 字体](https://github.com/powerline/fontpatcher)；
-- [oh-my-zsh 中对 agnoster 的说明](https://github.com/robbyrussell/oh-my-zsh/)
 
 ## 针对 iTerm2 的其他调整
 
@@ -126,15 +112,19 @@ $ sh -c "$(wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/insta
 - vi 粉的 vi-mode ；
 - 等等...
 
-（需要研究一下）
+> TODO: 需要研究一下
+
+配置示例
 
 ```
 plugins=(bundler git git-flow gnu-utils osx ruby gem perl rails rvm mercurial svn macports osx virtualenvwrapper django pip) 
 ```
 
-其它参考：
+我的配置
 
-- [My Extravagant Zsh Prompt](http://stevelosh.com/blog/2010/02/my-extravagant-zsh-prompt/)
+```
+plugins=(git zsh-autosuggestions z)
+```
 
 
 ### Z
@@ -177,6 +167,12 @@ git clone git://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/zsh
 plugins=(zsh-autosuggestions)
 ```
 
+------
+
+其它：
+
+- [My Extravagant Zsh Prompt](http://stevelosh.com/blog/2010/02/my-extravagant-zsh-prompt/)
+
 
 ## Vim 安装
 
@@ -203,14 +199,9 @@ $ where vi
 alias vi="/usr/local/bin/vim"
 ```
 
-在安装 vim 的时候需要安装如下依赖项：
+在安装 vim 的时候自动安装 perl/libyaml/ruby/python 几个依赖项；
 
-- perl
-- libyaml
-- ruby
-- python
-
-在安装 python 相关内容时会自动安装 `pip` 和 `setuptools` ；建议顺便执行 `pip install --upgrade pip setuptools` 进行升级（也可以后续执行）；
+> 在安装 python 相关内容时会自动安装 `pip` 和 `setuptools` ；建议顺便执行 `pip install --upgrade pip setuptools` 进行升级（也可以后续执行）；
 
 ## golang 安装
 
@@ -277,84 +268,54 @@ go get -u github.com/dominikh/go-tools/cmd/keyify
 
 ## 重映射 Caps Lock 键
 
+### 为何要重映射 Caps Lock 键
+
+**A popular `caps lock` remap for `vi` users is `escape`.** Many people find it awkward to constantly reach for the upper left corner of the keyboard for the `escape` key. 
+
+### 重映射 Caps Lock 键的最简单办法
+
+系统偏好设置 => 键盘 => 修饰键 => 将**大写锁定键**改为 Escape
+
+> 采用下面 Karabiner-Elements 进行设置的好处在于，可以进行更多个性化设置（比如外接键盘的使用）；
+
+----------
+
+
+### Seil
+
+- github 地址：[这里](https://github.com/tekezo/Seil/)
+- 官方地址：[这里](https://pqrs.org/osx/karabiner/seil.html)
+
+This application is for **older** macOS. Please use ·Karabiner-Elements· since macOS Sierra.
+
+> 已过时
+
+
+### Karabiner
+
+- Karabiner github 地址：[这里](https://github.com/tekezo/Karabiner)
+- Karabiner-Elements github 地址：[这里](https://github.com/tekezo/Karabiner-Elements)
+- 官方地址：[这里](https://pqrs.org/osx/karabiner/)
+
+A powerful and stable keyboard customizer for OS X.
+
+- We made new `Karabiner` as `Karabiner-Elements-11.0.0` from scratch due to kernel architecture changes in macOS Sierra.
+- Prior to version 9.3.0, `Karabiner` was called `KeyRemap4MacBook`.
+- `Karabiner` and `KeyRemap4MacBook` work with all Mac products, including the MacBook family, iMac, Mac mini, and Mac Pro.
+
+注意：
+
+- Karabiner 对应的是 KeyRemap4MacBook ，用于老版本 macOS
+- Karabiner-Elements 用于新版本 macOS
+
+
+其他参考：
+
 - [Remap Caps Lock](http://wiki.c2.com/?RemapCapsLock)
 - [Remapping Caps Lock](http://www.drbunsen.org/remapping-caps-lock/)
 - [Map Keys in Mac](http://www.legendu.net/en/blog/map-keys-in-mac/)
 - [9 Enhancements to Shell and Vim Productivity](https://danielmiessler.com/blog/enhancements-to-shell-and-vim-productivity/#gs.nhdi9CI)
 - [提高 Vim 和 Shell 效率的 9 个建议](http://blog.jobbole.com/86809/)
-
-### 为何要重映射 Caps Lock 键
-
-**A popular `caps lock` remap for `vi` users is `escape`.** Many people find it awkward to constantly reach for the upper left corner of the keyboard for the `escape` key. My hands are large enough to efficiently reach `escape` while typing on the home row, so I don’t like using the `caps lock` for `escape`. **I find the best use for the `caps lock` key is a remap to `control`.** The `control` key is very awkward to use in Vim. Entering visual block mode `ctrl+v` or `ctrl+r` for redo is difficult to type rapidly and remapping `caps lock` to `control` is really useful and requires no third-party solution.
-
-
-----------
-
-
-`Seli` (previouly known as `PCKeyboardHack`) is great tool for mapping keys on Mac. Let me illustrate how to use `Seli`. **As a heavy Vim user, I find it is necessary to swap the `Caps Lock` key with the `Escape` key.**
-
-- Change the behavior of Map `Caps Lock` Key to **No Action** on Mac. You need to do this step to to **reduce caps lock delay**.
-    - Open `System Preferences`
-    - Open `Keyboard`
-    - Open `Modifier Keys...`
-    - Change `Caps Lock Key` to **No Action**
-- Map the behavior of `Caps Lock` key to the `Escape` key.
-    - Click on `Change the caps lock key`
-    - Check `Change the caps lock key`
-    - Fill **53** (keycode of `Escape`) in the keycode text box
-- Map the behavior of the `Escape` key to the `Caps` key.
-    - Click on `Other keys`
-    - Check `Change Escape`
-    - fill **57** (keycode of the `Caps Lock` key) in the keycode text box.
-
-### [Seil](https://pqrs.org/osx/karabiner/seil.html.en)
-
-> github 地址：[这里](https://github.com/tekezo/Seil/)
-
-Seil applies a patch to a keyboard driver. Utility for the **caps lock** key and some **international keys** in PC keyboards.
-
-- You can change the caps lock key to another key. (eg. escape key)
-- You can activate some international keys in PC keyboard.
-- **macOS Sierra support status**: `Seil` functions are integraded to Karabiner-Elements. Please use [Karabiner-Elements](https://github.com/tekezo/Karabiner-Elements/blob/master/README.md).
-- Prior to version 10.7.0, `Seil` was called **PCKeyboardHack**.
-- Current version is **Seli-12.1.0** (For OS X 10.11)
-
-安装：
-
-- Step 1: Open a downloaded `dmg` file, and then open a `pkg` file in `dmg`.
-- Step 2: Installer is launched. Install Seil. Seil will be installed into `/Applications` folder. **Note**: Do not change the location of `Seil.app` from `/Applications`. For example, Seil will not work properly if you moved `Seil.app` into `/Applications/Utils`.
-- Step 3: Launch Seil from Launchpad.
-
-You can also get the latest stable release package via fixed URL.
-
-```
-$ curl -L -O https://pqrs.org/latest/seil-latest.dmg
-```
-
-### [Karabiner](https://pqrs.org/osx/karabiner/)
-
-A powerful and stable keyboard customizer for OS X.
-
-- [You can easily customize](https://pqrs.org/osx/karabiner/document.html.en) from prepared settings.
-- You can also add your own settings by XML.
-- **macOS Sierra** support status: `Karabiner` does not work on macOS Sierra at the moment. We are developing `Karabiner-Elements` which provides simple key modification for macOS Sierra at first. (`Karabiner-Elements` works well on **macOS Sierra**. We are working on fixing several remaining issues.)
-- We'll start updating for the full featured `Karabiner` for Sierra after `Karabiner-Elements` is completed.
-- https://github.com/tekezo/Karabiner-Elements/blob/master/README.md
-- Prior to version 9.3.0, `Karabiner` was called `KeyRemap4MacBook`.
-- `Karabiner` and `KeyRemap4MacBook` work with all Mac products, including the MacBook family, iMac, Mac mini, and Mac Pro.
-
-安装：
-
-- Step 1: Open a downloaded `dmg` file, and then open a `pkg` file in `dmg`.
-- Step 2: Installer is launched. Install `Karabiner`.
-`Karabiner` will be installed into `/Applications` folder. Note: Do not change the location of `Karabiner.app` from `/Applications`. For example, `Karabiner` will not work properly if you moved `Karabiner.app` into `/Applications/Utils`.
-- Step 3: Launch `Karabiner` from Launchpad. [Learn more](https://pqrs.org/osx/karabiner/document.html.en).
-
-### [tekezo/Karabiner-Elements](https://github.com/tekezo/Karabiner-Elements)
-
-The next generation Karabiner for macOS Sierra.
-
-Karabiner-Elements provides a subset of the features planned for the next generation Karabiner for macOS Sierra. The current version of Karabiner does not work with Sierra, so Karabiner-Elements was created to keep Sierra users up and running until a new version of Karabiner is published.
 
 
 ## 重映射 Esc 键
@@ -363,13 +324,14 @@ Karabiner-Elements provides a subset of the features planned for the next genera
 
 ## meta 键
 
-为什么会有 meta 键？
+为什么需要 Meta 键？
 
-> 在 emacs 中，meta 键的使用非常频繁，而 OSX 系统没有提供 meta 键。在 iTerm2 中可以选择左右两个的 Option 键作为 meta 键。官方推荐使用左边的 Option 键作为 Meta ，右边的 Option 键依然保留 OSX 的默认功能（输入特殊字符）。
+> 在 Emacs Meta 键的使用非常频繁，而 OSX 系统中却没有提供 Meta 键。在 iTerm2 中可以选择将左右两个 Option 键中的一个作为 Meta 键。官方推荐使用左边的 Option 键作为 Meta ，右边的 Option 键依然保留 OSX 的默认功能（输入特殊字符）。
 
 
 ----------
 
+如何将 `Option` 键配置成 Meta 键？
 
 Q: How do I make the `option`/`alt` key act like `Meta` or send **escape codes**?
 
@@ -379,21 +341,10 @@ A: Go to `Preferences->Profiles` tab. Select your **profile** on the left, and t
 ----------
 
 
-在 mac 下默认是没有 meta 键的，可通过如下方法进行修改：
+在 Mac 下默认是没有 Meta 键的，可通过如下方法进行修改：
 
-- 若是系统自带的 terminal ，在`设置->键盘选项`中，将“使用 option 键作为 meta 键”选中；
-- 若是在 iterm 下，需要在 `profiles->keys` 中，将 “Left option key acts as” 修改为“+Esc”即可。
-
-
-----------
-
-Some of these commands list `alt` as a prefix character. This is because I have manually set `alt` as a `meta` key. Without this setting enabled you have to use the `esc` key instead. I recommend enabling the `alt` key. 
-
-In Mac `Terminal.app` this setting is **Preferences > Profiles tab > Keyboard sub-tab > at the bottom "Use option as meta key."** 
-
-In `iTerm2` the setting is at **Preferences > Profiles tab > Keys sub-tab > at the bottom of the window set "left/right option key acts as" to "+Esc"**. 
-
-In `GNOME terminal` **Edit > Keyboard Shortcuts > uncheck "Enable menu access keys."**
+- 若是系统自带的 terminal ，在`设置 -> 键盘选项`中，将“使用 option 键作为 Meta 键”选中；
+- 若是在 iTerm2 下，需要在 `Profiles -> Keys` 中，将 "Left option Key" 的单选按钮修改为 "+Esc" 即可。
 
 
 ## 安装 chrome 浏览器
@@ -411,8 +362,6 @@ Google Chrome.app (app)
 
 $ brew cask install google-chrome
 ```
-
-需要找一下命令行 cli ；
 
 
 ## 安装 sublime-text
@@ -446,11 +395,7 @@ Sublime Text Build 3126
 brew cask install alfred
 ```
 
-问题：
-
-- 该版本是否有限制
-- powerpack 是否需要安装
-- 默认设置调整
+> 注意：该版本为基础的免费版本，不具备强大的工作流（workflow）和剪切板
 
 
 ## 安装 Wireshark
@@ -595,6 +540,12 @@ cp /root/.vim/bundle/fzf/bin/* /bin  # 该命令不执行也可以
 
 ```
 brew cask install vagrant
+```
+
+## virtualbox
+
+```
+brew cask install virtualbox
 ```
 
 ## IntelliJ IDEA
@@ -797,7 +748,59 @@ sudo mtr github.com
 
 
 
-
 ----------
+
+
+## 个性化调整
+
+> 以下内容参考自：[高效 MacBook 工作环境配置](https://zhuanlan.zhihu.com/p/24868436)
+
+- 将 Dock 停靠在屏幕左边
+- 全键盘控制模式
+- 快速锁定屏幕
+- 系统常用快捷键
+- 中文输入法（搜狗输入法）
+- 窗口管理软件 - SizeUp
+- 查找文件和应用程序以及无限想象力 - Alfred
+- 聪明又美丽的日历 -- Fantastical 2
+- 来杯免费咖啡 -- Caffeine
+- 快速切换和打开应用程序 -- Manico
+- 随心所欲的复制粘贴以及无限想象 -- PopClip
+- 增强资源管理器 -- XtraFinder
+- 随心所欲的全键盘控制 - Shortcat
+- 来杯鸡尾酒 -- Bartender
+- 快速进入Shell -- go2shell
+- 快速录屏 -- QuickTimePlayer
+- 好用的截屏工具 -- Snip
+
+
+> 注意：
+> 
+> 在安装来自 xclient.info 上诸如 SizeUp 和 Alfred 等软件时，会提示软件来自“来自身份不明开发者”，其实这是 MAC 新系统启用了新的安全机制导致。默认只信任 Mac App Store 下载的软件和拥有开发者 ID 签名的应用程序。换句话说就是 MAC 系统默认只能安装靠谱渠道（有苹果审核的 Mac App Store）下载的软件或被认可的人开发的软件。
+> 
+> 解决方法有 2 种：
+> 
+> - 最简单的方式：按住 Control 后，再次点击软件图标，即可（最新版本 macOS 上可能还是不行）。
+> - 修改系统配置：系统偏好设置 -> 安全性与隐私 -> 允许从以下位置下载的应用 -> 任何来源
+> 
+> 如果没有“任何来源”这个选项的话（macOS Sierra 10.12），则需要打开终端，执行 `sudo spctl --master-disable` ，执行后，就会出现“任何来源”这个项了；
+
+参考：
+
+- [高效 MacBook 工作环境配置](https://zhuanlan.zhihu.com/p/24868436)
+- [http://xclient.info/](http://xclient.info/?_=3743f2bba50c71acb55f14b5cac819fd)
+- [MAC应用无法打开或文件损坏的处理方法](http://xclient.info/a/74559ea2-7870-b992-ed53-52a9d988e382.html?_=3743f2bba50c71acb55f14b5cac819fd)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
