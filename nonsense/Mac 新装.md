@@ -599,6 +599,10 @@ brew cask install vagrant
 
 ## IntelliJ IDEA
 
+```
+brew cask install intellij-idea
+```
+
 
 ## tmux
 
