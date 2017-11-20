@@ -16,19 +16,21 @@
 相关命令如下
 
 ```
-git remote -v
-git remote add <name_this_remote> <remote_address>
-git checktout <dst_branch>
-git fetch <name_this_remote>
-git merge <name_this_remote>/<dst_branch>
+git remote -v                                         -- 查看远程版本库信息
+git remote add <name_this_remote> <remote_address>    -- 添加新的远程版本库
+git checktout <target_branch>                         -- 切换到本地目标分支（即希望合并远程代码的分支）
+git fetch <name_this_remote>                          -- 从新添加的远程版本库中获取最新的变更（no merge）
+git merge <name_this_remote>/<target_branch>          -- 合并指定的远程分支到当前分支
 ```
+
+> 注意：这里使用了 **先 fetch** + **后 merge** 的组合；似乎和直接使用 pull 没啥区别（待确认）
 
 # 如何撤销错误的 merge 结果
 
 假设你要 merge 远程分支 A 的内容，结果不小心 merge 了分支 B 上的内容；
 
 ```
-git checktout <dst_branch>
+git checktout <target_branch>
 git fetch <name_this_remote>
 git merge <name_this_remote>/B
 
@@ -303,6 +305,8 @@ git tag -a <tag_name> <hashValue> -m "comment" # 可以只给出哈希值的前�
 
         ```shell
         git push origin --tags
+
+        git push --tags      // 默认也是 push 到 origin
         ```
 
 - 删除远端标签
@@ -324,8 +328,10 @@ git fetch origin tag <tag_name>
 
 # git clone 时直接 rename
 
+> 可以直接指定路径，否则默认为 `./original_name`
+
 ```shell
-git clone git@github.com:moooofly/aaa.git bbb
+git clone git@github.com:moooofly/original_name.git /path/to/new_name
 ```
 
 
@@ -352,9 +358,9 @@ git push -u origin master
 > 注5：上面执行 `git pull origin master` 时可能会报 "fatal: refusing to merge unrelated histories" 错误，此时可以使用 `--allow-unrelated-histories` 选项解决，即 `git pull origin master --allow-unrelated-histories` ；详情参见[这里](https://stackoverflow.com/questions/37937984/git-refusing-to-merge-unrelated-histories/40107973#40107973?newreg=5095f8141c34479ba419f5e8b2d1b415)；
 
 
-# 本地新建分支后 push 到 github repo
+# 本地新建分支后 push 到远端仓库
 
-创建并切换分支（新分支内容为源分支内容的拷贝）
+创建并切换到新分支（新分支内容为源分支内容的拷贝）
 
 ```shell
 git checkout -b new_branch
@@ -376,33 +382,73 @@ git push --set-upstream origin new_branch
 git branch --set-upstream-to=origin/new_branch new_branch
 ```
 
-# 基于 git clone 直接获取远端仓库指定分支代码
+# 获取指定 tag 代码
 
-`git clone` 默认会把远程仓库整个给 clone 下来，但只会在本地默认创建一个 master 分支；
+如果本地有代码仓库
 
-`git clone` 可以使用 -b 参数指定目标分支。实际上，-b 参数不仅支持分支名，还支持 tag 名等。
+```
+git tag
+git checkout <tag_name>
+```
+
+如果本地没有代码仓库
+
+```
+git clone git@xxx.xxx.xxx:/project_name.git
+git tag
+git checkout <tag_name>
+```
+
+> `git checkout <tag_name>` 也写作 `git checkout tags/<tag_name>`
+
+注意：
+
+- 通过上述办法切换到目标 tag 时，会提示：当前处于一个 "detached HEAD" 状态；我们知道每一个 tag 都只是代码仓库中的一个快照（commit），因此，如果你想基于此 tag 进行代码开发，上面的方法就太合适了；
+- 若想基于 tag 快照进行代码开发，你需要把 tag 快照对应的代码拉取（关联）到一个新分支上，例如，我想基于 tag v1.6 的代码进行编辑，则需要创建一个分支 branch-v1.6 ，然后把 v1.6 的代码拉取（关联）到此分支上；
+
+```
+# git checkout <tag_name> -b <branch_related_to_tag_name>
+git checkout v1.6 -b branch-v1.6 
+```
+
+
+# 直接获取远端仓库指定 branch 代码
+
+`git clone` 默认会把远程仓库整个给 clone 下来，但默认只会在本地创建一个 master 分支；
+
+`git clone` 可以使用 `-b` 参数指定目标分支。实际上，`-b` 参数不仅支持**分支名**，还支持 **tag** 和 **commit** 。
 
 ```
 git clone <remote-addr:repo.git> -b <branch-or-tag-or-commit>
+
+或
+
+git clone <remote-addr:repo.git> -b <branch_name>
+git clone <remote-addr:repo.git> -b <tag_name>
+git clone <remote-addr:repo.git> -b <commit_hash>
 ```
 
-# 将远端 github repo 里的指定分支拉取到本地（本地不存在的分支）
+# 将远端仓库里指定 branch 拉取到本地（本地不存在的分支）
 
 > 前提：已经通过 `git clone` 获取远程仓库；
 
-当想要从远端仓库里拉取一条本地不存在的分支时，可以执行
+当想要从远端仓库里拉取一条本地不存在的分支时，可以通过如下命令查看远端仓库中包含哪些分支
 
 ```
-# 查看所有分支（包括隐藏的）
+# 查看所有分支（本地的和远端的）
 git branch -av
-or
-git branch -r  // better way
 
-# 在本地新建（可设置为同名）分支，并切换到该分支
+或
+
+# 功能同 -av 但输出内容可直接用于下面的命令
+git branch -r
+```
+
+拉取远端分支内容，在本地自动创建新分支进行关联（可设置为同名），并切换到该本地分支
+
+```
 git checkout -b local_branch_name origin/remote_branch_name
 ```
-
-将会自动创建一个新的名为 local_branch_name 的本地分支，并与指定的远程分支 origin/remote_branch_name 关联起来。
 
 如果出现提示：
 
@@ -424,7 +470,7 @@ git checkout -b local_branch_name origin/remote_branch_name
 ```
 
 
-# 重命名 github repo 中的远程分支名
+# 重命名 remote branch 名
 
 当在本地执行过如下命令后，你将会创建一个本地分支 old_branch 并且关联到远程的 old_branch 分支上；
 
