@@ -360,7 +360,7 @@ git push -u origin master
 
 # 本地新建分支后 push 到远端仓库
 
-创建并切换到新分支（新分支内容为源分支内容的拷贝）
+基于当前所在本地分支创建并切换到新分支（新分支 hash 位置和源分支 hash 位置相同）
 
 ```shell
 git checkout -b new_branch
@@ -444,7 +444,7 @@ git branch -av
 git branch -r
 ```
 
-拉取远端分支内容，在本地自动创建新分支进行关联（可设置为同名），并切换到该本地分支
+基于**远端特定分支**创建并切换到本地新分支，自动建立分支关联（新本地分支 hash 位置和源远端分支 hash 位置相同）
 
 ```
 git checkout -b local_branch_name origin/remote_branch_name
