@@ -501,7 +501,11 @@ git push origin --delete <remote_branch_name>
 
 > 删除本地分支命令为（需要切换到其他分支上执行该命令）
 > ```shell
+> # delete fully merged branch
 > git branch -d <local_branch_name>
+>
+> # delete branch (even if not merged)
+> git branch -D <local_branch_name>
 > ```
 
 - 将本地的新分支 push 到远程
