@@ -38,7 +38,7 @@ Tcp:
     3 passive connection openings
     2570 failed connection attempts
     0 connection resets received
-    2 connections established
+    2 connections `ESTABLISHED`
     21855 segments received
     16307 segments send out
     0 segments retransmited
@@ -131,17 +131,17 @@ root@vagrant-ubuntu-trusty:~] $
 
 ### 建链统计
 
-这些统计值中，只有 CurrEstab 反应的是系统当前状态，而其他值则是反应的历史状态；同时需要注意的是，这些计数器将 ESTABLISHED 和 CLOSE-WAIT 状态都作为当前连接数。
+这些统计值中，只有 **CurrEstab** 反应的是系统**当前状态**，而其他值则是反应的**历史状态**；同时需要注意的是，**这些计数器将处于 `ESTABLISHED` 和 `CLOSE-WAIT` 状态的连接都算进当前连接数**。
 
-可以这么理解：这两个状态都认为 local => peer 方向的连接未被关闭；
+可以这么理解：这两个状态都认为 `local => remote peer` 方向的连接未被关闭；
 
 | 名称 | 含义 |
 | --- | --- |
-| ActiveOpens | `<number>` active connections openings<br><br>The number of times TCP connections have made a direct transition to the SYN-SENT state from the CLOSED state. <br><br> 主动建链次数，对应 CLOSE => SYN-SENT 次数； <br> 在 `tcp_connect()` 函数中计数； <br> 相当于 SYN 包的发送次数（但不包含重传次数） |
-| PassiveOpens | `<number>` passive connection openings<br><br>The number of times TCP connections have made a direct transition to the SYN-RCVD state from the LISTEN state. <br><br> 被动建链次数，RFC 原意对应 LISTEN => SYN-RECV 次数，但 Linux 实现选择在三次握手成功后才加 1 （即在建立 tcp_sock 结构体后） |
-| AttemptFails | `<number>` failed connection attempts<br><br>The number of times TCP connections have made a direct transition to the CLOSED state from either the SYN-SENT state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the LISTEN state from the SYN-RCVD state. <br><br> 建链失败次数，即如下三项之和 <br> a) SYN-SENT => CLOSE 次数 <br> b) SYN-RECV => CLOSE 次数 <br> c) SYN-RECV => LISTEN 次数 <br><br> 回 CLOSE 部分在 `tcp_done()` 函数中计数 <br> 回 LISTEN 部分在 `tcp_check_req()` 中计数 |
-| EstabResets | `<number>` connection resets received<br><br>The number of times TCP connections have made a direct transition to the CLOSED state from either the ESTABLISHED state or the CLOSE-WAIT state. <br><br> 连接被 reset 次数，即如下两项之和 <br> a) ESTABLISHED => CLOSE 次数 <br> b) CLOSE-WAIT => CLOSE 次 <br><br> 在 `tcp_set_state()` 函数中，如果之前的状态是TCP_CLOSE_WAIT 或 TCP_ESTABLISHED 就加 1 |
-| CurrEstab | `<number>` connections established<br><br>The number of TCP connections for which the current state is either ESTABLISHED or CLOSE- WAIT. <br><br> 处于 ESTABLISHED 和 CLOSE-WAIT 状态的 TCP 流数 <br> 在 `tcp_set_state()` 中进行处理 <br> 实现体现的是进入 ESTABLISHED 之后，进入 CLOSE 之前的 TCP 流数 |
+| ActiveOpens | `<num>` active connections openings<br><br>The number of times TCP connections have made a direct transition to the SYN-SENT state from the CLOSED state. <br><br> 主动建链次数，对应 CLOSE => SYN-SENT 次数； <br> 在 `tcp_connect()` 函数中计数； <br> 相当于 SYN 包的发送次数（但不包含重传次数） |
+| PassiveOpens | `<num>` passive connection openings<br><br>The number of times TCP connections have made a direct transition to the SYN-RCVD state from the LISTEN state. <br><br> 被动建链次数，RFC 原意对应 LISTEN => SYN-RECV 次数，但 Linux 实现选择在三次握手成功后才加 1 （即在建立 tcp_sock 结构体后） |
+| AttemptFails | `<num>` failed connection attempts<br><br>The number of times TCP connections have made a direct transition to the CLOSED state from either the SYN-SENT state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the LISTEN state from the SYN-RCVD state. <br><br> 建链失败次数，即如下三项之和 <br> a) SYN-SENT => CLOSE 次数 <br> b) SYN-RECV => CLOSE 次数 <br> c) SYN-RECV => LISTEN 次数 <br><br> 回 CLOSE 部分在 `tcp_done()` 函数中计数 <br> 回 LISTEN 部分在 `tcp_check_req()` 中计数 |
+| EstabResets | `<num>` connection resets received<br><br>The number of times TCP connections have made a direct transition to the CLOSED state from either the `ESTABLISHED` state or the `CLOSE-WAIT` state. <br><br> 连接被 reset 次数，即如下两项之和 <br> a) `ESTABLISHED` => CLOSE 次数 <br> b) `CLOSE-WAIT` => CLOSE 次 <br><br> 在 `tcp_set_state()` 函数中，如果之前的状态是TCP_CLOSE_WAIT 或 TCP_`ESTABLISHED` 就加 1 |
+| CurrEstab | `<num>` connections `ESTABLISHED`<br><br>The number of TCP connections for which the current state is either `ESTABLISHED` or CLOSE- WAIT. <br><br> 处于 `ESTABLISHED` 和 `CLOSE-WAIT` 状态的 TCP 连接数 <br> 在 `tcp_set_state()` 中进行处理 <br> 实现体现的是进入 `ESTABLISHED` 之后，进入 CLOSE 之前的 TCP 流数 |
 
 ### 数据包统计
 
@@ -153,11 +153,11 @@ root@vagrant-ubuntu-trusty:~] $
 
 | 名称 | 含义 |
 | --- | --- |
-| InSegs | `<number>` segments received<br><br>The total number of segments received, including those received in error. This count includes segments received on currently established connections. <br><br> 所有收到的 TCP 包，即使是个错误包 <br>  在 `tcp_v4_rcv()` 和 `tcp_v6_rcv()` 中计数 |
-| OutSegs | `<number>` segments send out<br><br>The total number of segments sent, including those on current connections but excluding those containing only retransmitted octets. <br><br> 所有发送出去的 TCP 包，包括 <br><br> a) 新数据包 <br> b) 重传数据包 <br> c) syn 包 <br> d) synack 包 <br> e) reset 包 <br><br> `tcp_v4_send_reset()` 中统计 reset 包 <br> `tcp_v4_send_ack()` 中统计 SYN-RECV 和 TIME-WAIT 状态下发送的 ACK 包 <br> `tcp_v6_send_response()` 中统计 ipv6 相应数据 <br> `tcp_make_synack()` 中统计发送的 SYNACK 包 <br> `tcp_transmit_skb()` 中统计所有的其他包 |
-| RetransSegs | `<number>` segments retransmited<br><br>The total number of segments retransmitted - that is, the number of TCP segments transmitted containing one or more previously transmitted octets. <br><br> 所有重传出去的 TCP 包 <br><br> `tcp_v4_rtx_synack()` 和 `tcp_v6_rtx_synack()` 中统计重传的 SYNACK 包 <br> `tcp_retransmit_skb()` 中统计其他重传包 |
-| InErrs | `<number>` bad segments received<br><br>The total number of segments received in error (for example, bad TCP checksums). <br><br> 所有收到的有问题的 TCP 包数量，比如 checksum 有问题 <br><br> `tcp_validate_incoming()` 中统计 seq 有问题的包 <br> `tcp_rcv_established()`、`tcp_v4_do_rcv()`、`tcp_v4_rcv()`、`tcp_v6_do_rcv()`、`tcp_v6_rcv()` 中根据 checksum 来判断出错误包 |
-| OutRsts | `<number>` resets sent<br><br> The number of TCP segments sent containing the RST flag. <br><br> 发送的带 RST 标记的 TCP 包数量 <br><br> 在 `tcp_v4_send_reset()`、`tcp_send_active_reset()`、`tcp_v6_send_response()` 中统计 |
+| InSegs | `<num>` segments received<br><br>The total number of segments received, including those received in error. This count includes segments received on currently `ESTABLISHED` connections. <br><br> 所有收到的 TCP 包，即使是个错误包 <br>  在 `tcp_v4_rcv()` 和 `tcp_v6_rcv()` 中计数 |
+| OutSegs | `<num>` segments send out<br><br>The total number of segments sent, including those on current connections but excluding those containing only retransmitted octets. <br><br> 所有发送出去的 TCP 包，包括 <br><br> a) 新数据包 <br> b) 重传数据包 <br> c) syn 包 <br> d) synack 包 <br> e) reset 包 <br><br> `tcp_v4_send_reset()` 中统计 reset 包 <br> `tcp_v4_send_ack()` 中统计 SYN-RECV 和 TIME-WAIT 状态下发送的 ACK 包 <br> `tcp_v6_send_response()` 中统计 ipv6 相应数据 <br> `tcp_make_synack()` 中统计发送的 SYNACK 包 <br> `tcp_transmit_skb()` 中统计所有的其他包 |
+| RetransSegs | `<num>` segments retransmited<br><br>The total number of segments retransmitted - that is, the number of TCP segments transmitted containing one or more previously transmitted octets. <br><br> 所有重传出去的 TCP 包 <br><br> `tcp_v4_rtx_synack()` 和 `tcp_v6_rtx_synack()` 中统计重传的 SYNACK 包 <br> `tcp_retransmit_skb()` 中统计其他重传包 |
+| InErrs | `<num>` bad segments received<br><br>The total number of segments received in error (for example, bad TCP checksums). <br><br> 所有收到的有问题的 TCP 包数量，比如 checksum 有问题 <br><br> `tcp_validate_incoming()` 中统计 seq 有问题的包 <br> `tcp_rcv_`ESTABLISHED`()`、`tcp_v4_do_rcv()`、`tcp_v4_rcv()`、`tcp_v6_do_rcv()`、`tcp_v6_rcv()` 中根据 checksum 来判断出错误包 |
+| OutRsts | `<num>` resets sent<br><br> The number of TCP segments sent containing the RST flag. <br><br> 发送的带 RST 标记的 TCP 包数量 <br><br> 在 `tcp_v4_send_reset()`、`tcp_send_active_reset()`、`tcp_v6_send_response()` 中统计 |
 | InCsumErrors | 收到的 checksum 有问题的数据包数量 <br><br> 属于 3.10 相对于 2.6.32 新增的内容，算是细化 InErrs 统计，InErrs 中应该只有*小部分*属于该类型 |
 | EmbryonicRsts | number of resets received for embryonic SYN_RECV sockets <br> 在 SYN-RECV 状态收到带 RST/SYN 标记的包个数 |
 
@@ -327,7 +327,7 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 
 | 名称 | 含义 |
 | --- | --- |
-| EstabResets | 连接被 reset 次数，即如下两项之和 <br> a) ESTABLISHED => CLOSE 次数 <br> b) CLOSE-WAIT => CLOSE 次 <br><br> 在 `tcp_set_state()` 函数中，如果之前的状态是TCP_CLOSE_WAIT 或 TCP_ESTABLISHED 就加 1 |
+| EstabResets | 连接被 reset 次数，即如下两项之和 <br> a) `ESTABLISHED` => CLOSE 次数 <br> b) `CLOSE-WAIT` => CLOSE 次 <br><br> 在 `tcp_set_state()` 函数中，如果之前的状态是TCP_CLOSE_WAIT 或 TCP_`ESTABLISHED` 就加 1 |
 
 ### 内存 Prune
 
@@ -347,15 +347,15 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 | --- | --- |
 | PAWSPassive | number of **passive** connections rejected because of time stamp <br> 三路握手最后一个 ACK 的 PAWS 检查失败次数 <br><br> 触发点：tcp_v4_conn_request() |
 | PAWSActive | number of **active** connections rejected because of time stamp <br> 在发送 SYN 后，接收到 ACK ，但 PAWS 检查失败的次数 <br><br> 触发点：tcp_rcv_synsent_state_process() |
-| DelayedACKLocked | number of packets rejects in established connections because of timestamp <br> 输入包 PAWS 失败次数 <br><br> 触发点： <br> a) tcp_validate_incoming() <br> b) tcp_timewait_state_process() <br> c) tcp_check_req() |
+| DelayedACKLocked | number of packets rejects in `ESTABLISHED` connections because of timestamp <br> 输入包 PAWS 失败次数 <br><br> 触发点： <br> a) tcp_validate_incoming() <br> b) tcp_timewait_state_process() <br> c) tcp_check_req() |
 
 
 ### Listen 相关
 
 | 名称 | 含义 |
 | --- | --- |
-| ListenOverflows | `<number>` times the listen queue of a socket overflowed <br><br> We completed a 3WHS but couldn't put the socket on the accept queue, so we had to discard the connection. <br><br> 三路握手最后一步完全之后，Accept queue 队列超过上限时加 1 <br><br> 触发点：tcp_v4_syn_recv_sock() |
-| ListenDrops | `<number>` of SYNs to LISTEN sockets dropped <br><br> We couldn't accept a connection because one of: we had no route to the destination, we failed to allocate a socket, we failed to allocate a new local port bind bucket. Note: this counter also include all the increments made to ListenOverflows <br><br> 任何原因导致的失败后加 1，包括：Accept queue 超限，创建新连接，继承端口失败等 <br><br> 触发点：tcp_v4_syn_recv_sock() |
+| ListenOverflows | `<num>` times the listen queue of a socket overflowed <br><br> We completed a 3WHS but couldn't put the socket on the accept queue, so we had to discard the connection. <br><br> 三路握手最后一步完全之后，Accept queue 队列超过上限时加 1 <br><br> 触发点：tcp_v4_syn_recv_sock() |
+| ListenDrops | `<num>` of SYNs to LISTEN sockets dropped <br><br> We couldn't accept a connection because one of: we had no route to the destination, we failed to allocate a socket, we failed to allocate a new local port bind bucket. Note: this counter also include all the increments made to ListenOverflows <br><br> 任何原因导致的失败后加 1，包括：Accept queue 超限，创建新连接，继承端口失败等 <br><br> 触发点：tcp_v4_syn_recv_sock() |
 
 ### undo 相关
 
@@ -370,8 +370,8 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 
 | 名称 | 含义 |
 | --- | --- |
-| TCPHPHits | 如果有 skb 通过“快速路径”进入到 sk_receive_queue 上，计数器加 1 ；特别地，Pure ACK 以及直接复制到 user space 上的都不算在这个计数器上 <br><br> 触发点：tcp_rcv_established() |
-| TCPHPHitsToUser | 如果有 skb 通过“快速路径”直接复制到 user space 上，计数器加 1 <br><br> 触发点：tcp_rcv_established() |
+| TCPHPHits | 如果有 skb 通过“快速路径”进入到 sk_receive_queue 上，计数器加 1 ；特别地，Pure ACK 以及直接复制到 user space 上的都不算在这个计数器上 <br><br> 触发点：tcp_rcv_`ESTABLISHED`() |
+| TCPHPHitsToUser | 如果有 skb 通过“快速路径”直接复制到 user space 上，计数器加 1 <br><br> 触发点：tcp_rcv_`ESTABLISHED`() |
 | TCPPureAcks | 接收“慢速路径”中的 pure ACK 数量 <br><br> 触发点：tcp_ack() |
 | TCPHPAcks | 接收到包，进入“快速路径”时加 1 <br><br> 触发点：tcp_ack() |
 
