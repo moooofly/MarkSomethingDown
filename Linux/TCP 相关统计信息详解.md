@@ -137,7 +137,7 @@ root@vagrant-ubuntu-trusty:~] $
 
 | 名称 | 含义 |
 | --- | --- |
-| ActiveOpens | <number> active connections openings<br><br>The number of times TCP connections have made a direct transition to the SYN-SENT state from the CLOSED state. <br><br> 主动建链次数，对应 CLOSE => SYN-SENT 次数； <br> 在 `tcp_connect()` 函数中计数； <br> 相当于 SYN 包的发送次数（但不包含重传次数） |
+| ActiveOpens | `<number>` active connections openings<br><br>The number of times TCP connections have made a direct transition to the SYN-SENT state from the CLOSED state. <br><br> 主动建链次数，对应 CLOSE => SYN-SENT 次数； <br> 在 `tcp_connect()` 函数中计数； <br> 相当于 SYN 包的发送次数（但不包含重传次数） |
 | PassiveOpens | The number of times TCP connections have made a direct transition to the SYN-RCVD state from the LISTEN state. <br><br> 被动建链次数，RFC 原意对应 LISTEN => SYN-RECV 次数，但 Linux 实现选择在三次握手成功后才加 1 （即在建立 tcp_sock 结构体后） |
 | AttemptFails | The number of times TCP connections have made a direct transition to the CLOSED state from either the SYN-SENT state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the LISTEN state from the SYN-RCVD state. <br><br> 建链失败次数，即如下三项之和 <br> a) SYN-SENT => CLOSE 次数 <br> b) SYN-RECV => CLOSE 次数 <br> c) SYN-RECV => LISTEN 次数 <br><br> 回 CLOSE 部分在 `tcp_done()` 函数中计数 <br> 回 LISTEN 部分在 `tcp_check_req()` 中计数 |
 | EstabResets | The number of times TCP connections have made a direct transition to the CLOSED state from either the ESTABLISHED state or the CLOSE-WAIT state. <br><br> 连接被 reset 次数，即如下两项之和 <br> a) ESTABLISHED => CLOSE 次数 <br> b) CLOSE-WAIT => CLOSE 次 <br><br> 在 `tcp_set_state()` 函数中，如果之前的状态是TCP_CLOSE_WAIT 或 TCP_ESTABLISHED 就加 1 |
@@ -354,8 +354,8 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 
 | 名称 | 含义 |
 | --- | --- |
-| ListenOverflows | <number> times the listen queue of a socket overflowed <br><br> We completed a 3WHS but couldn't put the socket on the accept queue, so we had to discard the connection. <br><br> 三路握手最后一步完全之后，Accept queue 队列超过上限时加 1 <br><br> 触发点：tcp_v4_syn_recv_sock() |
-| ListenDrops | <number> of SYNs to LISTEN sockets dropped <br><br> We couldn't accept a connection because one of: we had no route to the destination, we failed to allocate a socket, we failed to allocate a new local port bind bucket. Note: this counter also include all the increments made to ListenOverflows <br><br> 任何原因导致的失败后加 1，包括：Accept queue 超限，创建新连接，继承端口失败等 <br><br> 触发点：tcp_v4_syn_recv_sock() |
+| ListenOverflows | `<number>` times the listen queue of a socket overflowed <br><br> We completed a 3WHS but couldn't put the socket on the accept queue, so we had to discard the connection. <br><br> 三路握手最后一步完全之后，Accept queue 队列超过上限时加 1 <br><br> 触发点：tcp_v4_syn_recv_sock() |
+| ListenDrops | `<number>` of SYNs to LISTEN sockets dropped <br><br> We couldn't accept a connection because one of: we had no route to the destination, we failed to allocate a socket, we failed to allocate a new local port bind bucket. Note: this counter also include all the increments made to ListenOverflows <br><br> 任何原因导致的失败后加 1，包括：Accept queue 超限，创建新连接，继承端口失败等 <br><br> 触发点：tcp_v4_syn_recv_sock() |
 
 ### undo 相关
 
