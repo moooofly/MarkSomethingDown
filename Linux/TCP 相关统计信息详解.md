@@ -145,23 +145,23 @@ root@vagrant-ubuntu-trusty:~] $
 | PassiveOpens | `<num>` passive connection openings<br><br>The number of times TCP connections have made a direct transition to the SYN-RCVD state from the `LISTEN` state. <br><br> 被动建链次数，RFC 原意对应 `LISTEN` => `SYN-RECV` 次数，但 Linux 实现选择在三次握手成功后才加 1 （即在建立 tcp_sock 结构体后） |
 | AttemptFails | `<num>` failed connection attempts<br><br>The number of times TCP connections have made a direct transition to the `CLOSED` state from either the `SYN-SENT` state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the `LISTEN` state from the SYN-RCVD state. <br><br> 建链失败次数，即如下三项之和 <br> a) `SYN-SENT` => `CLOSED` 次数 <br> b) `SYN-RECV` => `CLOSED` 次数 <br> c) `SYN-RECV` => `LISTEN` 次数 <br><br> 回 `CLOSED` 部分在 `tcp_done()` 函数中计数 <br> 回 `LISTEN` 部分在 `tcp_check_req()` 中计数 |
 | EstabResets | `<num>` connection resets received<br><br>The number of times TCP connections have made a direct transition to the `CLOSED` state from either the `ESTABLISHED` state or the `CLOSE-WAIT` state. <br><br> 连接被 reset 次数，即如下两项之和 <br> a) `ESTABLISHED` => `CLOSED` 次数 <br> b) `CLOSE-WAIT` => `CLOSED` 次 <br><br> 在 `tcp_set_state()` 函数中，如果之前的状态是TCP_CLOSE_WAIT 或 TCP_`ESTABLISHED` 就加 1 |
-| CurrEstab | `<num>` connections `ESTABLISHED`<br><br>The number of TCP connections for which the current state is either `ESTABLISHED` or CLOSE- WAIT. <br><br> 处于 `ESTABLISHED` 和 `CLOSE-WAIT` 状态的 TCP 连接数 <br> 在 `tcp_set_state()` 中进行处理 <br> 实现体现的是进入 `ESTABLISHED` 之后，进入 `CLOSED` 之前的 TCP 流数 |
+| CurrEstab | `<num>` connections `ESTABLISHED`<br><br>The number of TCP connections for which the current state is either `ESTABLISHED` or `CLOSE-WAIT`. <br><br> 处于 `ESTABLISHED` 和 `CLOSE-WAIT` 状态的 TCP 连接数 <br> 在 `tcp_set_state()` 中进行处理 <br> 实现体现的是进入 `ESTABLISHED` 之后，进入 `CLOSED` 之前的 TCP 连接数 |
 
 ### 数据包统计
 
-这些统计值也是历史值，独立的来看意义并不大。一般可统计一段时间内的变化，关注以下几个指标
+这些统计值反应的也是历史状态，独立的来看意义并不大。一般可统计一段时间内的变化，关注以下几个指标
 
--  **TCP 层重传率**：`ΔRetransSegs / ΔOutSegs` ；该值越小越好，如果超过 20% 则应该引起注意（这个值根据实际情况而定）；
--  **Reset 发送频率**：`ΔOutRsts / ΔOutSegs` ；该值越小越好，一般应该在 1% 以内；
--  **错误包占比**：`ΔInErrs / ΔInSegs` ；该值越小越好，一般应该在 1% 以内，同时由 checksum 导致的问题包应该更低；
+-  **（发送）TCP 分段重传占比**：`ΔRetransSegs / ΔOutSegs` ；该值越小越好，如果超过 20% 则应该引起注意（这个值根据实际情况而定）；
+-  **（发送）RST 分段占比**：`ΔOutRsts / ΔOutSegs` ；该值越小越好，一般应该在 1% 以内；
+-  **（接收）错误分段占比**：`ΔInErrs / ΔInSegs` ；该值越小越好，一般应该在 1% 以内，同时由 checksum 导致的问题包应该更低；
 
 | 名称 | 含义 |
 | --- | --- |
-| InSegs | `<num>` segments received<br><br>The total number of segments received, including those received in error. This count includes segments received on currently `ESTABLISHED` connections. <br><br> 所有收到的 TCP 包，即使是个错误包 <br>  在 `tcp_v4_rcv()` 和 `tcp_v6_rcv()` 中计数 |
-| OutSegs | `<num>` segments send out<br><br>The total number of segments sent, including those on current connections but excluding those containing only retransmitted octets. <br><br> 所有发送出去的 TCP 包，包括 <br><br> a) 新数据包 <br> b) 重传数据包 <br> c) syn 包 <br> d) synack 包 <br> e) reset 包 <br><br> `tcp_v4_send_reset()` 中统计 reset 包 <br> `tcp_v4_send_ack()` 中统计 `SYN-RECV` 和 TIME-WAIT 状态下发送的 ACK 包 <br> `tcp_v6_send_response()` 中统计 ipv6 相应数据 <br> `tcp_make_synack()` 中统计发送的 SYNACK 包 <br> `tcp_transmit_skb()` 中统计所有的其他包 |
-| RetransSegs | `<num>` segments retransmited<br><br>The total number of segments retransmitted - that is, the number of TCP segments transmitted containing one or more previously transmitted octets. <br><br> 所有重传出去的 TCP 包 <br><br> `tcp_v4_rtx_synack()` 和 `tcp_v6_rtx_synack()` 中统计重传的 SYNACK 包 <br> `tcp_retransmit_skb()` 中统计其他重传包 |
-| InErrs | `<num>` bad segments received<br><br>The total number of segments received in error (for example, bad TCP checksums). <br><br> 所有收到的有问题的 TCP 包数量，比如 checksum 有问题 <br><br> `tcp_validate_incoming()` 中统计 seq 有问题的包 <br> `tcp_rcv_`ESTABLISHED`()`、`tcp_v4_do_rcv()`、`tcp_v4_rcv()`、`tcp_v6_do_rcv()`、`tcp_v6_rcv()` 中根据 checksum 来判断出错误包 |
-| OutRsts | `<num>` resets sent<br><br> The number of TCP segments sent containing the RST flag. <br><br> 发送的带 RST 标记的 TCP 包数量 <br><br> 在 `tcp_v4_send_reset()`、`tcp_send_active_reset()`、`tcp_v6_send_response()` 中统计 |
+| InSegs | `<num>` segments received<br><br>The total number of segments received, including those received in error. This count includes segments received on currently `ESTABLISHED` connections. <br><br> 所有收到的 TCP 分段，即使是个错误分段 <br>  在 `tcp_v4_rcv()` 和 `tcp_v6_rcv()` 中计数 |
+| OutSegs | `<num>` segments send out<br><br>The total number of segments sent, including those on current connections but **excluding those containing only retransmitted octets**. <br><br> 所有发送出去的 TCP 分段，包括 <br><br> a) 新数据包 <br> b) 重传数据包 <br> c) syn 包 <br> d) synack 包 <br> e) reset 包 <br><br> 不包括那些只包含重传字节的分段 <br><br> `tcp_v4_send_reset()` 中统计 reset 包 <br> `tcp_v4_send_ack()` 中统计 `SYN-RECV` 和 `TIME-WAIT` 状态下发送的 ACK 包 <br> `tcp_v6_send_response()` 中统计 ipv6 相应数据 <br> `tcp_make_synack()` 中统计发送的 SYNACK 包 <br> `tcp_transmit_skb()` 中统计所有的其他包 |
+| RetransSegs | `<num>` segments retransmited<br><br>The total number of segments retransmitted - that is, the number of TCP segments transmitted containing one or more previously transmitted octets. <br><br> 所有重传出去的 TCP 分段 <br><br> `tcp_v4_rtx_synack()` 和 `tcp_v6_rtx_synack()` 中统计重传的 SYNACK 包 <br> `tcp_retransmit_skb()` 中统计其他重传包 |
+| InErrs | `<num>` bad segments received<br><br>The total number of segments received in error (for example, bad TCP checksums). <br><br> 所有收到的有问题的 TCP 分段数量，比如 checksum 有问题 <br><br> `tcp_validate_incoming()` 中统计 seq 有问题的包 <br> `tcp_rcv_`ESTABLISHED`()`、`tcp_v4_do_rcv()`、`tcp_v4_rcv()`、`tcp_v6_do_rcv()`、`tcp_v6_rcv()` 中根据 checksum 来判断出错误分段 |
+| OutRsts | `<num>` resets sent<br><br> The number of TCP segments sent containing the RST flag. <br><br> 发送的带 RST 标记的 TCP 分段数量 <br><br> 在 `tcp_v4_send_reset()`、`tcp_send_active_reset()`、`tcp_v6_send_response()` 中统计 |
 | InCsumErrors | 收到的 checksum 有问题的数据包数量 <br><br> 属于 3.10 相对于 2.6.32 新增的内容，算是细化 InErrs 统计，InErrs 中应该只有*小部分*属于该类型 |
 | EmbryonicRsts | number of resets received for embryonic SYN_RECV sockets <br> 在 `SYN-RECV` 状态收到带 RST/SYN 标记的包个数 |
 
@@ -179,7 +179,7 @@ syncookies 一般不会被触发，只有在 `tcp_max_syn_backlog` 队列被占�
 
 ### TIME-WAIT 相关
 
-TIME-WAIT 状态是 TCP 协议状态机中的重要一环，服务器设备一般都有非常多处于 TIME-WAIT 状态的 socket ，如果是在主要提供 HTTP 服务的设备上，TW 值应该接近 TcpPassiveOpens 值。
+`TIME-WAIT` 状态是 TCP 协议状态机中的重要一环，服务器设备一般都有非常多处于 `TIME-WAIT` 状态的 socket ，如果是在主要提供 HTTP 服务的设备上，TW 值应该接近 TcpPassiveOpens 值。
 
 一般情况下，`sysctl_tcp_tw_reuse` 和 `sysctl_tcp_tw_recycle` 都是不推荐开启的。所以 TWKilled 和 TWRecycled 都应该是 0 。同时 TCPTimeWaitOverflow 也应该是 0 ，否则就意味着内存使用方面出了大问题。
 
@@ -187,7 +187,7 @@ TIME-WAIT 状态是 TCP 协议状态机中的重要一环，服务器设备一�
 | 名称 | 含义 |
 | --- | --- |
 | TW | number of TCP sockets finished time wait in **fast** timer <br> 经过正常时间（`TCP_TIMEWAIT_LEN`）结束 TW 状态的 socket 数量 |
-| TWRecycled | number of time wait sockets recycled by time stamp <br> TIME-WAIT socket 被复用的次数；只有在 `sysctl_tcp_tw_reuse` 开启时，才可能加 1 |
+| TWRecycled | number of time wait sockets recycled by time stamp <br> `TIME-WAIT` socket 被复用的次数；只有在 `sysctl_tcp_tw_reuse` 开启时，才可能加 1 |
 | TWKilled | number of TCP sockets finished time wait in **slow** timer <br> 经过更短时间结束 TW 状态的 socket 数量；只有在 `net.ipv4.tcp_tw_recycle` 开启时，调度 TW timer 时才可能用更短的 timeout 值 |
 | TCPTimeWaitOverflow | 如果没有内存分配 TIMEWAIT 结构体，则加 1 |
 
@@ -285,7 +285,7 @@ DSACKOldSent + DSACKOfoSent 可以当做是发送出的 DSACK 信息的次数，
 
 ### Reorder
 
-当发现了需要更新某条 TCP 流的 reordering 值(乱序值)时，以下计数器可能被使用到。
+当发现了需要更新某条 TCP 连接的 reordering 值(乱序值)时，以下计数器可能被使用到。
 
 不过下面四个计数器为互斥关系，最少见的应该是 TCPRenoReorder ，毕竟 SACK 已经被广泛部署使用了。
 
