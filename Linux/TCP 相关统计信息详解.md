@@ -171,9 +171,9 @@ syncookies 一般不会被触发，只有在 `tcp_max_syn_backlog` 队列被占�
 
 | 名称 | 含义 |
 | --- | --- |
-| SyncookiesSent | SYN cookies sent <br><br> An application wasn't able to accept a connection fast enough, so the kernel couldn't store an entry in the queue for this connection. Instead of dropping it, it sent a cookie to the client <br><br> 使用 syncookie 技术发送的 SYN,ACK 包个数 |
-| SyncookiesRecv | SYN cookies received <br><br> After sending a cookie, it came back to us and passed the check. <br><br> 收到携带有效 syncookie 信息包个数 |
-| SyncookiesFailed | Num of invalid SYN cookies received <br><br> After sending a cookie, it came back to us but looked invalid <br><br> 收到携带无效 syncookie 信息包个数 |
+| SyncookiesSent | SYN cookies sent <br><br> An application wasn't able to accept a connection fast enough, so the kernel couldn't store an entry in the queue for this connection. Instead of dropping it, it sent a cookie to the client <br><br> 使用 syncookie 技术发送携带 syncookies 值的 SYN,ACK 包的数量 |
+| SyncookiesRecv | SYN cookies received <br><br> After sending a cookie, it came back to us and passed the check. <br><br> 收到携带有效 syncookies 信息的包的数量 |
+| SyncookiesFailed | Num of invalid SYN cookies received <br><br> After sending a cookie, it came back to us but looked invalid <br><br> 收到携带无效 syncookies 信息的包的数量 |
 
 > 注：syncookies 机制是为应对 syn flood 攻击而被提出来的。
 
