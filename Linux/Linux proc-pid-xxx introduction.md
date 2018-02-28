@@ -17,6 +17,7 @@
 [/proc/[pid]/wchan](#wchan)  
 
 ## auxv
+
 `/proc/[pid]/auxv`包含传递给进程的`ELF`解释器信息，格式是每一项都是一个`unsigned long`长度的`ID`加上一个`unsigned long`长度的值。最后一项以连续的两个`0x00`开头。举例如下：  
 
     # hexdump -x /proc/2948/auxv
@@ -43,6 +44,7 @@
 解析这个文件可以参考这段[代码](http://www.wienand.org/junkcode/linux/read-auxv.c)。
 
 ## cmdline
+
 `/proc/[pid]/cmdline`是一个只读文件，包含进程的完整命令行信息。如果这个进程是`zombie`进程，则这个文件没有任何内容。举例如下：    
 
     # ps -ef | grep 2948
@@ -52,19 +54,22 @@
     /usr/sbin/libvirtd--listen
 
 ## comm
+
 `/proc/[pid]/comm`包含进程的命令名。举例如下：  
 
     # cat /proc/2948/comm
     libvirtd
 
-##cwd  
+## cwd
+
 `/proc/[pid]/cwd`是进程当前工作目录的符号链接。举例如下：  
 
     # ls -lt /proc/2948/cwd
     lrwxrwxrwx 1 root root 0 Nov  9 12:14 /proc/2948/cwd -> /
 
 
-## environ  
+## environ
+
 `/proc/[pid]/environ`显示进程的环境变量。举例如下：  
 
     # strings /proc/2948/environ
@@ -77,12 +82,14 @@
     LIBVIRTD_NOFILES_LIMIT=2048
 
 ## exe
+
 `/proc/[pid]/exe`为实际运行程序的符号链接。举例如下：  
 
     # ls -lt /proc/2948/exe
     lrwxrwxrwx 1 root root 0 Nov  5 13:04 /proc/2948/exe -> /usr/sbin/libvirtd
 
 ## fd
+
 `/proc/[pid]/fd`是一个目录，包含进程打开文件的情况。举例如下：  
 
     # ls -lt /proc/3801/fd
@@ -111,7 +118,8 @@
     l-wx------. 1 root root 64 Apr 13 16:35 2 -> /root/.vnc/localhost.localdomain:1.log
 目录中的每一项都是一个符号链接，指向打开的文件，数字则代表文件描述符。  
 
-## latency  
+## latency
+
 `/proc/[pid]/latency`显示哪些代码造成的延时比较大（使用这个`feature`，需要执行“`echo 1 > /proc/sys/kernel/latencytop`”）。举例如下：  
 
     # cat /proc/2948/latency
@@ -121,6 +129,7 @@
 每一行前三个数字分别是后面代码执行的次数，总共执行延迟时间（单位是微秒）和最长执行延迟时间（单位是微秒），后面则是代码完整的调用栈。
 
 ## limits
+
 `/proc/[pid]/limits`显示当前进程的资源限制。举例如下：  
 
     # cat /proc/2948/limits
@@ -144,6 +153,7 @@
 `Soft Limit`表示`kernel`设置给资源的值，`Hard Limit`表示`Soft Limit`的上限，而`Units`则为计量单元。
 
 ## maps
+
 `/proc/[pid]/maps`显示进程的内存区域映射信息。举例如下：  
 
     # cat /proc/2948/maps
@@ -164,12 +174,14 @@
 其中注意的一点是`[stack:<tid>]`是线程的堆栈信息，对应于`/proc/[pid]/task/[tid]/`路径。  
 
 ## root
+
 `/proc/[pid]/root`是进程根目录的符号链接。举例如下： 
 
     # ls -lt /proc/2948/root
     lrwxrwxrwx 1 root root 0 Nov  9 12:14 /proc/2948/root -> /
 
 ## stack
+
 `/proc/[pid]/stack`显示当前进程的内核调用栈信息，只有内核编译时打开了`CONFIG_STACKTRACE`编译选项，才会生成这个文件。举例如下：  
 
     # cat /proc/2948/stack
@@ -181,6 +193,7 @@
     [<ffffffffffffffff>] 0xffffffffffffffff
 
 ## statm
+
 `/proc/[pid]/statm`显示进程所占用内存大小的统计信息，包含七个值，度量单位是`page`（`page`大小可通过`getconf PAGESIZE`得到）。举例如下：  
 
     # cat /proc/2948/statm  
@@ -196,6 +209,7 @@
     g）`dirty pages`（从`2.6`版本起，这个值为`0`）。  
     
 ## syscall
+
 `/proc/[pid]/syscall`显示当前进程正在执行的系统调用。举例如下：  
 
     # cat /proc/2948/syscall
@@ -205,7 +219,8 @@
 
 内核编译时打开了`CONFIG_HAVE_ARCH_TRACEHOOK`编译选项，才会生成这个文件。  
 
-## wchan  
+## wchan
+
 `/proc/[pid]/wchan`显示当进程`sleep`时，`kernel`当前运行的函数。举例如下：  
 
     # cat /proc/2948/wchan

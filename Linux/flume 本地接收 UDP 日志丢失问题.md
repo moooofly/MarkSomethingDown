@@ -66,3 +66,11 @@ Shutting down ...
 
 
 > TO BE CONTINUED
+
+------
+
+
+
+# linux 系统 UDP 丢包问题分析思路
+
+> http://cizixs.com/2018/01/13/linux-udp-packet-drop-debug
