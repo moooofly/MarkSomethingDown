@@ -60,26 +60,28 @@ net.netfilter.nf_conntrack_max = 1048576
 
 > 以下内容针对 CentOS6/CentOS7
 
-- 内核参数 `net.nf_conntrack_max` 系统默认值为 "65536" ，当 `nf_conntrack` 模块被装置且服务器上连接超过这个设定的值时，系统会主动丢掉新连接包，直到连接小于此设置值才会恢复。同时内核参数 `net.netfilter.nf_conntrack_tcp_timeout_established` 系统默认值为 "432000" ，代表 `nf_conntrack` 中保存的 TCP 连接记录的默认时间是 5 天，（保存时间过长）致使 `nf_conntrack` 的值减不下来，丢包持续时间长；
-- `nf_conntrack` 模块在**首次装载**或**重新装载**时，内核参数 `net.nf_conntrack_max` 会重新设置为默认值 "65536" ，并且不会调用 `sysctl` 设置为我们的预设值；
-- 触发 `nf_conntrack` 模块**首次装载**比较隐蔽，任何调用 iptables NAT 功能的操作都会触发。当系统没有挂载 `nf_conntrack` 模块时（即 `lsmod |grep conntrack` 时无输出时），调用 `iptables` NAT 相关命令（`iptables -L -t nat`）就会触发 nf_conntrack 模块装置，致使 `net.nf_conntrack_max` 重设为 "65536" 。
-- 触发 `nf_conntrack` 模块重新装载的操作很多，CentOS6 中 `service iptables restart` ，CentOS7 中 `systemctl restart firewalld` 都会触发设置重置，致使 `net.nf_conntrack_max` 重设为 "65536" 。
+- 内核参数 `net.nf_conntrack_max` 系统默认值为 "65536" ，当 `nf_conntrack` 模块被 load ，且服务器上连接超过这个设定的值时，系统会主动丢掉新连接包，直到连接小于此设置值才会恢复。同时内核参数 `net.netfilter.nf_conntrack_tcp_timeout_established` 系统默认值为 "432000" ，代表 `nf_conntrack` 中保存的 TCP 连接记录的默认时间是 5 天，（保存时间过长）致使 `nf_conntrack` 的值减不下来，丢包持续时间长；
+- `nf_conntrack` 模块在**首次 load** 或**重新 load** 时，内核参数 `net.nf_conntrack_max` 会重新设置为默认值 "65536" ，并且不会调用 `sysctl` 设置为我们的预设值；
+- 触发 `nf_conntrack` 模块**首次 load** 比较隐蔽，**任何调用 iptables NAT 功能的操作都会触发**。当系统没有 load `nf_conntrack` 模块时（即 `lsmod |grep conntrack` 时无输出时），调用 `iptables` NAT 相关命令（例如 `iptables -L -t nat`）就会触发 nf_conntrack 模块 load ，致使 `net.nf_conntrack_max` 重设为 "65536" 。
+- 触发 `nf_conntrack` 模块重新 load 的操作很多，CentOS6 中 `service iptables restart` ，CentOS7 中 `systemctl restart firewalld` 都会触发设置重置，致使 `net.nf_conntrack_max` 重设为 "65536" 。
 
 ### 解决办法
 
 - 通过系统初始化脚本创建配置文件 `/etc/modprobe.d/nf_conntrack.conf` ，写入内容为 `options nf_conntrack hashsize=262144` ；（这种方法）通过设置 `nf_conntrack` 模块的挂接参数 `hashsize` ，进而设置 net.nf_conntrack_max 的值为 "2097152"（因为 nf_conntrack_max=hashsize*8），保证后续新初始化服务器配置正确；
-- 通过xxx方式将配置文件 `/etc/modprobe.d/nf_conntrack.conf` 推送到所有目标机器，内容为 `options nf_conntrack hashsize=262144` ，保证 `nf_conntrack` 模块在首次装载或重新装载时，`net.nf_conntrack_max` 内核参数被设置为预期的 "2097152" ；
+- 通过xxx方式将配置文件 `/etc/modprobe.d/nf_conntrack.conf` 推送到所有目标机器，内容为 `options nf_conntrack hashsize=262144` ，保证 `nf_conntrack` 模块在首次 load 或重新 load 时，`net.nf_conntrack_max` 内核参数被设置为预期的 "2097152" ；
 - 更新系统初始化脚本，设置 `net.netfilter.nf_conntrack_tcp_timeout_established=1800` ，减少 `nf_conntrack` 连接表中 TCP 连接的记录维持时间；
 
 
 ### 测试命令
 
-- `nf_conntrack` 模块在首次装载时初始化默认值为 "65536"
+- `nf_conntrack` 模块在首次 load 时初始化默认值为 "65536"
 
 ```
 [root@localhost ~]# systemctl stop firewalld
 [root@localhost ~]# lsmod |grep nf_conntrack
 [root@localhost ~]# sysctl -a |grep nf_conntrack
+
+
 [root@localhost ~]# iptables -L -t nat
 Chain PREROUTING (policy ACCEPT)
 target     prot opt source               destination
@@ -92,10 +94,14 @@ target     prot opt source               destination
  
 Chain POSTROUTING (policy ACCEPT)
 target     prot opt source               destination
+
+
 [root@localhost ~]# lsmod |grep nf_conntrack
 nf_conntrack_ipv4      19108  1
 nf_defrag_ipv4         12729  1 nf_conntrack_ipv4
 nf_conntrack          111302  3 nf_nat,nf_nat_ipv4,nf_conntrack_ipv4
+
+
 [root@localhost ~]# sysctl -a |grep net.nf_conntrack_max
 net.nf_conntrack_max = 65536
 ```
