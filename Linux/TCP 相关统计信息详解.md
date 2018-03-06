@@ -145,7 +145,7 @@ root@vagrant-ubuntu-trusty:~] $
 | PassiveOpens | `<num>` passive connection openings<br><br>The number of times TCP connections have made a direct transition to the SYN-RCVD state from the `LISTEN` state. <br><br> 被动建链次数，RFC 原意对应 `LISTEN` => `SYN-RECV` 次数，但 Linux 实现选择在三次握手成功后才加 1 （即在建立 tcp_sock 结构体后） |
 | AttemptFails | `<num>` failed connection attempts<br><br>The number of times TCP connections have made a direct transition to the `CLOSED` state from either the `SYN-SENT` state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the `LISTEN` state from the SYN-RCVD state. <br><br> 建链失败次数，即如下三项之和 <br> a) `SYN-SENT` => `CLOSED` 次数 <br> b) `SYN-RECV` => `CLOSED` 次数 <br> c) `SYN-RECV` => `LISTEN` 次数 <br><br> 回 `CLOSED` 部分在 `tcp_done()` 函数中计数 <br> 回 `LISTEN` 部分在 `tcp_check_req()` 中计数 |
 | EstabResets | `<num>` connection resets received<br><br>The number of times TCP connections have made a direct transition to the `CLOSED` state from either the `ESTABLISHED` state or the `CLOSE-WAIT` state. <br><br> 连接被 RST 次数，即如下两项之和 <br> a) `ESTABLISHED` => `CLOSED` 次数 <br> b) `CLOSE-WAIT` => `CLOSED` 次 <br><br> 在 `tcp_set_state()` 函数中，如果之前的状态是 TCP_CLOSE_WAIT 或 TCP_ESTABLISHED 就加 1 |
-| CurrEstab | `<num>` connections `ESTABLISHED`<br><br>The number of TCP connections for which the current state is either `ESTABLISHED` or `CLOSE-WAIT`. <br><br> 处于 `ESTABLISHED` 和 `CLOSE-WAIT` 状态的 TCP 连接数 <br> 在 `tcp_set_state()` 中进行处理 <br> 实现体现的是进入 `ESTABLISHED` 之后，进入 `CLOSED` 之前的 TCP 连接数 |
+| CurrEstab | `<num>` connections established<br><br>The number of TCP connections for which the current state is either `ESTABLISHED` or `CLOSE-WAIT`. <br><br> 处于 `ESTABLISHED` 和 `CLOSE-WAIT` 状态的 TCP 连接数 <br> 在 `tcp_set_state()` 中进行处理 <br> 实现体现的是进入 `ESTABLISHED` 之后，进入 `CLOSED` 之前的 TCP 连接数 |
 
 ### 数据包统计相关
 
@@ -181,15 +181,15 @@ syncookies 一般不会被触发，只有在 `tcp_max_syn_backlog` 队列被占�
 
 `TIME-WAIT` 状态是 TCP 协议状态机中的重要一环，服务器设备一般都有非常多处于 `TIME-WAIT` 状态的 socket ，如果是在主要提供 HTTP 服务的设备上，TW 值应该接近 TcpPassiveOpens 值。
 
-一般情况下，`sysctl_tcp_tw_reuse` 和 `sysctl_tcp_tw_recycle` 都是不推荐开启的。所以 TWKilled 和 TWRecycled 都应该是 0 。同时 TCPTimeWaitOverflow 也应该是 0 ，否则就意味着内存使用方面出了大问题。
+一般情况下，`tcp_tw_reuse` 和 `tcp_tw_recycle` 都是不推荐开启的，所以 TWKilled 和 TWRecycled 都应该是 0 。另外，正常情况下，对应 `tcp_max_tw_buckets` 的 TCPTimeWaitOverflow 也应该是 0 ，否则就意味着存在使用方面的问题。
 
 
 | 名称 | 含义 |
 | --- | --- |
 | TW | `<num>` TCP sockets finished time wait in fast timer <br><br> 经过正常时间（`TCP_TIMEWAIT_LEN`）结束 TW 状态的 socket 数量 |
 | TWRecycled | number of time wait sockets recycled by time stamp <br><br> `TIME-WAIT` socket 被复用的次数；只有在 `sysctl_tcp_tw_reuse` 开启时，才可能加 1 |
-| TWKilled | number of TCP sockets finished time wait in **slow** timer <br> 经过更短时间结束 TW 状态的 socket 数量；只有在 `net.ipv4.tcp_tw_recycle` 开启时，调度 TW timer 时才可能用更短的 timeout 值 |
-| TCPTimeWaitOverflow | 如果没有内存分配 TIME_WAIT 结构体，则加 1 |
+| TWKilled | number of TCP sockets finished time wait in **slow** timer <br><br> 经过更短时间结束 TW 状态的 socket 数量；只有在 `net.ipv4.tcp_tw_recycle` 开启时，调度 TW timer 时才可能用更短的 timeout 值 |
+| TCPTimeWaitOverflow | 当系统无法分配新的 tcp_timewait_socket ，或者 tw_count（scheduled timewait sockets）超过 `tcp_max_tw_buckets` 设置值时，则加 1 <br><br> 在 `tcp_time_wait()` 中统计 |
 
 ### RTO 相关
 
@@ -359,8 +359,8 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 
 | 名称 | 含义 |
 | --- | --- |
-| ListenOverflows | `<num>` times the listen queue of a socket overflowed <br><br> We completed a 3WHS but couldn't put the socket on the accept queue, so we had to discard the connection. <br><br> 三路握手最后一步完全之后，Accept queue 队列超过上限时加 1 <br><br> 触发点：tcp_v4_syn_recv_sock() |
-| ListenDrops | `<num>` of SYNs to `LISTEN` sockets dropped <br><br> We couldn't accept a connection because one of: we had no route to the destination, we failed to allocate a socket, we failed to allocate a new local port bind bucket. Note: this counter also include all the increments made to ListenOverflows <br><br> 任何原因导致的失败后加 1，包括：Accept queue 超限，创建新连接，继承端口失败等 <br><br> 触发点：tcp_v4_syn_recv_sock() |
+| ListenOverflows | `<num>` times the listen queue of a socket overflowed <br><br> We completed a 3WHS but couldn't put the socket on the `accept queue`, so we had to discard the connection. <br><br> 三路握手最后一步完成之后，Accept queue 队列超过上限时加 1 <br><br> 触发点：tcp_v4_syn_recv_sock() |
+| ListenDrops | `<num>` of SYNs to LISTEN sockets dropped <br><br> We couldn't accept a connection because one of: <br>a) we had no route to the destination, <br>b) we failed to allocate a socket, <br>c) we failed to allocate a new local port bind bucket. <br>Note: this counter also include all the increments made to ListenOverflows <br><br> 任何原因导致的失败后加 1，包括：<br>a) 无法找到指定应用（例如监听端口已经不存在）；<br>b) 创建 socket 失败；<br>c) 分配本地端口失败 <br><br> 触发点：tcp_v4_syn_recv_sock() |
 
 ### undo 相关
 
@@ -404,7 +404,7 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 | TCPDirectCopyFromPrequeue | 如果有数据在这个 syscall 里直接从 prequeue 中复制到 userland memory 上，计数器加 1 <br><br> 触发点：tcp_recvmsg() |
 | TCPPrequeueDropped | 如果因为内存不足（ucopy.memory < sk->rcv_buf）而加入到 prequeue 失败，重新由 backlog 处理，计数器加 1 <br><br> tcp_v4_rcv() -> tcp_prequeue() |
 | TCPRcvCollapsed | `<num>` packets collapsed in receive queue due to low socket buffer <br><br> 每当合并 sk_receive_queue(ofo_queue) 中的连续报文时，计数器加 1 <br><br> 触发点：<br> a) tcp_prune_queue() -> tcp_collapse() -> tcp_collapse_one() <br> b) tcp_prune_ofo_queue() -> tcp_collapse()  |
-| TCPBacklogDrop | We received something but had to drop it because the socket's receive queue was full. <br><br> 如果 socket 被 user 锁住，后退一步，内核会把包加到 sk_backlog_queue ，但如果因为 sk_rcv_buf 不足的原因入队失败，计数器加 1 <br><br> tcp_v4_rcv() |
+| TCPBacklogDrop | We received something but had to drop it because the socket's **`receive queue` was full**. <br><br> 由于 accept queue 已满，导致无法进入 accept queue 的连接数量 <br><br> 如果 socket 被 user 锁住，后退一步，内核会把包加到 sk_backlog_queue ，但如果因为 sk_rcv_buf 不足的原因入队失败，计数器加 1 <br><br> tcp_v4_rcv() |
 | TCPMinTTLDrop | 在接收到 TCP 报文或者 TCP 相关的 ICMP 报文时，检查 IP TTL ，如果小于 socket option 设置的一个阀值，就丢包。这个功能是 RFC5082 (The Generalized TTL Security Mechanism, GTSM) 规定的，使用 GTSM 的通信双方，都将 TTL 设置成最大值 255 ，双方假定了解之间的链路情况，这样可以通过检查最小 TTL 值隔离攻击 <br><br> tcp_v4_err() / tcp_v4_rcv() |
 | TCPDeferAcceptDrop | 如果启用 TCP_DEFER_ACCEPT ，这个计数器统计被丢掉的“Pure ACK”的个数。TCP_DEFER_ACCEPT 允许 listener 只有在连接上有数据时才创建新的 socket ，以抵御 syn-flood 攻击 <br><br> tcp_check_req() |
 | IPReversePathFilter | 反向路径过滤掉的 IP 分组数量：要么反向路由查找失败，要么是找到的输出接口与输入接口不同 <br><br> ip_rcv_finish() -> ip_route_input_noref() |
