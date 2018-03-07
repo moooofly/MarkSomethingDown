@@ -163,7 +163,8 @@ root@vagrant-ubuntu-trusty:~] $
 | InErrs | `<num>` bad segments received<br><br>The total number of segments received in error (for example, bad TCP checksums). <br><br> 收到的有问题的 TCP 分段的总数，包括 checksum 有问题的情况 <br><br> `tcp_validate_incoming()` 中统计 seq 有问题的包 <br> `tcp_rcv_established()`、`tcp_v4_do_rcv()`、`tcp_v4_rcv()`、`tcp_v6_do_rcv()`、`tcp_v6_rcv()` 中根据 checksum 来判断出错误分段 |
 | OutRsts | `<num>` resets sent<br><br> The number of TCP segments sent containing the RST flag. <br><br> 发送的带 RST 标记的 TCP 分段数量 <br><br> 在 `tcp_v4_send_reset()`、`tcp_send_active_reset()`、`tcp_v6_send_response()` 中统计 |
 | InCsumErrors | 收到的 checksum 有问题的数据包数量 <br><br> 属于 3.10 相对于 2.6.32 新增的内容，算是细化了 InErrs 统计，InErrs 中应该只有小部分属于该类型 |
-| EmbryonicRsts | number of RSTs received for embryonic SYN_RECV sockets <br><br> 在 `SYN-RECV` 状态收到带 RST 标记的包个数 |
+| EmbryonicRsts | <num> resets received for embryonic SYN_RECV sockets <br><br> It means the client sent a RST after it receive a SYN+ACK. Which maybe just malicious client behavior. <br>On the other hand, when you look at these counters, you would have to
+calcuate either a rate increase per second or a ratio compare to some other event. It will tell you whether something is just accumalative for a long time or something that is happening really really often. <br><br> 在 `SYN-RECV` 状态下（即已发送 SYN+ACK 出去），收到带 RST 标记的包的个数 |
 
 ### Syncookies 相关
 
@@ -321,10 +322,10 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 | --- | --- |
 | TCPAbortOnSyn | We received an unexpected SYN so we sent a RST to the peer <br><br> 收到非预期的 SYN 包，直接发送 RST 给对端 <br><br> 比如说由于 timestamps 问题，多个 NAT 后的 clients 使用同一个外部地址访问外部服务器时 |
 | TCPAbortOnData | `<num>` connections reset due to unexpected data <br><br> We were in `FIN_WAIT_1` yet we received a data packet with a sequence number that's beyond the last one for this connection, so we RST'ed. <br><br> 如果在 `FIN_WAIT_1` 和 `FIN_WAIT_2` 状态下收到后续数据，或 TCP_LINGER2 设置小于 0 ，则发送 RST 给对端，计数器加 1 <br><br> 对应设置了 SO_LINGER 且 lingertime 为 0 的情况下，关闭 socket 的情况；此时发送 RST <br><br> 对应连接关闭中的情况 |
-| TCPAbortOnClose | `<num>` connections reset due to early user close <br><br> We received data but the user has `CLOSED` the socket, so we have no wait of handing it to them, so we RST'ed. <br><br> 如果调用 `tcp_close()` 关闭 socket 时，recv buffer 中还有数据，则加 1 ，此时会主动发送一个 RST 包给对端 <br><br> 对应 socket 接收缓冲区尚有数据的情况下，关闭 socket 的的情况；此时发送 RST  <br><br> 对应连接已关闭的情况 |
+| TCPAbortOnClose | `<num>` connections reset due to early user close <br><br> We received data but the user has closed the socket, so we have no wait of handing it to them, so we RST'ed. <br><br> 如果调用 `tcp_close()` 关闭 socket 时，recv buffer 中还有数据，则加 1 ，此时会主动发送一个 RST 包给对端 <br><br> 对应 socket 接收缓冲区尚有数据的情况下，关闭 socket 的的情况；此时发送 RST  <br><br> 对应连接已关闭的情况 |
 | TCPAbortOnMemory | **This is Really Bad**. It happens when there are **too many orphaned sockets (not attached a FD)** and the kernel has to drop a connection. Sometimes it will send a RST to the peer, sometimes it wont. <br><br> 如果 orphan socket 数量或者 `tcp_memory_allocated` 超过上限，则加 1 ；一般情况下该值为 0 <br><br> 注意：有时会发送 RST 有时不会（why？） |
 | TCPAbortOnTimeout | `<num>` connections aborted due to timeout <br><br> The connection timed out really hard. <br><br> 因各种计时器 (RTO/PTO/keepalive) 的重传次数超过上限，而关闭连接时，计数器加 1 |
-| TCPAbortOnLinger | We killed a socket that was `CLOSED` by the application and lingered around for long enough. <br><br> `tcp_close()`中，因 tp->linger2 被设置小于 0 ，导致 `FIN_WAIT_2` 立即切换到 `CLOSED` 状态的次数；一般值为 0 |
+| TCPAbortOnLinger | We killed a socket that was closed by the application and lingered around for long enough. <br><br> `tcp_close()`中，因 tp->linger2 被设置小于 0 ，导致 `FIN_WAIT_2` 立即切换到 `CLOSED` 状态的次数；一般值为 0 |
 | TCPAbortFailed | We tried to send a RST, probably during one of the TCPABort* situations above, but we failed e.g. because we couldn't allocate enough memory (very bad). <br><br> 如果在准备发送 RST 时，分配 skb 或者发送 skb 失败，则加 1 ；一般值为 0 |
 
 ### Reset 相关
@@ -416,7 +417,7 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 
 | 名称 | 含义 |
 | --- | --- |
-| TCPRcvCoalesce |  |
+| TCPRcvCoalesce | a kernel flag that kernel can regroup packages after being received. |
 | TCPOFOQueue |  |
 | TCPOFODrop |  |
 | TCPOFOMerge |  |
