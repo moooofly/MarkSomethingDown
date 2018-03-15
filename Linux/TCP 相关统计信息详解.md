@@ -188,7 +188,7 @@ syncookies 一般不会被触发，只有在 `tcp_max_syn_backlog` 队列被占�
 | 名称 | 含义 |
 | --- | --- |
 | TW | `<num>` TCP sockets finished time wait in fast timer <br><br> 经过正常时间（`TCP_TIMEWAIT_LEN`）结束 TW 状态的 socket 数量 |
-| TWRecycled | number of time wait sockets recycled by time stamp <br><br> `TIME-WAIT` socket 被复用的次数；只有在 `sysctl_tcp_tw_reuse` 开启时，才可能加 1 |
+| TWRecycled | number of time wait sockets recycled by time stamp <br><br> when a connection is reused (`net.ipv4.tcp_tw_reuse = 1`), the TWRecycled counter is increased <br><br> `TIME-WAIT` socket 被复用的次数；只有在 `sysctl_tcp_tw_reuse` 开启时，才可能加 1 |
 | TWKilled | number of TCP sockets finished time wait in **slow** timer <br><br> 经过更短时间结束 TW 状态的 socket 数量；只有在 `net.ipv4.tcp_tw_recycle` 开启时，调度 TW timer 时才可能用更短的 timeout 值 |
 | TCPTimeWaitOverflow | 当系统无法分配新的 tcp_timewait_socket ，或者 tw_count（scheduled timewait sockets）超过 `tcp_max_tw_buckets` 设置值时，则加 1 <br><br> 在 `tcp_time_wait()` 中统计 |
 
@@ -360,7 +360,7 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 
 | 名称 | 含义 |
 | --- | --- |
-| ListenOverflows | `<num>` times the listen queue of a socket overflowed <br><br> We completed a 3WHS but couldn't put the socket on the `accept queue`, so we had to discard the connection. <br><br> 三路握手最后一步完成之后，Accept queue 队列超过上限时加 1 <br><br> 触发点：tcp_v4_syn_recv_sock() |
+| ListenOverflows | `<num>` times the listen queue of a socket overflowed <br><br> We completed a 3WHS but couldn't put the socket on the `accept queue`, so we had to discard the connection. <br><br> 三路握手最后一步完成之后，Accept queue 队列超过上限时加 1<br>**只要有数值就代表 accept queue 发生过溢出** <br><br> 触发点：tcp_v4_syn_recv_sock() 和 tcp_v4_conn_request() |
 | ListenDrops | `<num>` of SYNs to LISTEN sockets dropped <br><br> We couldn't accept a connection because one of: <br>a) we had no route to the destination, <br>b) we failed to allocate a socket, <br>c) we failed to allocate a new local port bind bucket. <br>Note: this counter also include all the increments made to ListenOverflows <br><br> 任何原因导致的失败后加 1，包括：<br>a) 无法找到指定应用（例如监听端口已经不存在）；<br>b) 创建 socket 失败；<br>c) 分配本地端口失败 <br><br> 触发点：tcp_v4_syn_recv_sock() |
 
 ### undo 相关
@@ -405,7 +405,7 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 | TCPDirectCopyFromPrequeue | 如果有数据在这个 syscall 里直接从 prequeue 中复制到 userland memory 上，计数器加 1 <br><br> 触发点：tcp_recvmsg() |
 | TCPPrequeueDropped | 如果因为内存不足（ucopy.memory < sk->rcv_buf）而加入到 prequeue 失败，重新由 backlog 处理，计数器加 1 <br><br> tcp_v4_rcv() -> tcp_prequeue() |
 | TCPRcvCollapsed | `<num>` packets collapsed in receive queue due to low socket buffer <br><br> 每当合并 sk_receive_queue(ofo_queue) 中的连续报文时，计数器加 1 <br><br> 触发点：<br> a) tcp_prune_queue() -> tcp_collapse() -> tcp_collapse_one() <br> b) tcp_prune_ofo_queue() -> tcp_collapse()  |
-| TCPBacklogDrop | We received something but had to drop it because the socket's **`receive queue` was full**. <br><br> 由于 accept queue 已满，导致无法进入 accept queue 的连接数量 <br><br> 如果 socket 被 user 锁住，后退一步，内核会把包加到 sk_backlog_queue ，但如果因为 sk_rcv_buf 不足的原因入队失败，计数器加 1 <br><br> tcp_v4_rcv() |
+| TCPBacklogDrop | We received something but had to drop it because the socket's **`receive queue` was full**. <br><br> 由于 per-socket 的内存不足导致 skb 被 drop 的次数 <br><br> 如果 socket 被 user 锁住，后退一步，内核会把包加到 sk_backlog_queue ，但如果因为 sk_rcv_buf 不足的原因入队失败，计数器加 1 <br><br> 在 tcp_v4_rcv() 中触发 |
 | TCPMinTTLDrop | 在接收到 TCP 报文或者 TCP 相关的 ICMP 报文时，检查 IP TTL ，如果小于 socket option 设置的一个阀值，就丢包。这个功能是 RFC5082 (The Generalized TTL Security Mechanism, GTSM) 规定的，使用 GTSM 的通信双方，都将 TTL 设置成最大值 255 ，双方假定了解之间的链路情况，这样可以通过检查最小 TTL 值隔离攻击 <br><br> tcp_v4_err() / tcp_v4_rcv() |
 | TCPDeferAcceptDrop | 如果启用 TCP_DEFER_ACCEPT ，这个计数器统计被丢掉的“Pure ACK”的个数。TCP_DEFER_ACCEPT 允许 listener 只有在连接上有数据时才创建新的 socket ，以抵御 syn-flood 攻击 <br><br> tcp_check_req() |
 | IPReversePathFilter | 反向路径过滤掉的 IP 分组数量：要么反向路由查找失败，要么是找到的输出接口与输入接口不同 <br><br> ip_rcv_finish() -> ip_route_input_noref() |
