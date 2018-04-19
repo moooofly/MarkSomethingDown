@@ -350,8 +350,8 @@ abort 本身是一种很严重的问题，因此有必要关心这些计数器�
 
 | 名称 | 含义 |
 | --- | --- |
-| PAWSPassive | number of **passive** connections rejected because of time stamp <br> 三路握手最后一个 ACK 的 PAWS 检查失败次数 <br><br> 触发点：tcp_v4_conn_request() |
-| PAWSActive | number of **active** connections rejected because of time stamp <br> 在发送 SYN 后，接收到 ACK ，但 PAWS 检查失败的次数 <br><br> 触发点：tcp_rcv_synsent_state_process() |
+| PAWSPassive | number of **passive** connections rejected because of timestamp <br><br> Remove tcp_tw_recycle, since it is not functional. Also, remove the PAWSPassive SNMP counter since it is only used for tcp_tw_recycle <br><br> 三路握手最后一个 ACK 的 PAWS 检查失败次数 <br><br> 触发点：tcp_v4_conn_request() |
+| PAWSActive | number of **active** connections rejected because of timestamp <br> 在发送 SYN 后，接收到 ACK ，但 PAWS 检查失败的次数 <br><br> 触发点：tcp_rcv_synsent_state_process() |
 | PAWSEstab | `<num>` packets rejects in established connections because of timestamp |
 | DelayedACKLocked | number of packets rejects in `ESTABLISHED` connections because of timestamp <br> 输入包 PAWS 失败次数 <br><br> 触发点： <br> a) tcp_validate_incoming() <br> b) tcp_timewait_state_process() <br> c) tcp_check_req() |
 
