@@ -12,7 +12,7 @@ Virtual memory 按 pages 进行划分；在 X86 架构上，每一个 virtual me
 
 ## Kernel Memory Paging
 
-Memory `paging` 是一种常规活动，不要和 memory `swapping` 搞混淆；Memory `paging` 是指将 memory 按照**一定的时间间隔**、**同步（synching）**到 disk 的过程；只要时间运行长了，应用就会逐渐消耗光所有的 memory ；在某些时间点上，kernel 必须**扫描**（scan）memory 并**回收**（reclaim）不再使用的 pages ，以便其能够分配给其它应用使用； 
+Memory `paging` 是一种常规活动，不要和 memory `swapping` 搞混淆；Memory `paging` 是指将 memory 按照**一定的时间间隔**、**同步（synching）**到 disk 的过程；只要时间运行长了，应用就会逐渐消“耗光”所有的 memory ；在某些时间点上，kernel 必须**扫描**（scan）memory 并**回收**（reclaim）不再使用的 pages ，以便其能够分配给其它应用使用；
 
 ## The Page Frame Reclaim Algorithm (PFRA)
 

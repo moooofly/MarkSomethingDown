@@ -90,8 +90,8 @@ reclaimable **slab objects** like **dentries** and **inodes**.
 
 针对问题五：
 
-> `swapoff -a` -- disable swap
-> `swapon -a` -- re-enable swap
+> `swapoff -a` -- disable swap    
+> `swapon -a` -- re-enable swap    
 
 
 参考：
