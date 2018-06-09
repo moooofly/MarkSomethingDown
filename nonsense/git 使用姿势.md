@@ -7,7 +7,7 @@
 - git merge v.s. git rebase
 - git tag 操作
 - git clone 时直接 rename
-- 基于本地项目创建 github repo
+- 新仓库创建问题
 - 本地新建分支后 push 到远端仓库
 - 获取指定 tag 代码
 - 直接获取远端仓库指定 branch 代码
@@ -358,10 +358,43 @@ git clone git@github.com:moooofly/original_name.git /path/to/new_name
 ```
 
 
-# 基于本地项目创建 github repo
+# 新仓库创建问题
 
-```shell
-cd /path/to/project/dir/
+> 以下内容取自 GitLab
+
+Git global setup
+
+```
+git config --global user.name "moooofly"
+git config --global user.email "centos.sf@gmail.com"
+```
+
+Create a new repository
+
+```
+git clone git@git.llsapp.com:fei.sun/scaffolding.git
+cd scaffolding
+touch README.md
+git add README.md
+git commit -m "add README"
+git push -u origin master
+```
+
+Existing folder
+
+```
+cd existing_folder
+git init
+git remote add origin git@git.llsapp.com:fei.sun/scaffolding.git
+git add .
+git commit -m "Initial commit"
+git push -u origin master
+```
+
+另
+
+```
+cd existing_folder
 git init
 git add .
 git commit -m "first commit"
@@ -370,13 +403,24 @@ git remote add origin git@github.com:moooofly/your_project_name.git
 git push -u origin master
 ```
 
-> 注1：在执行 `git remote add xxx` 前，需要先在 github 上创建一个名为 your_project_name 的 repo ；
+Existing Git repository
+
+```
+cd existing_repo
+git remote rename origin old-origin
+git remote add origin git@git.llsapp.com:fei.sun/scaffolding.git
+git push -u origin --all
+git push -u origin --tags
+```
+
+
+> 注1：执行 `git remote add` 前，首先要在 github 上创建一个名为 your_project_name 的 repo ；
 > 
 > 注2：上面用小括号括起来的命令的使用场景为：若在 github 上新建 repo 的时候，顺带创建了 README 或 .gitignore 或 LICENSE 等文件时，则需要先将上述文件拉取到本地；
 > 
 > 注3：上面的 git@github.com:moooofly/your_project_name.git 可以换成 https://github.com/moooofly/your_project_name.git ，还可以使用 https://github.com/moooofly/your_project_name
 > 
-> 注4：`remote add` 后就可以进行 pull 了，但仍无法 push ；需要通过 `push -u` 或 `push --set-upstream` 的方式，在 push 的同时建立跟踪关系；
+> 注4：`git remote add` 后就可以进行 pull 了，但仍无法 push ；需要通过 `git push -u` 或 `git push --set-upstream` 命令，在 push 的同时，建立跟踪关系；
 > 
 > 注5：上面执行 `git pull origin master` 时可能会报 "fatal: refusing to merge unrelated histories" 错误，此时可以使用 `--allow-unrelated-histories` 选项解决，即 `git pull origin master --allow-unrelated-histories` ；详情参见[这里](https://stackoverflow.com/questions/37937984/git-refusing-to-merge-unrelated-histories/40107973#40107973?newreg=5095f8141c34479ba419f5e8b2d1b415)；
 
