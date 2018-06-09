@@ -1,4 +1,27 @@
 
+内容大纲：
+
+- 拉取远程特定分支上的内容
+- 如何撤销错误的 merge 结果
+- 如何在 git 中写出好的 commit 说明
+- git merge v.s. git rebase
+- git tag 操作
+- git clone 时直接 rename
+- 基于本地项目创建 github repo
+- 本地新建分支后 push 到远端仓库
+- 获取指定 tag 代码
+- 直接获取远端仓库指定 branch 代码
+- 将远端仓库里指定 branch 拉取到本地（本地不存在的分支）
+- 重命名 remote branch 名
+- 删除不存在对应远程分支的本地分支
+- fork 别人项目后如何同步其后续更新
+- 定制化 git 全局配置
+- 基于 SSH 协议访问 git
+
+
+----------
+
+
 # 图示
 
 ![Git Cheet Sheet](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Git%20Cheat%20Sheet.jpg "Git Cheet Sheet")
