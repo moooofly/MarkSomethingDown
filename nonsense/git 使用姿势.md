@@ -437,7 +437,8 @@ git checkout -b new_branch
 **若 github 上尚不存在 new_branch 分支**，则通过执行下面的命令，就可以将新建的本地 new_branch 分支中的内容 push 到 github 上对应的 new_branch 分支上（包含创建行为），并**建立跟踪关系**；
 
 ```shell
-git push -u
+git push -u  # 下面命令的省略写法
+或
 git push --set-upstream origin new_branch
 ```
 
@@ -544,6 +545,8 @@ git checkout -b local_branch_name origin/remote_branch_name
 ```shell
 git checkout -b old_branch
 git push -u
+或
+git push -u origin old_branch
 ```
 
 此时若想更改远程分支的名字，则可以按如下方式进行操作：
@@ -579,6 +582,8 @@ git push origin --delete <remote_branch_name>
 
 ```shell
 git push -u
+或
+git push -u origin new_branch
 ```
 
 
