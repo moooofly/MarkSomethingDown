@@ -1,6 +1,7 @@
 
 内容大纲：
 
+- Git 四个区和五种状态的切换
 - 拉取远程特定分支上的内容
 - 如何撤销错误的 merge 结果
 - 如何在 git 中写出好的 commit 说明
@@ -30,6 +31,72 @@
 
 
 ----------
+
+# Git 四个区和五种状态的切换
+
+## 秒懂 Git 的区和状态
+
+> http://shengshui.com/?p=2582?zhihu
+
+### Git 的 4 种区（工作区、暂存取、本地仓库、远程仓库）
+
+![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Git%20%E5%90%84%E5%8C%BA%E5%92%8C%E7%8A%B6%E6%80%81%E5%8F%98%E6%9B%B4.png)
+
+- `git add .` (`git add <file>`) 加入到暂存区
+- `git commit -m "add: xxx"` 加入到本地仓库
+- `git push origin master` 加入到远程仓库
+
+### Git 的 5 种状态
+
+- Origin 未修改
+- Modified 已修改
+- Staged 已暂存
+- Committed 已提交
+- Pushed 已推送
+
+### git diff 对比修改
+
+- 已修改，未暂存：`git diff`
+- 已暂存，未提交：`git diff –cached`
+- 已提交，未推送：`git diff master origin/master`
+
+### 撤销修改
+
+- 已修改，未暂存：`git checkout .` (`git checkout <file>`)
+- 已暂存，未提交：`git reset` (`git reset –hard` 会覆盖)
+- 已提交，未推送：`git reset –hard origin/master` (远程仓库覆盖本地仓库)
+- 已推送：`git reset –hard <commitID>` (如果要覆盖远程必须强制推  `git push -f`)
+
+
+----------
+
+## Git 常用的撤销操作
+
+> http://www.netpi.me/uncategorized/gitrevoke/
+
+![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Git%20%E5%B8%B8%E7%94%A8%E7%9A%84%E6%92%A4%E9%94%80%E6%93%8D%E4%BD%9C.png)
+
+基本状态标识
+
+- `A-` = untracked 未跟踪
+- `A` = tracked 已跟踪未修改
+- `A+` = modified - 已修改未暂存
+- `B` = staged - 已暂存未提交
+- `C` = committed - 已提交未PUSH
+
+各状态之间变化
+
+- `A- -> B` : `git add <FILE>`
+- `B -> A-` : `git rm --cached <FILE>`
+- `B -> 删除不保留文件` : `git rm -f <FILE>`
+- `A -> A-` : `git rm --cached <FILE>`
+- `A -> A+` : 修改文件
+- `A+ -> A` : `git checkout -- <FILE>`
+- `A+ -> B` : `git add <FILE>`
+- `B -> A+` : `git reset HEAD <FILE>`
+- `B -> C` : `git commit`
+- `C -> B` : `git reset --soft HEAD^`
+- 修改最后一次提交: `git commit --amend`
 
 
 # 拉取远程特定分支上的内容
