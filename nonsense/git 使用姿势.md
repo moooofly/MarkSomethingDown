@@ -1,7 +1,7 @@
 
 内容大纲：
 
-- Git 四个区和五种状态的切换
+- [Git 四个区和五种状态的切换](#)
 - 拉取远程特定分支上的内容
 - 如何撤销错误的 merge 结果
 - 如何在 git 中写出好的 commit 说明
@@ -32,6 +32,7 @@
 
 ----------
 
+
 # Git 四个区和五种状态的切换
 
 ## 秒懂 Git 的区和状态
@@ -42,33 +43,47 @@
 
 ![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Git%20%E5%90%84%E5%8C%BA%E5%92%8C%E7%8A%B6%E6%80%81%E5%8F%98%E6%9B%B4.png)
 
-- `git add .` (`git add <file>`) 加入到暂存区
-- `git commit -m "add: xxx"` 加入到本地仓库
-- `git push origin master` 加入到远程仓库
+> 注意：图中最后两处的命令写反位置了
+
+| 区域 | 命令 |
+| -- | -- |
+| 加入到**暂存区** | `git add .` (`git add <file>`) |
+| 加入到**本地仓库** | `git commit -m "xxx"` |
+| 加入到**远程仓库** | `git push origin master` |
 
 ### Git 的 5 种状态
 
-- Origin 未修改
-- Modified 已修改
-- Staged 已暂存
-- Committed 已提交
-- Pushed 已推送
+
+| 状态 | 描述 |
+| -- | -- |
+| Origin | 未修改 |
+| Modified | 已修改 |
+| Staged | 已暂存 |
+| Committed | 已提交 |
+| Pushed | 已推送 |
+
 
 ### git diff 对比修改
 
-- 已修改，未暂存：`git diff`
-- 已暂存，未提交：`git diff –cached`
-- 已提交，未推送：`git diff master origin/master`
+| 状态 | 命令 |
+| -- | -- |
+| 已 modify ，未 add  | `git diff` |
+| 已 add ，未 commit  | `git diff --cached` |
+| 已 commit ，未 push | `git diff <branch> origin/<branch>` |
+
 
 ### 撤销修改
 
-- 已修改，未暂存：`git checkout .` (`git checkout <file>`)
-- 已暂存，未提交：`git reset` (`git reset –hard` 会覆盖)
-- 已提交，未推送：`git reset –hard origin/master` (远程仓库覆盖本地仓库)
-- 已推送：`git reset –hard <commitID>` (如果要覆盖远程必须强制推  `git push -f`)
+| 状态 | 命令 |
+| -- | -- |
+| 已 modify ，未 add | 直接删文件就好了 |
+| 已 add ，未 commit | `git reset HEAD <file>` 回到目标文件被 add 前的状态； <br> `git reset -–hard HEAD` 会产生目标文件被删除的效果；|
+| 已 commit ，未 push | `git reset –-hard origin/master` 基于远程仓库内容覆盖本地仓库内容；<br> `git reset -–hard HEAD` 不会产生效果，因为 HEAD 对应的就是最新的 commit ；<br> `git reset -–hard HEAD^` 回退一个本地 commit ；<br> `git reset -–hard <commitID>` 回退一个本地指定 commit ；|
+| 已 push | `git reset –-hard <commitID>` 回退到本地指定的 commit ；<br> 如果后续需要对远程仓库的内容进行覆盖（因为本地经过修改后，commit tree 肯定和远程仓库不一致了），则必须通过 `git push -f` 进行强推) |
 
 
 ----------
+
 
 ## Git 常用的撤销操作
 
