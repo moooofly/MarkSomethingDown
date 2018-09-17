@@ -1,7 +1,7 @@
 
 内容大纲：
 
-- [Git 四个区和五种状态的切换](#)
+- [Git 四个区和五种状态的切换](#Git-四个区和五种状态的切换)
 - 拉取远程特定分支上的内容
 - 如何撤销错误的 merge 结果
 - 如何在 git 中写出好的 commit 说明
@@ -33,6 +33,21 @@
 ----------
 
 
+# 已经 push 到远端仓库后发现未 signoff
+
+![DCO failed and resolve method](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/DCO%20failed%20and%20resolve%20method.png)
+
+基本原理：
+
+- 基于 rebase 命名添加 signoff
+- 重新强制推送远端仓库
+
+```
+git rebase HEAD~n --signoff
+git push --force <remote> <remote_branch>
+```
+
+
 # Git 四个区和五种状态的切换
 
 ## 秒懂 Git 的区和状态
@@ -53,7 +68,6 @@
 
 ### Git 的 5 种状态
 
-
 | 状态 | 描述 |
 | -- | -- |
 | Origin | 未修改 |
@@ -61,7 +75,6 @@
 | Staged | 已暂存 |
 | Committed | 已提交 |
 | Pushed | 已推送 |
-
 
 ### git diff 对比修改
 
@@ -71,7 +84,6 @@
 | 已 add ，未 commit  | `git diff --cached` |
 | 已 commit ，未 push | `git diff <branch> origin/<branch>` |
 
-
 ### 撤销修改
 
 | 状态 | 命令 |
@@ -80,10 +92,6 @@
 | 已 add ，未 commit | `git reset HEAD <file>` 回到目标文件被 add 前的状态； <br> `git reset -–hard HEAD` 会产生目标文件被删除的效果；|
 | 已 commit ，未 push | `git reset –-hard origin/master` 基于远程仓库内容覆盖本地仓库内容；<br> `git reset -–hard HEAD` 不会产生效果，因为 HEAD 对应的就是最新的 commit ；<br> `git reset -–hard HEAD^` 回退一个本地 commit ；<br> `git reset -–hard <commitID>` 回退一个本地指定 commit ；|
 | 已 push | `git reset –-hard <commitID>` 回退到本地指定的 commit ；<br> 如果后续需要对远程仓库的内容进行覆盖（因为本地经过修改后，commit tree 肯定和远程仓库不一致了），则必须通过 `git push -f` 进行强推) |
-
-
-----------
-
 
 ## Git 常用的撤销操作
 
@@ -144,8 +152,6 @@ git merge <name_this_remote>/B
 git reflog  # 确定错误 merge 之前当前 branch 所在 commit 对应 hash 值
 git reset --hard <hash>
 ```
-
-
 
 ----------
 
