@@ -90,8 +90,8 @@ git push --force <remote> <remote_branch>
 | -- | -- |
 | 已 modify ，未 add | 直接删文件就好了 |
 | 已 add ，未 commit | `git reset HEAD <file>` 回到目标文件被 add 前的状态； <br> `git reset -–hard HEAD` 会产生目标文件被删除的效果；|
-| 已 commit ，未 push | `git reset –-hard origin/master` 基于远程仓库内容覆盖本地仓库内容；<br> `git reset -–hard HEAD` 不会产生效果，因为 HEAD 对应的就是最新的 commit ；<br> `git reset -–hard HEAD^` 回退一个本地 commit ；<br> `git reset -–hard <commitID>` 回退一个本地指定 commit ；|
-| 已 push | `git reset –-hard <commitID>` 回退到本地指定的 commit ；<br> 如果后续需要对远程仓库的内容进行覆盖（因为本地经过修改后，commit tree 肯定和远程仓库不一致了），则必须通过 `git push -f` 进行强推) |
+| 已 commit ，未 push | `git reset --hard origin/master` 基于远程仓库内容覆盖本地仓库内容；<br> `git reset -–hard HEAD` 不会产生效果，因为 HEAD 对应的就是最新的 commit ；<br> `git reset --hard HEAD^` 回退一个本地 commit ；<br> `git reset -–hard <commitID>` 回退一个本地指定 commit ；|
+| 已 push | `git reset --hard <commitID>` 回退到本地指定的 commit ；<br> 如果后续需要对远程仓库的内容进行覆盖（因为本地经过修改后，commit tree 肯定和远程仓库不一致了），则必须通过 `git push -f` 进行强推) |
 
 ## Git 常用的撤销操作
 
