@@ -12,12 +12,12 @@
 ## 目录
 
 - [已经 push 到远端仓库后发现未 signoff](#已经-push-到远端仓库后发现未-signoff)
-- [Git 四个区和五种状态的切换](#Git-四个区和五种状态的切换)
+- [git 四个区和五种状态的切换](#git-四个区和五种状态的切换)
     - [秒懂 Git 的区和状态](#秒懂-Git-的区和状态)
-    - [Git 的四种区（工作区、暂存取、本地仓库、远程仓库）](#Git-的四种区（工作区、暂存取、本地仓库、远程仓库）)
-    - [Git 的五种状态](#Git-的五种状态)
+    - [git 的四种区（工作区、暂存取、本地仓库、远程仓库）](#git-的四种区（工作区、暂存取、本地仓库、远程仓库）)
+    - [git 的五种状态](#git-的五种状态)
 - [git diff 使用](#git-diff-使用)
-- [Git 常用的撤销操作](#Git-常用的撤销操作)
+- [git 常用的撤销操作](#git-常用的撤销操作)
 - [拉取远程特定分支上的内容](#拉取远程特定分支上的内容)
 - [如何撤销错误的 merge 结果](#如何撤销错误的-merge-结果)
 - [如何在 git 中写出好的 commit 说明](#如何在-git-中写出好的-commit-说明)
@@ -31,7 +31,7 @@
     - [对比](#对比)
 - [git tag 使用](#git-tag-使用)
 - [git clone 时直接 rename](#git-clone-时直接-rename)
-- [Create New Repository](#Create-New-Repository)
+- [create new repository](#create-new-repository)
 - [本地新建分支后 push 到远端仓库](#本地新建分支后-push-到远端仓库)
 - [获取指定 tag 代码](#获取指定-tag-代码)
 - [直接获取远端仓库指定 branch 代码](#直接获取远端仓库指定-branch-代码)
@@ -59,13 +59,13 @@ git push --force <remote> <remote_branch>
 ```
 
 
-## Git 四个区和五种状态的切换
+## git 四个区和五种状态的切换
 
 ### 秒懂 Git 的区和状态
 
 > http://shengshui.com/?p=2582?zhihu
 
-### Git 的四种区（工作区、暂存取、本地仓库、远程仓库）
+### git 的四种区（工作区、暂存取、本地仓库、远程仓库）
 
 ![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Git%20%E5%90%84%E5%8C%BA%E5%92%8C%E7%8A%B6%E6%80%81%E5%8F%98%E6%9B%B4.png)
 
@@ -77,7 +77,7 @@ git push --force <remote> <remote_branch>
 | 加入到**本地仓库** | `git commit -m "xxx"` |
 | 加入到**远程仓库** | `git push origin master` |
 
-### Git 的五种状态
+### git 的五种状态
 
 | 状态 | 描述 |
 | -- | -- |
@@ -95,7 +95,7 @@ git push --force <remote> <remote_branch>
 | 已 add ，未 commit  | `git diff --cached` |
 | 已 commit ，未 push | `git diff <branch> origin/<branch>` |
 
-## Git 常用的撤销操作
+## git 常用的撤销操作
 
 | 状态 | 命令 |
 | -- | -- |
@@ -270,9 +270,6 @@ being redirected to the login form.
 - [stopwritingramblingcommitmessages](http://stopwritingramblingcommitmessages.com/)
 - [Git Commit Good Practice](https://wiki.openstack.org/wiki/GitCommitMessages)
 - [AngularJS Git Commit Message Conventions](https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#heading=h.uyo6cb12dt6w)
-
-
-----------
 
 
 ## git merge v.s. git rebase 
@@ -807,8 +804,6 @@ git push origin master
 
 > 上述命令最好写完整，否则容易引起混乱或歧义；
 
-
-----------
 
 ## 定制化 git 全局配置
 
