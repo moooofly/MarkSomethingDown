@@ -43,7 +43,7 @@
 - [定制化 git 全局配置](#定制化-git-全局配置)
 - [基于 ssh 协议访问 git](#基于-ssh-协议访问-git)
 - [其他](#其他)
-    - [GitHub 秘籍](#gitHub-秘籍)
+    - [GitHub 秘籍](#github-秘籍)
     - [Git 简明指南](#git-简明指南)
     - [Git Cheat Sheet](#git-cheat-sheet)
     - [图解 Git](#图解-git)
