@@ -13,9 +13,9 @@
 
 - [已经 push 到远端仓库后发现未 signoff](#已经-push-到远端仓库后发现未-signoff)
 - [git 四个区和五种状态的切换](#git-四个区和五种状态的切换)
-    - [秒懂 Git 的区和状态](#秒懂-Git-的区和状态)
-    - [git 的四种区（工作区、暂存取、本地仓库、远程仓库）](#git-的四种区（工作区、暂存取、本地仓库、远程仓库）)
+    - [git 的四种区](#git-的四种区)
     - [git 的五种状态](#git-的五种状态)
+    - [秒懂 Git 的区和状态](#秒懂-Git-的区和状态)
 - [git diff 使用](#git-diff-使用)
 - [git 常用的撤销操作](#git-常用的撤销操作)
 - [拉取远程特定分支上的内容](#拉取远程特定分支上的内容)
@@ -25,22 +25,22 @@
     - [commit 编写的基本要求](#commit-编写的基本要求)
     - [commit 中要回答哪些问题](#commit-中要回答哪些问题)
     - [tips](#tips)
-- [git merge v.s. git rebase](#git-merge-v.s.-git-rebase)
+- [git merge 与 git rebase](#git-merge-与-git-rebase)
     - [git merge](#git-merge)
     - [git rebase](#git-rebase)
     - [对比](#对比)
 - [git tag 使用](#git-tag-使用)
 - [git clone 时直接 rename](#git-clone-时直接-rename)
-- [create new repository](#create-new-repository)
+- [Create New Repository](#create-new-repository)
 - [本地新建分支后 push 到远端仓库](#本地新建分支后-push-到远端仓库)
 - [获取指定 tag 代码](#获取指定-tag-代码)
 - [直接获取远端仓库指定 branch 代码](#直接获取远端仓库指定-branch-代码)
-- [将远端仓库里指定 branch 拉取到本地（本地不存在的分支）](#将远端仓库里指定-branch-拉取到本地（本地不存在的分支）)
+- [将远端仓库里指定 branch 拉取到本地](#将远端仓库里指定-branch-拉取到本地)
 - [重命名 remote branch 名](#重命名-remote-branch-名)
 - [删除不存在对应远程分支的本地分支](#删除不存在对应远程分支的本地分支)
 - [fork 别人项目后如何同步其后续更新](#fork-别人项目后如何同步其后续更新)
 - [定制化 git 全局配置](#定制化-git-全局配置)
-- [基于 SSH 协议访问 git](#基于-SSH-协议访问-git)
+- [基于 ssh 协议访问 git](#基于-ssh-协议访问-git)
 
 
 
@@ -61,11 +61,14 @@ git push --force <remote> <remote_branch>
 
 ## git 四个区和五种状态的切换
 
-### 秒懂 Git 的区和状态
+### git 的四种区
 
-> http://shengshui.com/?p=2582?zhihu
+四种区：
 
-### git 的四种区（工作区、暂存取、本地仓库、远程仓库）
+- 工作区
+- 暂存取
+- 本地仓库
+- 远程仓库
 
 ![](https://raw.githubusercontent.com/moooofly/ImageCache/master/Pictures/Git%20%E5%90%84%E5%8C%BA%E5%92%8C%E7%8A%B6%E6%80%81%E5%8F%98%E6%9B%B4.png)
 
@@ -86,6 +89,10 @@ git push --force <remote> <remote_branch>
 | Staged | 已暂存 |
 | Committed | 已提交 |
 | Pushed | 已推送 |
+
+### 秒懂 Git 的区和状态
+
+Ref: http://shengshui.com/?p=2582?zhihu
 
 ## git diff 使用
 
@@ -272,7 +279,7 @@ being redirected to the login form.
 - [AngularJS Git Commit Message Conventions](https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#heading=h.uyo6cb12dt6w)
 
 
-## git merge v.s. git rebase 
+## git merge 与 git rebase 
 
 > 原文参考：[这里](http://blog.csdn.net/wh_19910525/article/details/7554489)
 
@@ -587,9 +594,13 @@ git clone <remote-addr:repo.git> -b <tag_name>
 git clone <remote-addr:repo.git> -b <commit_hash>
 ```
 
-## 将远端仓库里指定 branch 拉取到本地（本地不存在的分支）
+## 将远端仓库里指定 branch 拉取到本地
 
-> 前提：已经通过 `git clone` 获取远程仓库；
+
+> 前提：
+> 
+> - 本地不存在该分支；
+> - 已经通过 `git clone` 获取远程仓库；
 
 当想要从远端仓库里拉取一条本地不存在的分支时，可以通过如下命令查看远端仓库中包含哪些分支
 
@@ -863,7 +874,7 @@ git push origin master
 
 
 
-# 基于 SSH 协议访问 git
+## 基于 ssh 协议访问 git
 
 ```shell
 vagrant@vagrant-ubuntu-trusty:~$ ll .ssh
