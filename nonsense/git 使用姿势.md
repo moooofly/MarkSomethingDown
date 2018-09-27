@@ -9,6 +9,7 @@
 
 ----------
 
+
 ## 目录
 
 - [已经 push 到远端仓库后发现未 signoff](#已经-push-到远端仓库后发现未-signoff)
@@ -41,6 +42,17 @@
 - [fork 别人项目后如何同步其后续更新](#fork-别人项目后如何同步其后续更新)
 - [定制化 git 全局配置](#定制化-git-全局配置)
 - [基于 ssh 协议访问 git](#基于-ssh-协议访问-git)
+- [其他](#其他)
+    - [GitHub 秘籍](#gitHub-秘籍)
+    - [Git 简明指南](#git-简明指南)
+    - [Git Cheat Sheet](#git-cheat-sheet)
+    - [图解 Git](#图解-git)
+    - [Think like a Git](#think-like-a-git)
+    - [Git 社区参考书](#git-社区参考书)
+- [Tools](#tools)
+    - [Tower](#tower)
+
+
 
 
 
@@ -943,7 +955,40 @@ vagrant@vagrant-ubuntu-trusty:~/workspace/eleme_project$
 
 ## 其他
 
-- [GitHub秘籍](https://snowdream86.gitbooks.io/github-cheat-sheet/content/zh/index.html)
+### GitHub 秘籍
+
+Ref: https://snowdream86.gitbooks.io/github-cheat-sheet/content/zh/index.html
+
+### Git 简明指南
+
+Ref: http://rogerdudler.github.io/git-guide/index.zh.html
+
+适合用作新手的 PPT
+
+### Git Cheat Sheet
+
+Ref: http://rogerdudler.github.io/git-guide/files/git_cheat_sheet.pdf
+
+### 图解 Git
+
+Ref: http://marklodato.github.io/visual-git-guide/index-zh-cn.html
+
+### Think like a Git
+
+Ref: http://think-like-a-git.net/
+
+### Git 社区参考书
+
+Ref: https://book.git-scm.com/
+
+## Tools
+
+### Tower
+
+Ref: https://www.git-tower.com/mac?source=rd
 
 
+----------
 
+
+**[⬆ 返回顶部](#目录)**
