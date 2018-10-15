@@ -12,7 +12,7 @@
 
 ## 目录
 
-- [fatal: could not read Username for 'https://git.llsapp.com': terminal prompts disabled](#)
+- [fatal: could not read Username for 'https://git.llsapp.com': terminal prompts disabled](#fatal-could-not-read-username-for-httpsgitllsappcom-terminal-prompts-disabled)
 - [已经 push 到远端仓库后发现未 signoff](#已经-push-到远端仓库后发现未-signoff)
 - [git 四个区和五种状态的切换](#git-四个区和五种状态的切换)
     - [git 的四种区](#git-的四种区)
@@ -62,7 +62,7 @@
 
 错误信息如下
 
-```
+```sh
 [#51#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$go get -v git.llsapp.com/codelab/bazel_grpc
 Fetching https://git.llsapp.com/codelab/bazel_grpc?go-get=1
 Parsing meta tags from https://git.llsapp.com/codelab/bazel_grpc?go-get=1 (status code 200)
@@ -91,7 +91,7 @@ package git.llsapp.com/codelab/bazel_grpc: exit status 128
 
 解决办法（土办法）：执行 `GIT_TERMINAL_PROMPT=1 go get -v git.llsapp.com/codelab/bazel_grpc`
 
-```
+```sh
 [#52#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$GIT_TERMINAL_PROMPT=1 go get -v git.llsapp.com/codelab/bazel_grpc
 Fetching https://git.llsapp.com/codelab/bazel_grpc?go-get=1
 Parsing meta tags from https://git.llsapp.com/codelab/bazel_grpc?go-get=1 (status code 200)
@@ -108,12 +108,12 @@ package git.llsapp.com/codelab/bazel_grpc: no Go files in /go/src/git.llsapp.com
 
 ### 更好的解决办法
 
-Ref: https://stackoverflow.com/questions/32232655/go-get-results-in-terminal-prompts-disabled-error-for-github-private-repo
+Ref: [go get results in 'terminal prompts disabled' error for github private repo](https://stackoverflow.com/questions/32232655/go-get-results-in-terminal-prompts-disabled-error-for-github-private-repo)
 
 
 - before
 
-```
+```sh
 [#56#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$cat ~/.gitconfig
 ...
 [url "git@github.com:"]
@@ -127,7 +127,7 @@ Ref: https://stackoverflow.com/questions/32232655/go-get-results-in-terminal-pro
 
 - after
 
-```
+```sh
 [#60#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$git config --global --add url."git@git.llsapp.com:".insteadOf "https://git.llsapp.com/"
 
 [#61#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$cat ~/.gitconfig
@@ -154,7 +154,7 @@ package git.llsapp.com/codelab/bazel_grpc: no Go files in /go/src/git.llsapp.com
 
 ### 其他
 
-http://albertech.blogspot.com/2016/11/fix-git-error-could-not-read-username.html
+[Fix git error: Could not read Username for github.com](http://albertech.blogspot.com/2016/11/fix-git-error-could-not-read-username.html)
 
 
 ## 已经 push 到远端仓库后发现未 signoff
