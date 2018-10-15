@@ -12,6 +12,7 @@
 
 ## 目录
 
+- [fatal: could not read Username for 'https://git.llsapp.com': terminal prompts disabled](#)
 - [已经 push 到远端仓库后发现未 signoff](#已经-push-到远端仓库后发现未-signoff)
 - [git 四个区和五种状态的切换](#git-四个区和五种状态的切换)
     - [git 的四种区](#git-的四种区)
@@ -53,7 +54,107 @@
     - [Tower](#tower)
 
 
+## fatal: could not read Username for 'https://git.llsapp.com': terminal prompts disabled
 
+### 背景
+
+该症状应该是创建了 GitLab Personal Access Tokens 后才出现的；
+
+错误信息如下
+
+```
+[#51#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$go get -v git.llsapp.com/codelab/bazel_grpc
+Fetching https://git.llsapp.com/codelab/bazel_grpc?go-get=1
+Parsing meta tags from https://git.llsapp.com/codelab/bazel_grpc?go-get=1 (status code 200)
+get "git.llsapp.com/codelab/bazel_grpc": found meta tag get.metaImport{Prefix:"git.llsapp.com/codelab/bazel_grpc", VCS:"git", RepoRoot:"https://git.llsapp.com/codelab/bazel_grpc.git"} at https://git.llsapp.com/codelab/bazel_grpc?go-get=1
+git.llsapp.com/codelab/bazel_grpc (download)
+# cd .; git clone https://git.llsapp.com/codelab/bazel_grpc.git /go/src/git.llsapp.com/codelab/bazel_grpc
+Cloning into '/go/src/git.llsapp.com/codelab/bazel_grpc'...
+fatal: could not read Username for 'https://git.llsapp.com': terminal prompts disabled
+package git.llsapp.com/codelab/bazel_grpc: exit status 128
+[#52#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$
+```
+
+### 原因分析
+
+主要问题在于 "fatal: could not read Username for 'https://git.llsapp.com': terminal prompts disabled" ；
+
+查到的原因有：
+
+- "go get disable "terminal prompt" by default"
+- "go get will refuse to authenticate on the command line. So you need to cache the credentials in git."
+- "For me, I have 2FA enabled and thus could not use my password to auth. Instead I had to generate a personal access token to use in place of the password."
+
+> 上面的说法都是正确的
+
+### 解决
+
+解决办法（土办法）：执行 `GIT_TERMINAL_PROMPT=1 go get -v git.llsapp.com/codelab/bazel_grpc`
+
+```
+[#52#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$GIT_TERMINAL_PROMPT=1 go get -v git.llsapp.com/codelab/bazel_grpc
+Fetching https://git.llsapp.com/codelab/bazel_grpc?go-get=1
+Parsing meta tags from https://git.llsapp.com/codelab/bazel_grpc?go-get=1 (status code 200)
+get "git.llsapp.com/codelab/bazel_grpc": found meta tag get.metaImport{Prefix:"git.llsapp.com/codelab/bazel_grpc", VCS:"git", RepoRoot:"https://git.llsapp.com/codelab/bazel_grpc.git"} at https://git.llsapp.com/codelab/bazel_grpc?go-get=1
+git.llsapp.com/codelab/bazel_grpc (download)
+Username for 'https://git.llsapp.com': fei.sun
+Password for 'https://fei.sun@git.llsapp.com':
+package git.llsapp.com/codelab/bazel_grpc: no Go files in /go/src/git.llsapp.com/codelab/bazel_grpc
+[#53#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$
+```
+
+上面的 Password 为 Personal Access Tokens 内容；
+
+
+### 更好的解决办法
+
+Ref: https://stackoverflow.com/questions/32232655/go-get-results-in-terminal-prompts-disabled-error-for-github-private-repo
+
+
+- before
+
+```
+[#56#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$cat ~/.gitconfig
+...
+[url "git@github.com:"]
+    insteadOf = https://github.com/
+[url "git@github.com:"]
+    insteadOf = http://github.com/
+[url "git@github.com:"]
+    insteadOf = git://github.com/
+[#57#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$
+```
+
+- after
+
+```
+[#60#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$git config --global --add url."git@git.llsapp.com:".insteadOf "https://git.llsapp.com/"
+
+[#61#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$cat ~/.gitconfig
+...
+[url "git@github.com:"]
+    insteadOf = https://github.com/
+[url "git@github.com:"]
+    insteadOf = http://github.com/
+[url "git@github.com:"]
+    insteadOf = git://github.com/
+[url "git@git.llsapp.com:"]
+    insteadOf = https://git.llsapp.com/
+[#62#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$
+
+
+[#62#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$go get -v git.llsapp.com/codelab/bazel_grpc
+Fetching https://git.llsapp.com/codelab/bazel_grpc?go-get=1
+Parsing meta tags from https://git.llsapp.com/codelab/bazel_grpc?go-get=1 (status code 200)
+get "git.llsapp.com/codelab/bazel_grpc": found meta tag get.metaImport{Prefix:"git.llsapp.com/codelab/bazel_grpc", VCS:"git", RepoRoot:"https://git.llsapp.com/codelab/bazel_grpc.git"} at https://git.llsapp.com/codelab/bazel_grpc?go-get=1
+git.llsapp.com/codelab/bazel_grpc (download)
+package git.llsapp.com/codelab/bazel_grpc: no Go files in /go/src/git.llsapp.com/codelab/bazel_grpc
+[#63#root@ubuntu-1604 /go/src/git.llsapp.com/codelab]$
+```
+
+### 其他
+
+http://albertech.blogspot.com/2016/11/fix-git-error-could-not-read-username.html
 
 
 ## 已经 push 到远端仓库后发现未 signoff
