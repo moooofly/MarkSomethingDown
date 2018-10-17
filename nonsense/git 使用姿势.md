@@ -12,6 +12,7 @@
 
 ## 目录
 
+- [git pull 等价命令](#git-pull-等价命令)
 - [fatal: could not read Username for 'https://git.llsapp.com': terminal prompts disabled](#fatal-could-not-read-username-for-httpsgitllsappcom-terminal-prompts-disabled)
 - [已经 push 到远端仓库后发现未 signoff](#已经-push-到远端仓库后发现未-signoff)
 - [git 四个区和五种状态的切换](#git-四个区和五种状态的切换)
@@ -53,6 +54,47 @@
 - [Tools](#tools)
     - [Tower](#tower)
 
+## git pull 等价命令
+
+> Prerequisite: in local branch master
+
+当我们执行如下命令时
+
+```
+git pull origin master
+```
+
+等价于
+
+```
+# fetch master from the remote origin and name as origin/master locally
+git fetch origin master
+
+# merge origin/master above into master
+git merge origin/master
+```
+
+如果整个过程中没有任何冲突问题（远端代码修改和本地代码变更之间），则可以
+
+```
+# push your new changes in master back to origin
+git push origin master
+```
+
+小结：
+
+- 先拉取 origin 的 master 分支内容到本地，并命名为 origin/master
+- 之后再将 origin/master 中的内容 merge 到 master 分支上
+- 最佳实践通常不推荐这么做，原因在于 `git merge` 对 commit history 的影响
+
+替代 `git pull` 命令的最佳实践
+
+```
+git fetch origin master
+git rebase origin/master
+(fix up conflicts)
+git push origin master
+```
 
 ## fatal: could not read Username for 'https://git.llsapp.com': terminal prompts disabled
 
