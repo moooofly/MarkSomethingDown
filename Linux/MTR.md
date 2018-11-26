@@ -402,7 +402,7 @@ HOST: localhost                   Loss%   Snt   Last   Avg  Best  Wrst StDev
 
 - 更新版本的 MTR 已经支持了 TCP 模式；
 - 在有些场景中，网络降级问题只会影响一些特定的端口，而 router 上错误配置的防火墙规则可能只会阻塞特定的协议；
-- 因此在特定端口上运行 MTR 可能会显示 packet loss ，但基于磨人的 ICMP 可能看不出来；
+- 因此在特定端口上运行 MTR 可能会显示 packet loss ，但基于默认的 ICMP 可能看不出来；
 
 > Running MTR in TCP mode will require super-user privileges on most machines:
 
