@@ -22,7 +22,7 @@ MTR 的牛逼之处在于**能够提供关于中间网络设备状况的统计�
 
 > Because MTR provides an image of the route traffic takes from one host to another, you can think of it as a **directional** tool. Furthermore, the route taken between two points on the Internet can vary a great deal based on location and the routers that are located upstream of you. For this reason it is often recommended that you collect MTR reports in both directions for all hosts that are experiencing connectivity issues, or as many hosts as possible.
 
-应该认为 MTR 是有方向性的；建议在所有存在连接性问题的主机上进行两个方向的 MTR 报告输出；
+应该认为 MTR 是有方向性的；**建议在所有存在连接性问题的主机上进行两个方向的 MTR 报告输出**；
 
 > Linode support will often request “mtr reports” both to and from your Linode if you are experiencing networking issues. This is because, from time to time, MTR reports will not point to errors from one direction when there is still packet loss from the opposite direction. Having both reports is helpful as it can aid in the identification of issues and will be needed if a problem must be reported.
 
@@ -99,10 +99,10 @@ HOST: deleuze                     Loss%   Snt   Last   Avg  Best  Wrst StDev
 - `Last` 是 last packet sent 的 latency ；
 - `Avg` 是 all packets 的平均 latency ；
 - `Best` 和 `Wrst` 展示了一个数据包的 best (shortest) 和 worst (longest) RTT 数值；
-- 在大多数情况下，`Avg` 列应该是你的主要关注点；
+- **在大多数情况下，`Avg` 列应该是你的主要关注点**；
 - `StDev` 提供了针对每个主机的 standard deviation of latency；standard deviation 的数值越大，表示 measurements 之间的 latency 差值越大；如果均值恰好位于数据集中值，或者由于某种现象或 measurement 错误而导致数据不准，则可以使用 Standard deviation ；例如，如果 standard deviation 很高，则表示 latency 测量值非常不一致（起伏很大）；尽管其中某些值可能很低（例如 25ms），其它值可能非常高（例如 350ms）：在对 10 packets 的延迟求平均后，均值看起来可能很正常，但事实上却无法很好的代表数据的实际情况；如果 standard deviation 很高，则可以查看下 best 和 worst latency 度量值，以确保均值能够很好的表示真实 latency 而不是大量波动产生的效果；
 
-在大多数情况下，你可以认为 MTR 输出主要分为三个段：取决于具体配置，前 2 或 3 hops 通常代表源主机的 ISP ，而最后 2 或 3 hops 则代表目的主机的 ISP ；在这两者之间的 hops 则对应了 packet 传递过程中所经过的 routers ；
+在大多数情况下，你可以认为 **MTR 输出主要分为三个段**：取决于具体配置，**前 2 或 3 hops 通常代表源主机的 ISP** ，而**最后 2 或 3 hops 则代表目的主机的 ISP** ；在这**两者之间的 hops 则对应了 packet 传递过程中所经过的 routers** ；
 
 例如，如果 MTR 运行在你的 home PC 上，目的地为你的 Linode 主机，则前 2 或 3 hops 属于你的 ISP ；最后的 3 hops 则属于你的 Linode 所位于的数据中心；位于中间位置的任何 hops 均为 intermediate hops ；当你在本地运行 MTR 时，如果你在 source 附近的前几 hops 上发现异常，则联系你本地服务提供商，或者调查一下你的本地网络配置情况；相反的，如果你看到 destination 端有异常，你可能会要联系目标服务器的管理员，或者目标机器的网络支持人员（例如 Linode）；不幸的是，当问题出现在中间 hops 时，两端的服务提供者在处理问题时的能力有限；
 
@@ -110,7 +110,7 @@ HOST: deleuze                     Loss%   Snt   Last   Avg  Best  Wrst StDev
 
 ### Verifying Packet Loss
 
-当分析 MTR 输出时，主要寻找两方面内容：**loss** 和 **latency** ；首先，我们先讨论 loss 问题；如果你看到在任意的 hop 上存在一定百分比的 loss ，则可能就意味着对应的特定 router 存在问题；然而，还有一种常见的情况，就是一些服务提供商会针对 ICMP traffic 进行速率限制，而 ICMP 正是 MTR 所使用的；这可能会给出 packet loss 的假象，而实际上并没有丢包发生；为了确定是否真的存在丢包，还是由速率限制导致的丢包假象，可以看看后续 hop 的情况；如果后续的 hop 显示 loss 为 0.0% ，则你可以确信针对 ICMP 的 rate limiting 确实在发生，而非真正的丢包；详见下面的例子：
+当分析 MTR 输出时，主要寻找两方面内容：**loss** 和 **latency** ；首先，我们先讨论 loss 问题；如果你看到在任意的 hop 上存在一定百分比的 loss ，则可能就意味着对应的特定 router 存在问题；然而，还有一种常见的情况，就是**一些服务提供商会针对 ICMP traffic 进行速率限制，而 ICMP 正是 MTR 所使用的；这可能会给出 packet loss 的假象，而实际上并没有丢包发生；为了确定是否真的存在丢包，还是由速率限制导致的丢包假象，可以看看后续 hop 的情况；如果后续的 hop 显示 loss 为 0.0% ，则你可以确信针对 ICMP 的 rate limiting 确实在发生，而非真正的丢包**；详见下面的例子：
 
 ```
 root@localhost:~# mtr --report www.google.com
@@ -125,7 +125,7 @@ HOST: example               Loss%   Snt   Last   Avg  Best  Wrst StDev
 8. gw-in-f147.1e100.net          0.0%    10   39.6  40.5  39.5  46.7   2.2
 ```
 
-在这个例子中，在 hops 1 和 2 之间报告出的丢包情况，非常可能是由于第二 hop 上进行了 rate limiting 导致；尽管到达剩余 hops 的 traffic 均经过第二 hop ，但都没有出现 packet loss 的情况；如果 loss 连续发生在不止一个 hop 上，则可能存在 packet loss 或路由问题；需要知道的是，rate limiting 和 loss 可能会同时发生；在这种情况下，可以将一组 loss 值中的最低百分比值当作实际的 loss 值；例如，考虑如下输出：
+在这个例子中，在 hops 1 和 2 之间报告出的丢包情况，非常可能是由于第二 hop 上进行了 rate limiting 导致；尽管到达剩余 hops 的 traffic 均经过第二 hop ，但都没有出现 packet loss 的情况；**如果 loss 连续发生在不止一个 hop 上，则可能存在 packet loss 或路由问题**；需要知道的是，rate limiting 和 loss 可能会同时发生；在这种情况下，**可以将一组 loss 值中的最低百分比值当作实际的 loss 值**；例如，考虑如下输出：
 
 ```
 root@localhost:~# mtr --report www.google.com
@@ -140,24 +140,24 @@ HOST: localhost                   Loss%   Snt   Last   Avg  Best  Wrst StDev
 8. gw-in-f147.1e100.net          40.0%   10   39.6  40.5  39.5  46.7   2.2
 ```
 
-在这个场景下，你能看到 60% 的 loss 发生在 hops 2 和 3 之间，以及 hops 3 和 4 之间；由此你可以认为 3 和 4 hop 之间可能发生了 traffic 的丢失，因为后续 host 的报告中没有再出现 zero loss 的情况；然而，其中一些 loss 应该是由于 rate limiting 的原因，因为最后几个 hops 仅有 40% 的 loss 值；当存在不同的 loss 值被输出时，一个原则就是越位于后面的 hop 输出越应该被相信；
+在这个场景下，你能看到 60% 的 loss 发生在 hops 2 和 3 之间，以及 hops 3 和 4 之间；由此你可以认为 3 和 4 hop 之间可能发生了 traffic 的丢失，因为后续 host 的报告中没有再出现 zero loss 的情况；然而，其中一些 loss 应该是由于 rate limiting 的原因，因为最后几个 hops 仅有 40% 的 loss 值；**当存在不同的 loss 值被输出时，一个原则就是越位于后面的 hop 输出越应该被相信**；
 
-有些 loss 可以解释为在回程路由 (return route) 中发生的问题；Packets 在到达其目的地过程中没有发生错误，但是在回程时却遇到了问题；这在报告中会很明显，但缺很难从 MTR 的输出中推断出来；因此，通常都建议从两个方向上获取 MTR 报告；
+**有些 loss 可以解释为在回程路由 (return route) 中发生的问题；Packets 在到达其目的地过程中没有发生错误，但是在回程时却遇到了问题**；这在报告中会很明显，但缺很难从 MTR 的输出中推断出来；因此，通常都建议从两个方向上获取 MTR 报告；
 
 > Additionally, resist the temptation to investigate or report all incidences of packet loss in your connections. The Internet protocols are designed to be resilient to some network degradation, and the routes that data takes across the Internet can fluctuate in response to load, brief maintenance events, and other routing issues. If your MTR report shows small amounts of loss in the neighborhood of 10%, there is no cause for real concern as the application layer will compensate for the loss which is likely transient.
 
 - 偶发性丢包是正常的；
 - 协议本身已被设计为对网络降级情况能够弹性应对；
 - 数据途径的路由针对各种实际情况会出现波动是正常的；
-- 若 MTR 报告中给出少量的 loss ，例如 10% 左右，则无需担心；
+- **若 MTR 报告中给出少量的 loss ，例如 10% 左右，则无需担心**；
 
 
 ### Understanding Network Latency
 
 > In addition to helping you assess packet loss, MTR will also help you assess the latency of a connection between your host and the target host. By virtue of physical constraints, latency always increases with the number of hops in a route. However, the increases should be consistent and linear. Unfortunately, latency is often relative and very dependent on the quality of both host’s connections and their physical distance. When evaluating MTR reports for potentially problematic connections, consider earlier fully functional reports as context in addition to known connection speeds between other hosts in a given area.
 
-- latency 总是随着路由中包含的 hop 数量增长；
-- latency 的增长应该是一致的和线性的；
+- **latency 总是随着路由中包含的 hop 数量增长**；
+- **latency 的增长应该是一致的和线性的**；
 - latency 通常是相对的，并且依赖于主机连接的质量和物理距离；
 - 当基于 MTR 报告评估潜在的连接问题时，可以参考之前获取的全功能报告，以及主机之间已知连接速度作为参考和对比；
 
@@ -191,7 +191,7 @@ HOST: localhost                   Loss%   Snt   Last   Avg  Best  Wrst StDev
 
 - 高 latency 并不总是表示当前路由存在问题；
 - 上述报告表明：尽管 hop 4 存在某种问题，但是 traffic 仍能到达目的主机，并返回源主机；
-- Latency 可能由返程路由 (return route) 的问题引起；而返程路由的问题在上述 MTR 报告中是看不出来的，因为网络包可能走的是完全不同的路由；
+- **Latency 可能由返程路由 (return route) 的问题引起；而返程路由的问题在上述 MTR 报告中是看不出来的，因为网络包可能走的是完全不同的路由**；
 
 > In the above example, while there is a large jump in latency between hosts 3 and 4 the latency does not increase unusually in any subsequent hops. From this it is logical to assume that there is some issue with the 4th router.
 
@@ -218,7 +218,7 @@ HOST: localhost                   Loss%   Snt   Last   Avg  Best  Wrst StDev
 
 - 只看第一眼，hops 4 和 5 之间的 latency 就能够引起注意；但是，在 hop 5 之后，latency 的值又极大的降低了，实际测量到的 latency 大约在 40ms 左右；
 - 在这个例子中，MTR 将我们的注意引到了一个“问题”上，而这个“问题”却不会影响服务；
-- 建议在评估 MTR 报告时，重点考虑最后 hop 给出的 latency 值；
+- **建议在评估 MTR 报告时，重点考虑最后 hop 给出的 latency 值**；
 
 ## Common MTR Reports
 
@@ -247,7 +247,7 @@ HOST: localhost                   Loss%   Snt   Last   Avg  Best  Wrst StDev
 
 > The traffic does reach the destination host however, the MTR report shows loss because the destination host is not sending a reply. This may be the result of improperly configured networking or firewall (iptables) rules that cause the host to drop ICMP packets.
 
-事实上，数据包确实到达了目的主机，然而 MTR 报告却显示有丢包，根本原因在于目的主机没有发送应答信息；这可能是由于错误配置网络或防火墙 (iptables) 导致；
+事实上，数据包确实到达了目的主机，然而 MTR 报告却显示有丢包，**根本原因在于目的主机没有发送应答信息，这可能是由于错误配置网络或防火墙 (iptables) 导致**；
 
 > The way you can tell that the loss is due to a misconfigured host is to look at the hop which shows 100% loss. From previous reports, you see that this is the final hop and that MTR does not try additional hops. While it is difficult to isolate this issue without a baseline measurement, these kinds of errors are quite common.
 
@@ -302,7 +302,7 @@ HOST: localhost                   Loss%   Snt   Last   Avg  Best  Wrst StDev
 
 > The question marks appear when there is no additional route information. The following report displays the same issue:
 
-??? 出现的原因正是由于没有获取到额外的路由信息导致的；
+**`???` 出现的原因正是由于没有获取到额外的路由信息导致的**；
 
 ```
 root@localhost:~# mtr --report www.google.com
@@ -351,7 +351,7 @@ HOST: localhost                   Loss%   Snt   Last   Avg  Best  Wrst StDev
 
 > **ICMP rate limiting** can cause apparent packet loss as described below. When there is packet loss to one hop that doesn’t persist to subsequent hops, the loss is caused by ICMP limiting. See the following example:
 
-ICMP rate limiting 能够导致明显的 packet loss 出现；当只有单一 hop 出现 packet loss ，而后续 hop 上并没有 packet loss 时，该 packet loss 可能就是由于 ICMP limiting 导致；
+ICMP rate limiting 能够导致明显的 packet loss 出现；**当只有单一 hop 出现 packet loss ，而后续 hop 上并没有 packet loss 时，该 packet loss 可能就是由于 ICMP limiting 导致**；
 
 ```
 root@localhost:~# mtr --report www.google.com
@@ -375,7 +375,7 @@ root@localhost:~# mtr --report www.google.com
 > Timeouts can happen for various reasons. Some routers will discard ICMP and no replies will be shown on the output as **timeouts (???)**. Alternatively there may be a problem with the return route:
 
 - 超时无处不在；
-- 一些路由器会丢弃 ICMp 报，因此在输出中不会有回复信息被显示（此时显示为 ???）；
+- 一些路由器会丢弃 ICMP 报文，因此在输出中不会有回复信息被显示（此时显示为 ???）；
 - 还有一种可能，就是返程路由确实存在问题；
 
 ```
