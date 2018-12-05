@@ -227,7 +227,7 @@ source ~/.zshrc
 
 ## 可通过 brew cask 安装的常用软件
 
-> 可以实现传说中的一键装机；
+基于下面的指令可以实现传说中的一键装机
 
 ```
 brew cask install iterm2
@@ -243,9 +243,10 @@ brew cask install mplayerx
 brew cask install evernote
 brew cask install mou
 brew cask install virtualbox
+brew cask install visual-studio-code
 ```
 
-开发软件
+一些常用开发软件
 
 ```
 brew install cask
@@ -275,6 +276,11 @@ brew install libevent
 brew install tmux
 ```
 
+可能需要运行的命令
+
+```
+brew install caskroom/cask
+```
 
 
 

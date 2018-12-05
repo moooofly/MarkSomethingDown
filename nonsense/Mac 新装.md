@@ -206,7 +206,11 @@ alias vi="/usr/local/bin/vim"
 ## golang 安装
 
 ```
+#安装
 brew install go
+
+# 升级
+brew upgrade go
 ```
 
 安装后，在 `.zshrc` 中设置好 `GOPATH` 变量（默认为 `$HOME/go` 目录）和 `PATH` 变量；
