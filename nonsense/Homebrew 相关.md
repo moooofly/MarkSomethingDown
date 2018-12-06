@@ -12,6 +12,12 @@
 
 ### 安装
 
+Brew has a dependency on Xcode so you should ensure this is installed first.
+
+```shell
+xcode-select --install
+```
+
 （安装过程中需要用到 root 权限）
 
 ```shell
