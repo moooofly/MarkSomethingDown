@@ -249,6 +249,7 @@ brew cask install mplayerx
 brew cask install evernote
 brew cask install mou
 brew cask install virtualbox
+brew cask install vagrant
 brew cask install visual-studio-code
 ```
 

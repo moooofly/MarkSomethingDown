@@ -14,6 +14,8 @@ brew cask install virtualbox
 brew cask install vagrant
 ```
 
+> 或使用 reinstall 命令
+
 
 .box 文件下载：
 
@@ -374,4 +376,35 @@ collisions:0 txqueuelen:0
 RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
 
 vagrant@vagrant-ubuntu-trusty:~$
+```
+
+## 问题
+
+### macOS 升级到 Mojave 后出现无法启动情况
+
+```
+➜  ubuntu-16.04-server-cloudimg-amd64-vagrant vup
+Bringing machine 'default' up with 'virtualbox' provider...
+==> default: Clearing any previously set network interfaces...
+There was an error while executing `VBoxManage`, a CLI used by Vagrant
+for controlling VirtualBox. The command and stderr is shown below.
+
+Command: ["hostonlyif", "create"]
+
+Stderr: 0%...
+Progress state: NS_ERROR_FAILURE
+VBoxManage: error: Failed to create the host-only adapter
+VBoxManage: error: VBoxNetAdpCtl: Error while adding new interface: failed to open /dev/vboxnetctl: No such file or directory
+VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component HostNetworkInterfaceWrap, interface IHostNetworkInterface
+VBoxManage: error: Context: "RTEXITCODE handleCreate(HandlerArg *)" at line 94 of file VBoxManageHostonly.cpp
+
+➜  ubuntu-16.04-server-cloudimg-amd64-vagrant
+```
+
+ref: https://github.com/hashicorp/vagrant/issues/1671#issuecomment-424657289
+
+```
+brew cask reinstall virtualbox
+brew cask reinstall vagrant
+vagrant plugin update
 ```

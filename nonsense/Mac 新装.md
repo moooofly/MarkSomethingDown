@@ -544,12 +544,14 @@ cp /root/.vim/bundle/fzf/bin/* /bin  # 该命令不执行也可以
 
 ```
 brew cask install vagrant
+brew cask reinstall vagrant
 ```
 
 ## virtualbox
 
 ```
 brew cask install virtualbox
+brew cask reinstall virtualbox
 ```
 
 ## IntelliJ IDEA
