@@ -281,7 +281,10 @@ brew install wireshark --with-qt --with-lua --with-libsmi --with-headers
 brew cask install wireshark-chmodbpf
 brew install libevent
 brew install tmux
+brew install tcptraceroute
 ```
+
+> NOTE: 使用中发现 macOS 上默认安装的 traceroute 的 TCP 探测功能存在问题；
 
 可能需要运行的命令
 
