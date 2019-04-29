@@ -380,6 +380,31 @@ vagrant@vagrant-ubuntu-trusty:~$
 
 ## 问题
 
+### mac 电量不足导致 vagrant 直接退出后
+
+```
+➜  ubuntu-16.04-server-cloudimg-amd64-vagrant vup
+Bringing machine 'default' up with 'virtualbox' provider...
+==> default: Resuming suspended VM...
+==> default: Booting VM...
+There was an error while executing `VBoxManage`, a CLI used by Vagrant
+for controlling VirtualBox. The command and stderr is shown below.
+
+Command: ["startvm", "a1dd6670-8ee3-4f9a-bb54-f10742d82ce3", "--type", "headless"]
+
+Stderr: VBoxManage: error: Failed to load unit 'lsilogicscsi' (VERR_SSM_LOADED_TOO_LITTLE)
+VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component ConsoleWrap, interface IConsole
+
+➜  ubuntu-16.04-server-cloudimg-amd64-vagrant
+```
+
+ref: https://github.com/hashicorp/vagrant/issues/1809
+
+```
+vagrant reload
+```
+
+
 ### macOS 升级到 Mojave 后出现无法启动情况
 
 ```
