@@ -38,7 +38,7 @@
 - [本地新建分支后 push 到远端仓库](#本地新建分支后-push-到远端仓库)
 - [获取指定 tag 代码](#获取指定-tag-代码)
 - [直接获取远端仓库指定 branch 代码](#直接获取远端仓库指定-branch-代码)
-- [将远端仓库里指定 branch 拉取到本地](#将远端仓库里指定-branch-拉取到本地)
+- [从远端仓库获取所有 branch 代码](#从远端仓库获取所有-branch-代码)
 - [重命名 remote branch 名](#重命名-remote-branch-名)
 - [删除不存在对应远程分支的本地分支](#删除不存在对应远程分支的本地分支)
 - [fork 别人项目后如何同步其后续更新](#fork-别人项目后如何同步其后续更新)
@@ -748,6 +748,21 @@ git clone <remote-addr:repo.git> -b <branch_name>
 git clone <remote-addr:repo.git> -b <tag_name>
 git clone <remote-addr:repo.git> -b <commit_hash>
 ```
+
+## 从远端仓库获取所有 branch 代码
+
+```
+git clone xxx
+cd xxx
+
+# 关联所有 remote branch
+git branch -r | grep -v '\->' | while read remote; do git branch --track "${remote#origin/}" "$remote"; done
+git fetch --all
+git pull --all
+```
+
+ref: https://stackoverflow.com/questions/10312521/how-to-fetch-all-git-branches
+
 
 ## 将远端仓库里指定 branch 拉取到本地
 
