@@ -9,114 +9,13 @@
 - **IO 相关**：IO 相关的应用通常用来处理大量数据，需要大量内存和存储，频繁 IO 操作读写数据，而对 CPU 的要求则较少，大部分时候 CPU 都在等待硬盘，比如，数据库服务器、文件服务器等。
 - **CPU 相关**：CPU 相关的应用需要使用大量 CPU，比如高并发的 web/mail 服务器、图像/视频处理、科学计算等都可被视作 CPU 相关的应用。
 
-## vmstat 输出参数
-
-在 man vmstat 中有
-
-```
-FIELD DESCRIPTION FOR VM MODE
-   Procs
-       r: The number of runnable processes (running or waiting for run time).
-       b: The number of processes in uninterruptible sleep.
-
-   Memory
-       swpd: the amount of virtual memory used.
-       free: the amount of idle memory.
-       buff: the amount of memory used as buffers.
-       cache: the amount of memory used as cache.
-       inact: the amount of inactive memory.  (-a option)
-       active: the amount of active memory.  (-a option)
-
-   Swap
-       si: Amount of memory swapped in from disk (/s).
-       so: Amount of memory swapped to disk (/s).
-
-   IO
-       bi: Blocks received from a block device (blocks/s).
-       bo: Blocks sent to a block device (blocks/s).
-
-   System
-       in: The number of interrupts per second, including the clock.
-       cs: The number of context switches per second.
-
-   CPU
-       These are percentages of total CPU time.
-       us: Time spent running non-kernel code.  (user time, including nice time)
-       sy: Time spent running kernel code.  (system time)
-       id: Time spent idle.  Prior to Linux 2.5.41, this includes IO-wait time.
-       wa: Time spent waiting for IO.  Prior to Linux 2.5.41, included in idle.
-       st: Time stolen from a virtual machine.  Prior to Linux 2.6.11, unknown.
-```
-
-[其它说明](http://www.lazysystemadmin.com/2011/04/understanding-vmstat-output-explained.html)：
-
-```
-Proc: 
--------
-r: How many processes are waiting for CPU time.
-b: Wait Queue - Process which are waiting for I/O (disk, network, user 
-    input,etc..) 
-
-
-Memory: 
------------
-swpd: shows how many blocks are swapped out to disk (paged). Total Virtual  
-       memory usage. 
-            
-Note: you can see the swap area configured in server using "cat proc/swaps"
-
-
-free: Idle Memory 
-buff: Memory used as buffers, like before/after I/O operations
-cache: Memory used as cache by the Operating System
-
-
-Swap: 
----------
-si: How many blocks per second the operating system is swapping in. i.e 
-    Memory swapped in from the disk (Read from swap area to Memory)
-so: How many blocks per second the operating system is swaped Out. i.e 
-     Memory swapped to the disk 
-
-(Written to swap area and cleared from Memory)
-
-In Ideal condition, We like to see si and so at 0 most of the time, and we definitely don’t like to see more than 10 blocks per second.
-
-
-IO: 
-------
-bi: Blocks received from block device - Read (like a hard disk) 
-bo: Blocks sent to a block device - Write
-
-
-System: 
--------------
-in: The number of interrupts per second, including the clock. 
-cs: The number of context switches per second. 
-
-
-CPU: 
---------
-us: percentage of cpu used for running non-kernel code. (user time, including 
-     nice time) 
-sy: percentage of cpu used for running kernel code. (system time - network, IO 
-     interrupts, etc) 
-id: cpu idle time in percentage.
-wa: percentage of time spent by cpu for waiting to IO.
-
-
-If you used to monitor this data, you can understand how is your server doing during peak usage times. 
-
-Note: the memory, swap, and I/O statistics are in blocks, not in bytes. In Linux, blocks are usually 1,024 bytes (1 KB).
-```
-
 ## 案例分析
 
-### CPU us 高
+### 案例一：CPU us 高
 
-可能原因：应用程序再做大量用户态计算；
+可能原因：**应用程序再做大量用户态计算**
 
-```
+```shell
 $ vmstat 1
 procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu------
  r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
@@ -127,7 +26,7 @@ procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
  4  0    140 3624712 334264 3266580  0    0     0    80 1053  501 100 0  0  0  0
 ```
 
-输出特点：
+特点：
 
 - r 高 (4 core 跑满)
 - us 高 (~100%)
@@ -144,9 +43,9 @@ procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
 - 对系统资源有一定量需求（in）；
 
 
-### CPU sy 高 + cs 正常
+### 案例二：CPU sy 高 + cs 正常
 
-可能原因：单个应用程序（或调度实体）请求了（依赖）大量 kernel 提供的服务（资源）以满足用户态的计算；
+可能原因：**单个应用程序（或调度实体）请求了（依赖）大量 kernel 提供的服务（资源）以满足用户态的计算**
 
 ```
 $ vmstat 1
@@ -175,9 +74,9 @@ procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
 - 某个进程可能一直在提供态霸占着 CPU（sy 非常高，而且 cs 较低）；
 
 
-###  CPU sy 高 + cs 高
+###  案例三：CPU sy 高 + cs 高
 
-可能原因：过量的应用程序（或调度实体）请求了（依赖）大量 kernel 提供的服务（资源）以满足用户态的计算；
+可能原因：**过量的应用程序（或调度实体）请求了（依赖）大量 kernel 提供的服务（资源）以满足用户态的计算**
 
 ```
 $ vmstat 1
@@ -206,9 +105,9 @@ procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
 - 多应用程序调用了大量的系统调用（sy 高，us 低，高 cs）；
 
 
-### CPU wa 高 + bo 高 + b 高
+### 案例四：CPU wa 高 + bo 高 + b 高
 
-可能原因：多个应用程序（或调度实体）进行大量文件写出，导致 IO 瓶颈；
+可能原因：**多个应用程序（或调度实体）进行大量文件写出，导致 IO 瓶颈**
 
 ```
 $ vmstat 1
@@ -237,9 +136,9 @@ procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
 - 应用进行了大量写出，少量读入（in 略高于 cs 合理）；
 
 
-### CPU wa 高 + si/so 高 + bi/bo 高 + swpd 增 + buff/cache 减
+### 案例五：CPU wa 高 + si/so 高 + bi/bo 高 + swpd 增 + buff/cache 减
 
-可能问题：文件大量读写，遇到系统内存不足情况，导致刷脏页到 SWAP 分区
+可能原因：**文件大量读写，遇到系统内存不足情况，导致刷脏页到 SWAP 分区**
 
 ```
 # vmstat 1
@@ -272,9 +171,9 @@ procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
 > - 为何不提及 si 和 cache 的数值变化；
 > - in 和 cs 的变化说明什么？
 
-### CPU wa 高 + cs 高 + bi/bo 有值 + so 高 + swpd 增 + buff/cache 增
+### 案例六：CPU wa 高 + cs 高 + bi/bo 有值 + so 高 + swpd 增 + buff/cache 增
 
-可能原因：**RAM Bottleneck (swapping) Example**
+可能原因：**RAM Bottleneck (swapping)**
 
 ```
 [user@fedora8 ~]$ vmstat 1 5
@@ -293,9 +192,9 @@ procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
 同时打开了很多 applications（包括 VirtualBox with a Windows guest system, among others）；几乎所有 memory 都被占用了；之后，再启动一个应用时（OpenOffice），则会导致 Linux kernel 进行 swap out，将 several memory pages 换出到硬盘上的 swap file 中，以便为 OpenOffice 获取更多可用 RAM ；将 memory pages 换出到 swap file 到行为可以通过 vmstat 的 so 列 (swap out - memory swapped to disk) 看到：
 
 
-### CPU sy 高 + bo 有值 + cache 增 + free 减
+### 案例七：CPU sy 高 + bo 有值 + cache 增 + free 减
 
-实际原因：基于 kernel 获取随机数写入本地文件；
+可能原因：**基于 kernel 获取随机数写入本地文件**；
 
 > For this, `/dev/urandom` will supply random numbers, which will be generated by the kernel. This will lead to an increased load on the CPU (**sy** – system time). At the same time, the vmstat executing in parallel will indicate that between 93% and 97% of the CPU time is being used for the execution of kernel code (for the generation of random numbers, in this case).
 
@@ -397,7 +296,7 @@ Swap:         2509          0       2509
 root@vagrant-ubuntu-trusty:~] $
 ```
 
-可以看到，通过 dd 基于 kernel 获取随机数写入本地文件时（500M 文件）：
+可以看到，通过 `dd` 基于 kernel 获取随机数写入本地文件时（500M 文件）：
 
 - sy 跑满
 - free 逐步下降
@@ -405,9 +304,9 @@ root@vagrant-ubuntu-trusty:~] $
 - 在 free 数值为 5700 左右时会触发 swap out 
 - free 减少 176M ，buffers 减少 2M ，cached 增大 172M（说明写文件会导致 cache 的大量使用）
 
-### CPU wa 高 + bo 有值 + buff 增
+### 案例八：CPU wa 高 + bo 有值 + buff 增
 
-实际原因：read from `/dev/zero` and write a file, **High IO Write Load Example**
+可能原因：**read from `/dev/zero` and write a file, High IO Write Load**
 
 > In contrast with the previous example, `dd` will read from `/dev/zero` and write a file. The `oflag=dsync` will cause the data to be written immediately to the disk (and not merely stored in the **page cache**).
 
@@ -428,9 +327,9 @@ procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
 ```
 
 
-### CPU sy 高
+### 案例九：CPU sy 高
 
-实际原因：基于 kernel 获取随机数写入 `/dev/null` 文件
+可能原因：**基于 kernel 获取随机数写入 `/dev/null` 文件**
 
 ```
 root@vagrant-ubuntu-trusty:~] $ dd if=/dev/urandom of=/dev/null bs=1M count=500
@@ -438,9 +337,9 @@ root@vagrant-ubuntu-trusty:~] $ dd if=/dev/urandom of=/dev/null bs=1M count=500
 
 则只有 sy 跑满，其它指标基本无变化；
 
-### CPU sy/wa 高 + buff 减 + cache 增
+### 案例十：CPU sy/wa 高 + buff 减 + cache 增
 
-实际原因：读取本地文件写入 `/dev/null` 文件
+可能原因：**读取本地文件写入 `/dev/null` 文件**
 
 ```
 root@vagrant-ubuntu-trusty:~] $ dd if=500MBfile of=/dev/null bs=1M count=500
@@ -493,7 +392,7 @@ Swap:         2509          0       2509
 root@vagrant-ubuntu-trusty:~] $
 ```
 
-可以看到，通过 dd 读取本地文件写入 /dev/null 文件（500M 文件）：
+可以看到，通过 `dd` 读取本地文件写入 `/dev/null` 文件（500M 文件）：
 
 - sy 保持在 20%（当发生 bi 时）
 - free 有所下降
@@ -501,9 +400,9 @@ root@vagrant-ubuntu-trusty:~] $
 - buff 有所下降
 - free 减少 2M ，buffers 减少 3M ，cached 增大 12M（说明读文件不会大量使用 cache）
 
-### CPU wa 高 + bi 有值
+### 案例十一：CPU wa 高 + bi 有值
 
-实际原因：A large file (such as an ISO file) will be read and written to `/dev/null` using dd. **High IO Read Load Example**
+可能原因：**A large file (such as an ISO file) will be read and written to `/dev/null` using `dd`. High IO Read Load**
 
 ```
 [user@fedora9 ~]$ dd if=bigfile.iso of=/dev/null bs=1M
@@ -518,9 +417,9 @@ procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
 [user@fedora9 ~]$ 
 ```
 
-### CPU wa 高 + cs 高 + bi/bo 有值
+### 案例十二：CPU wa 高 + cs 高 + bi/bo 有值
 
-实际原因：**CPU Waiting for IO Example**
+可能原因：**CPU Waiting for IO**
 
 > In the following example, an `updatedb` process is already running. The `updatedb` utility is part of `mlocate`. It examines the entire file system and accordingly creates the database for the `locate` command (by means of which file searches can be performed very quickly). Because `updatedb` **reads all of the file names from the entire file system**, the CPU must wait to get data from the IO system (the hard disk). For that reason, `vmstat` running in parallel will display large values for wa (waiting for IO):
 
@@ -536,6 +435,106 @@ procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
 [user@fedora9 ~]$
 ```
 
+## vmstat 输出参数
+
+在 `man vmstat` 中有
+
+```
+FIELD DESCRIPTION FOR VM MODE
+   Procs
+       r: The number of runnable processes (running or waiting for run time).
+       b: The number of processes in uninterruptible sleep.
+
+   Memory
+       swpd: the amount of virtual memory used.
+       free: the amount of idle memory.
+       buff: the amount of memory used as buffers.
+       cache: the amount of memory used as cache.
+       inact: the amount of inactive memory.  (-a option)
+       active: the amount of active memory.  (-a option)
+
+   Swap
+       si: Amount of memory swapped in from disk (/s).
+       so: Amount of memory swapped to disk (/s).
+
+   IO
+       bi: Blocks received from a block device (blocks/s).
+       bo: Blocks sent to a block device (blocks/s).
+
+   System
+       in: The number of interrupts per second, including the clock.
+       cs: The number of context switches per second.
+
+   CPU
+       These are percentages of total CPU time.
+       us: Time spent running non-kernel code.  (user time, including nice time)
+       sy: Time spent running kernel code.  (system time)
+       id: Time spent idle.  Prior to Linux 2.5.41, this includes IO-wait time.
+       wa: Time spent waiting for IO.  Prior to Linux 2.5.41, included in idle.
+       st: Time stolen from a virtual machine.  Prior to Linux 2.6.11, unknown.
+```
+
+[其它说明](http://www.lazysystemadmin.com/2011/04/understanding-vmstat-output-explained.html)：
+
+```
+Proc: 
+-------
+r: How many processes are waiting for CPU time.
+b: Wait Queue - Process which are waiting for I/O (disk, network, user 
+    input,etc..) 
+
+
+Memory: 
+-----------
+swpd: shows how many blocks are swapped out to disk (paged). Total Virtual  
+       memory usage. 
+            
+Note: you can see the swap area configured in server using "cat proc/swaps"
+
+
+free: Idle Memory 
+buff: Memory used as buffers, like before/after I/O operations
+cache: Memory used as cache by the Operating System
+
+
+Swap: 
+---------
+si: How many blocks per second the operating system is swapping in. i.e 
+    Memory swapped in from the disk (Read from swap area to Memory)
+so: How many blocks per second the operating system is swaped Out. i.e 
+     Memory swapped to the disk 
+
+(Written to swap area and cleared from Memory)
+
+In Ideal condition, We like to see si and so at 0 most of the time, and we definitely don’t like to see more than 10 blocks per second.
+
+
+IO: 
+------
+bi: Blocks received from block device - Read (like a hard disk) 
+bo: Blocks sent to a block device - Write
+
+
+System: 
+-------------
+in: The number of interrupts per second, including the clock. 
+cs: The number of context switches per second. 
+
+
+CPU: 
+--------
+us: percentage of cpu used for running non-kernel code. (user time, including 
+     nice time) 
+sy: percentage of cpu used for running kernel code. (system time - network, IO 
+     interrupts, etc) 
+id: cpu idle time in percentage.
+wa: percentage of time spent by cpu for waiting to IO.
+
+
+If you used to monitor this data, you can understand how is your server doing during peak usage times. 
+
+Note: the memory, swap, and I/O statistics are in blocks, not in bytes. In Linux, blocks are usually 1,024 bytes (1 KB).
+```
 
 ----------
 
