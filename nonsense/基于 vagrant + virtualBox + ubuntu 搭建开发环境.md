@@ -255,7 +255,7 @@ RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
 vagrant@vagrant-ubuntu-trusty:~$
 ```
 
-> 注意：上面的共享目录问题和 guest additions 有关，请参考《[Mac 和 VirtualBox 之间的文件共享](https://github.com/moooofly/MarkSomethingDown/blob/master/Mac%20%E5%92%8C%20VirtualBox%20%E4%B9%8B%E9%97%B4%E7%9A%84%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB.md)》中方法进行解决；
+> 注意：上面的共享目录问题和 guest additions 有关，请参考《[Mac 和 VirtualBox 之间的文件共享](https://github.com/moooofly/MarkSomethingDown/blob/master/nonsense/Mac%20%E5%92%8C%20VirtualBox%20%E4%B9%8B%E9%97%B4%E7%9A%84%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB.md)》中方法进行解决；
 
 
 在解决了 guest additions 问题之后，我们可以按照需要调整 Vagrantfile 文件内容如下：
