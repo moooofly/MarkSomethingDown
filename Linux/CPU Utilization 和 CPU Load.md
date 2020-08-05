@@ -2,11 +2,11 @@
 
 ## Total CPU Utilization
 
-> **NOTE**: CPU 利用率的正确翻译为 CPU Utilization 而不是 CPU Usage ；
+> **NOTE**: CPU 利用率的正确翻译为 CPU Utilization ，而不是 CPU Usage ；
 
-cpu utilization 即 cpu 利用率，也就是一段时间之中，CPU 用于执行任务占用的时间与总时间的比率。
+CPU utilization 即 CPU 利用率，也就是一段时间之中，CPU 用于执行任务占用的时间与总时间的比率。
 
-cpu 利用率是基于 `/proc/stat` 文件中的内容计算得到的（通过两次抽样值进行计算，抽样间隔自选）；
+CPU 利用率是基于 `/proc/stat` 文件中的内容计算得到的（通过两次抽样值进行计算，抽样间隔自选）；
 
 常见的一种**并不完全准确**的计算方式如下所示，即取两个采样点，然后基于差值进行计算：
 
@@ -14,16 +14,16 @@ cpu 利用率是基于 `/proc/stat` 文件中的内容计算得到的（通过�
 cpu_utilization = [(user_2 + sys_2 + nice_2) - (user_1 + sys_1 + nice_1)] / (total_2 - total_1) * 100;
 ```
 
-注意：上述计算方式的问题在于，`total` 实际上等于 `user + nice + system + idle + ioWait + irq + softIRQ + steal + guest + guestNice`，而“用于执行任务占用的 CPU”不仅仅是 `user + sys + nice`；
+注意：`total` 实际上等于 `user + nice + system + idle + ioWait + irq + softIRQ + steal + guest + guestNice`，而“执行任务占用的 CPU”不仅仅是 `user + sys + nice`；因此上述公式得到的结果其实并不准确。
 
-因此，在实际使用过程中，最简单、且正确的计算方式是通过 `idle` 指标数值**反向**得到“用于执行任务占用的 CPU”的量，即
+在实际使用中，简单且正确的计算方式是通过 `idle` 指标数值**反向**得到“用于执行任务占用的 CPU”的量，即
 
 ```
 %cpu_utilization = 1 - %idle
 %cpu_utilization = 1 - (idle2 - idle1) / (total_2 - total_1)
 ```
 
-下面是某网友给出的基于 Bash 采集 cpu 利用率的代码：
+下面是某网友给出的基于 Bash 采集 CPU 利用率的代码：
 
 ```
 #!/bin/sh
@@ -60,7 +60,7 @@ mpstat -P ALL 1 5
 
 ## per-process CPU Utilization
 
-指定进程占用的 CPU 时间（包括其包含的所有线程占用的 cpu 时间的总和）可以通过 `/proc/<pid>/stat` 文件中的数值进行计算；
+通过 `/proc/<pid>/stat` 文件中的数值可以计算出指定进程占用的 CPU 时间（包括其包含的所有线程占用的 CPU 时间的总和）
 
 公式如下：
 
@@ -115,13 +115,13 @@ times(2).) This includes guest time, cguest_time (time spent running a virtual C
 
 ```shell
 cstime %ld (17)
-    Amount of time that this process's **waited-for children** have been scheduled in
- **kernel mode**, measured in clock ticks (divide by `sysconf(_SC_CLK_TCK)`).
+    Amount of time that this process's waited-for children have been scheduled in
+ kernel mode, measured in clock ticks (divide by sysconf(_SC_CLK_TCK)).
 ```
 
 ## per-thread CPU Utilization
 
-线程耗费的 CPU 时间，可以基于 `/proc/<pid>/task/<tid>/stat` 文件计算得到；
+基于 `/proc/<pid>/task/<tid>/stat` 文件的内容可以计算得到线程耗费的 CPU 时间；
 
 ```
 threadCpuTime = utime + stime
@@ -129,7 +129,7 @@ threadCpuTime = utime + stime
 
 ## CPU Load Average
 
-cpu load 即 cpu 负载；也被称作系统负载；准确的描述为 CPU load average ，即 CPU 平均负载；
+CPU load 即 CPU 负载；也被称作系统负载；准确的描述为 CPU load average ，即 CPU 平均负载；
 
 **系统（CPU）平均负载**被定义为在特定的一段时间内统计的、可调度实体数量的平均值，具体来说包括：
 
@@ -164,7 +164,7 @@ cpu load 即 cpu 负载；也被称作系统负载；准确的描述为 CPU load
 - **没有主动进入等待状态**（即没有调用 `wait`）；
 - **没有被停止**（例如等待终止）；
 
-cpu load 是从 `/proc/loadavg` 中读取的，该值为针对所有 cpu 的总体值；当计算单个 cpu 的负载平均值时，则需要除以 cpu 的数量；内核默认每隔 5 秒钟更新一次 load average 的值；
+CPU load 是从 `/proc/loadavg` 中读取的，该值为针对所有 CPU 的总体值；当计算单个 CPU 的负载平均值时，则需要除以 CPU 的数量；内核默认每隔 5 秒钟更新一次 load average 的值；
 
 常规情况
 
@@ -210,13 +210,13 @@ $ cat /proc/loadavg
 load average < CPU num * core num * 0.7
 ```
 
-### 0x02 低 CPU Utilization 的情况下是否会有高 Load Average 情况发生
+### 0x02 低 CPU Utilization 的情况下 Load Average 是否可能高
 
 首先需要理解**占有时间** (occupy)和**使用时间** (active use)的区别：可以简单的认为，使用时间为 `total - idle` 得到的时间；而占用时间为 `total` ；
 
 当分配时间片以后，是否使用完全取决于使用者，因此完全可能出现低 CPU 利用率、高 Load Average 的情况。由此来看，**仅仅从 CPU 利用率来判断 CPU 是否处于一种超负荷的工作状态还是不够的**，必须结合 load average 来全局的看 CPU 的使用情况和申请情况。
 
-### 0x03 Load average 与容量规划（Capacity Planning）之间的关系
+### 0x03 Load average 与容量规划之间的关系
 
 一般是会根据 15 分钟的 load average 为基准进行考虑。
 
@@ -239,7 +239,7 @@ load average < CPU num * core num * 0.7
 真相：Load average 只是表象，不是实质。增加 CPU 个别情况下会临时看到 Load average 下降，但治标不治本；原因同上；
 
 
-### 0x05 CPU 总时间该如何计算？要不要考虑 steal 和 guest ，以及 guest_nice
+### 0x05 CPU 总时间该如何计算？要不要考虑 steal、guest 和 guest_nice
 
 ```
 totalCpuTime = user + nice + system + idle + iowait + irq + softirq + steal + guest + guest_nice
