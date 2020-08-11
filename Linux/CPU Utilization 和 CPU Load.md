@@ -115,8 +115,8 @@ times(2).) This includes guest time, cguest_time (time spent running a virtual C
 
 ```shell
 cstime %ld (17)
-    Amount of time that this process's **waited-for children** have been scheduled in
- **kernel mode**, measured in clock ticks (divide by `sysconf(_SC_CLK_TCK)`).
+    Amount of time that this process's waited-for children have been scheduled in
+ kernel mode, measured in clock ticks (divide by `sysconf(_SC_CLK_TCK)`).
 ```
 
 ## per-thread CPU Utilization
